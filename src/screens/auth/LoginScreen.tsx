@@ -19,9 +19,11 @@ import { Button } from '../../components/common/Button';
 import { Checkbox } from '../../components/common/Checkbox';
 import { LoadingAnimation } from '../../components/common/LoadingAnimation';
 import { GradientBackground } from '../../components/common/GradientBackground';
+import { CustomModal } from '../../components/common/CustomModal';
 import { FadeInView } from '../../components/animations/FadeInView';
 import { SocialLogin } from '../../components/auth/SocialLogin';
 import { SecurityBadge } from '../../components/auth/SecurityBadge';
+import { BiometricSetupModal } from '../../components/auth/BiometricSetupModal';
 import { useLoginScreen } from './LoginScreen.hooks';
 import { theme } from '../../styles/theme';
 
@@ -175,7 +177,7 @@ export function LoginScreen(): React.ReactElement {
     errors,
     validEmail,
     biometricAvailable,
-    biometricType: _biometricType,
+    biometricType,
     googleAuthAvailable,
     handleLogin,
     handleBiometricLogin,
@@ -183,6 +185,13 @@ export function LoginScreen(): React.ReactElement {
     handleGoogleSignIn,
     handleAppleSignIn,
     validateEmail,
+    modalVisible,
+    setModalVisible,
+    modalConfig,
+    biometricSetupVisible,
+    setBiometricSetupVisible: _setBiometricSetupVisible,
+    handleBiometricSetupAccept,
+    handleBiometricSetupDecline,
   } = useLoginScreen();
 
   return (
@@ -323,6 +332,24 @@ export function LoginScreen(): React.ReactElement {
             </View>
           </View>
         </Modal>
+
+        <CustomModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          title={modalConfig.title}
+          message={modalConfig.message}
+          type={modalConfig.type}
+          buttons={modalConfig.buttons}
+        />
+
+        <BiometricSetupModal
+          visible={biometricSetupVisible}
+          biometricType={biometricType}
+          onAccept={() => {
+            void handleBiometricSetupAccept();
+          }}
+          onDecline={handleBiometricSetupDecline}
+        />
       </SafeAreaView>
     </GradientBackground>
   );

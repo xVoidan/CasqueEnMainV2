@@ -23,35 +23,41 @@ interface IInputProps extends TextInputProps {
   onValidate?: (value: string) => string | undefined;
 }
 
-const INPUT_HEIGHT = 48;
-const ICON_SIZE = 20;
+const INPUT_HEIGHT = 56; // Optimized for mobile
+const ICON_SIZE = 24; // Better visibility
 const ANIMATION_DURATION = 200;
 const SHAKE_OFFSET = 10;
-const SCALE_MAX = 1.05;
+const SCALE_MAX = 1.02;
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.lg, // More spacing
   },
   label: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: '600',
+    fontSize: 14, // More readable
+    fontWeight: '500',
     color: theme.colors.text.primary,
-    marginBottom: theme.spacing.xs,
+    marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.gray[50],
     borderRadius: theme.borderRadius.lg,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: theme.colors.gray[200],
-    paddingHorizontal: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
     height: INPUT_HEIGHT,
   },
   inputContainerFocused: {
     borderColor: theme.colors.primary,
+    borderWidth: 2,
     backgroundColor: theme.colors.white,
+    shadowColor: theme.colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   inputContainerError: {
     borderColor: theme.colors.error,
@@ -64,16 +70,18 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: theme.typography.fontSize.base,
+    fontSize: 16, // Standard mobile size
     color: theme.colors.text.primary,
+    paddingVertical: 4,
   },
   rightIcon: {
     padding: theme.spacing.xs,
   },
   error: {
-    fontSize: theme.typography.fontSize.xs,
+    fontSize: 13,
     color: theme.colors.error,
-    marginTop: theme.spacing.xs,
+    marginTop: 6,
+    marginLeft: 2,
   },
   validationIcon: {
     marginLeft: theme.spacing.xs,
@@ -135,7 +143,7 @@ export function Input({
   value,
   ...props
 }: IInputProps): React.ReactElement {
-  // Start with password hidden (true means hidden)
+  // Start with password hidden (true means hidden) when it's a password field
   const [hidePassword, setHidePassword] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
   const [validationError, setValidationError] = useState<string | undefined>();
@@ -202,7 +210,7 @@ export function Input({
         <TextInput
           style={[styles.input, style]}
           placeholderTextColor={theme.colors.gray[400]}
-          secureTextEntry={isPassword && hidePassword}
+          secureTextEntry={isPassword === true && hidePassword === true}
           onFocus={() => setIsFocused(true)}
           onBlur={handleBlur}
           onChangeText={handleChangeText}
@@ -227,7 +235,7 @@ export function Input({
             testID="password-toggle"
           >
             <Ionicons
-              name={hidePassword ? 'eye' : 'eye-off'}
+              name={hidePassword ? 'eye-off' : 'eye'}
               size={ICON_SIZE}
               color={theme.colors.gray[400]}
             />

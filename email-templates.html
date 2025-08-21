@@ -1,0 +1,635 @@
+<!-- 
+================================================================================
+                    TEMPLATES D'EMAIL SUPABASE - CASQUEENMAIN
+================================================================================
+Instructions :
+1. Allez sur : https://supabase.com/dashboard/project/ucwgtiaebljfbvhokicf/auth/templates
+2. Pour chaque template ci-dessous, copiez le Subject et le Message Content
+3. Collez-les dans les champs correspondants dans Supabase Dashboard
+================================================================================
+-->
+
+<!-- 
+================================================================================
+1. CONFIRM SIGNUP (Confirmation d'inscription)
+================================================================================
+-->
+<!-- SUBJECT: 🚨 Activation urgente de votre compte CasqueEnMain -->
+<!-- MESSAGE CONTENT: -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Arial Black', 'Segoe UI', sans-serif; background: linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%); min-height: 100vh;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%); padding: 20px 0;">
+    <tr>
+      <td align="center">
+        <!-- Bandes réfléchissantes du haut -->
+        <table cellpadding="0" cellspacing="0" border="0" width="600">
+          <tr>
+            <td style="background: repeating-linear-gradient(90deg, #ffeb3b 0px, #ffeb3b 20px, #ffc107 20px, #ffc107 40px); height: 8px;"></td>
+          </tr>
+        </table>
+        
+        <table cellpadding="0" cellspacing="0" border="0" width="600" style="background-color: #ffffff; box-shadow: 0 0 30px rgba(255, 0, 0, 0.3); overflow: hidden;">
+          <!-- Header Urgence -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 50%, #d32f2f 100%); padding: 20px; position: relative; overflow: hidden;">
+              <!-- Effet sirène -->
+              <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: repeating-linear-gradient(90deg, transparent 0px, transparent 10px, rgba(255,255,255,0.3) 10px, rgba(255,255,255,0.3) 20px);"></div>
+              
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <div style="display: inline-block;">
+                      <span style="font-size: 48px; margin: 0 10px;">🚒</span>
+                      <span style="font-size: 48px; margin: 0 10px;">⚠️</span>
+                      <span style="font-size: 48px; margin: 0 10px;">🔥</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 15px;">
+                    <h1 style="margin: 0; color: #ffffff; font-size: 36px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                      ALERTE ACTIVATION
+                    </h1>
+                    <p style="margin: 10px 0 0 0; color: #ffeb3b; font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
+                      🚨 Intervention requise 🚨
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Bande jaune d'avertissement -->
+          <tr>
+            <td style="background: repeating-linear-gradient(45deg, #ffeb3b, #ffeb3b 10px, #212121 10px, #212121 20px); height: 15px;"></td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px 30px; background-color: #f5f5f5;">
+              <!-- Carte d'intervention -->
+              <div style="background: white; border: 3px solid #d32f2f; border-radius: 8px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td>
+                      <h2 style="margin: 0 0 15px 0; color: #d32f2f; font-size: 24px; font-weight: 900; text-transform: uppercase;">
+                        📍 NOUVELLE RECRUE DÉTECTÉE
+                      </h2>
+                      <div style="background: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; margin: 20px 0;">
+                        <p style="margin: 0; color: #856404; font-size: 14px; font-weight: bold;">
+                          <strong>🎖️ GRADE :</strong> Nouvelle recrue<br>
+                          <strong>📅 EMAIL :</strong> {{ .Email }}<br>
+                          <strong>🏢 CASERNE :</strong> CasqueEnMain<br>
+                          <strong>⏰ STATUT :</strong> En attente d'activation
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              
+              <!-- Message principal -->
+              <div style="background: white; border-left: 5px solid #d32f2f; padding: 20px; margin: 25px 0;">
+                <p style="margin: 0; color: #333; font-size: 16px; line-height: 1.6; font-weight: 600;">
+                  <strong style="color: #d32f2f;">SOLDAT DU FEU,</strong><br><br>
+                  Votre demande d'intégration au sein de la brigade <strong>CasqueEnMain</strong> a été acceptée ! 
+                  Pour finaliser votre incorporation et recevoir votre équipement de protection individuelle (EPI), 
+                  une <strong style="color: #d32f2f;">VALIDATION IMMÉDIATE</strong> de votre identité est requise.
+                </p>
+              </div>
+              
+              <!-- Bouton d'urgence -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 35px 0;">
+                <tr>
+                  <td align="center">
+                    <!-- Clignotant -->
+                    <div style="margin-bottom: 15px;">
+                      <span style="display: inline-block; width: 20px; height: 20px; background: #ff0000; border-radius: 50%; box-shadow: 0 0 20px #ff0000;"></span>
+                      <span style="color: #d32f2f; font-weight: bold; margin: 0 10px; text-transform: uppercase;">Action requise</span>
+                      <span style="display: inline-block; width: 20px; height: 20px; background: #ff0000; border-radius: 50%; box-shadow: 0 0 20px #ff0000;"></span>
+                    </div>
+                    
+                    <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 20px 50px; background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%); color: #ffffff; text-decoration: none; border: 3px solid #b71c1c; font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 6px 20px rgba(211, 47, 47, 0.4); position: relative; overflow: hidden;">
+                      <span style="position: relative; z-index: 1;">
+                        🚨 ACTIVER MON COMPTE MAINTENANT 🚨
+                      </span>
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Rappel important -->
+              <div style="background: #212121; border: 2px solid #ffc107; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                <p style="margin: 0; color: #ffc107; font-size: 14px; text-align: center; font-weight: bold; text-transform: uppercase;">
+                  ⚡ INTERVENTION RAPIDE REQUISE ⚡
+                </p>
+                <p style="margin: 15px 0 0 0; color: #fff; font-size: 13px; text-align: center; line-height: 1.6;">
+                  Cette activation est <strong style="color: #ffc107;">URGENTE</strong> et doit être effectuée dans les <strong style="color: #ff0000;">60 MINUTES</strong><br>
+                  Cliquez sur le bouton rouge ci-dessus pour activer votre compte immédiatement
+                </p>
+              </div>
+              
+              <!-- Consignes de sécurité -->
+              <div style="background: #ffebee; border: 2px solid #d32f2f; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                <h3 style="margin: 0 0 15px 0; color: #d32f2f; font-size: 16px; font-weight: 900; text-transform: uppercase;">
+                  ⚠️ CONSIGNES DE SÉCURITÉ INCENDIE ⚠️
+                </h3>
+                <ul style="margin: 10px 0 0 20px; padding: 0; color: #b71c1c; font-size: 14px; font-weight: 600; line-height: 1.8;">
+                  <li>Cette alerte expire dans <strong>60 MINUTES</strong></li>
+                  <li>Ne communiquez jamais vos codes d'accès</li>
+                  <li>En cas de doute, contactez le PC Sécurité</li>
+                  <li>Gardez vos équipements de protection à jour</li>
+                </ul>
+              </div>
+              
+              <!-- Note importante pour dev -->
+              <div style="background: #d4edda; border: 2px solid #28a745; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                <h3 style="margin: 0 0 10px 0; color: #155724; font-size: 16px; font-weight: 900;">
+                  ✅ CONFIRMATION RÉUSSIE
+                </h3>
+                <p style="margin: 0; color: #155724; font-size: 14px; line-height: 1.6;">
+                  <strong>Après avoir cliqué sur le bouton :</strong><br>
+                  • Votre compte sera activé immédiatement<br>
+                  • Vous pouvez fermer la page du navigateur<br>
+                  • Retournez dans l'application CasqueEnMain<br>
+                  • Connectez-vous avec vos identifiants
+                </p>
+              </div>
+              
+              <!-- Contact urgence -->
+              <div style="background: #d32f2f; color: white; padding: 20px; text-align: center; border-radius: 8px; margin-top: 30px;">
+                <p style="margin: 0; font-size: 16px; font-weight: bold;">
+                  🚒 CENTRE D'INTERVENTION 24/7 🚒
+                </p>
+                <p style="margin: 10px 0 0 0; font-size: 14px;">
+                  <a href="mailto:urgence@casqueenmain.com" style="color: #ffeb3b; text-decoration: none; font-weight: bold;">
+                    📞 urgence@casqueenmain.com
+                  </a>
+                </p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background: #212121; padding: 25px 30px; text-align: center; border-top: 5px solid #ffc107;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <p style="margin: 0 0 10px 0; color: #ffc107; font-size: 14px; font-weight: bold; text-transform: uppercase;">
+                      🔥 CasqueEnMain - Brigade de Sécurité 🔥
+                    </p>
+                    <p style="margin: 0; color: #999; font-size: 12px;">
+                      "Courage, Dévouement, Protection"<br>
+                      © 2025 - Tous droits réservés
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Bandes réfléchissantes du bas -->
+          <tr>
+            <td style="background: repeating-linear-gradient(90deg, #ffeb3b 0px, #ffeb3b 20px, #ffc107 20px, #ffc107 40px); height: 8px;"></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+<!-- 
+================================================================================
+2. MAGIC LINK (Connexion sans mot de passe)
+================================================================================
+-->
+<!-- SUBJECT: 🔑 Votre lien de connexion magique - CasqueEnMain -->
+<!-- MESSAGE CONTENT: -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f5f5f5; padding: 20px 0;">
+    <tr>
+      <td align="center">
+        <table cellpadding="0" cellspacing="0" border="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700;">🏗️ CasqueEnMain</h1>
+              <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px; opacity: 0.95;">Connexion rapide et sécurisée</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px; font-weight: 600;">Connexion sans mot de passe 🔮</h2>
+              
+              <p style="margin: 0 0 25px 0; color: #666666; font-size: 16px; line-height: 1.6;">
+                Vous avez demandé à vous connecter à votre compte <strong>CasqueEnMain</strong>. Cliquez sur le bouton ci-dessous pour accéder instantanément à votre espace.
+              </p>
+              
+              <!-- Button -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 30px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                      🚀 Se connecter maintenant
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Alternative method -->
+              <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">
+                  <strong>Méthode alternative :</strong> Utilisez ce code de connexion temporaire :
+                </p>
+                <div style="background-color: #ffffff; border: 2px dashed #667eea; border-radius: 6px; padding: 15px; text-align: center; margin-top: 10px;">
+                  <code style="font-size: 24px; font-weight: bold; color: #667eea; letter-spacing: 3px;">{{ .Token }}</code>
+                </div>
+              </div>
+              
+              <!-- Expiration warning -->
+              <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 25px 0; border-radius: 4px;">
+                <p style="margin: 0; color: #856404; font-size: 14px;">
+                  <strong>⏰ Attention :</strong> Ce lien expire dans 1 heure. Après expiration, vous devrez demander un nouveau lien de connexion.
+                </p>
+              </div>
+              
+              <!-- Security note -->
+              <p style="margin: 25px 0 0 0; color: #999999; font-size: 13px; line-height: 1.5;">
+                <strong>🔒 Sécurité :</strong> Si vous n'avez pas demandé ce lien de connexion, quelqu'un a peut-être essayé d'accéder à votre compte. Ignorez cet email et votre compte restera sécurisé.
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 25px 30px; text-align: center; border-top: 1px solid #e9ecef;">
+              <p style="margin: 0 0 5px 0; color: #999999; font-size: 12px;">
+                © 2025 CasqueEnMain - Tous droits réservés
+              </p>
+              <p style="margin: 0; color: #999999; font-size: 12px;">
+                La sécurité sur les chantiers, simplifiée
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+<!-- 
+================================================================================
+3. RESET PASSWORD (Réinitialisation du mot de passe)
+================================================================================
+-->
+<!-- SUBJECT: 🔐 Réinitialisez votre mot de passe - CasqueEnMain -->
+<!-- MESSAGE CONTENT: -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f5f5f5; padding: 20px 0;">
+    <tr>
+      <td align="center">
+        <table cellpadding="0" cellspacing="0" border="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700;">🏗️ CasqueEnMain</h1>
+              <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px; opacity: 0.95;">Réinitialisation du mot de passe</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px; font-weight: 600;">Mot de passe oublié ? 🔑</h2>
+              
+              <p style="margin: 0 0 25px 0; color: #666666; font-size: 16px; line-height: 1.6;">
+                Nous avons reçu une demande de réinitialisation du mot de passe pour votre compte <strong>{{ .Email }}</strong>. 
+                Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe.
+              </p>
+              
+              <!-- Button -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 30px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: #ffffff; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);">
+                      🔐 Réinitialiser mon mot de passe
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Alternative method -->
+              <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">
+                  <strong>Méthode alternative :</strong> Utilisez ce code de vérification :
+                </p>
+                <div style="background-color: #ffffff; border: 2px dashed #dc3545; border-radius: 6px; padding: 15px; text-align: center; margin-top: 10px;">
+                  <code style="font-size: 24px; font-weight: bold; color: #dc3545; letter-spacing: 3px;">{{ .Token }}</code>
+                </div>
+              </div>
+              
+              <!-- Security tips -->
+              <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; margin: 25px 0; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; color: #155724; font-size: 14px; font-weight: 600;">
+                  💡 Conseils pour un mot de passe sécurisé :
+                </p>
+                <ul style="margin: 5px 0 0 20px; padding: 0; color: #155724; font-size: 13px;">
+                  <li style="margin: 3px 0;">Utilisez au moins 12 caractères</li>
+                  <li style="margin: 3px 0;">Mélangez majuscules, minuscules, chiffres et symboles</li>
+                  <li style="margin: 3px 0;">Évitez les informations personnelles</li>
+                  <li style="margin: 3px 0;">Utilisez un mot de passe unique pour chaque service</li>
+                </ul>
+              </div>
+              
+              <!-- Expiration warning -->
+              <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 25px 0; border-radius: 4px;">
+                <p style="margin: 0; color: #856404; font-size: 14px;">
+                  <strong>⏰ Important :</strong> Ce lien expire dans 1 heure. Après expiration, vous devrez faire une nouvelle demande de réinitialisation.
+                </p>
+              </div>
+              
+              <!-- Security note -->
+              <p style="margin: 25px 0 0 0; color: #999999; font-size: 13px; line-height: 1.5;">
+                <strong>🔒 Vous n'avez pas demandé cette réinitialisation ?</strong><br>
+                Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email. Votre mot de passe restera inchangé et votre compte sera en sécurité.
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 25px 30px; text-align: center; border-top: 1px solid #e9ecef;">
+              <p style="margin: 0 0 5px 0; color: #999999; font-size: 12px;">
+                © 2025 CasqueEnMain - Tous droits réservés
+              </p>
+              <p style="margin: 0; color: #999999; font-size: 12px;">
+                La sécurité sur les chantiers, simplifiée
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+<!-- 
+================================================================================
+4. INVITE USER (Invitation d'un utilisateur)
+================================================================================
+-->
+<!-- SUBJECT: 🎉 Vous êtes invité à rejoindre CasqueEnMain ! -->
+<!-- MESSAGE CONTENT: -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f5f5f5; padding: 20px 0;">
+    <tr>
+      <td align="center">
+        <table cellpadding="0" cellspacing="0" border="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+          <!-- Header with confetti -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center; position: relative;">
+              <div style="position: absolute; top: 10px; left: 30px; font-size: 24px;">🎊</div>
+              <div style="position: absolute; top: 15px; right: 40px; font-size: 20px;">✨</div>
+              <div style="position: absolute; bottom: 15px; left: 50px; font-size: 18px;">🎉</div>
+              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700;">🏗️ CasqueEnMain</h1>
+              <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px; opacity: 0.95;">Invitation spéciale</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px; font-weight: 600;">Bienvenue dans l'équipe ! 🚀</h2>
+              
+              <p style="margin: 0 0 25px 0; color: #666666; font-size: 16px; line-height: 1.6;">
+                Excellente nouvelle ! Vous avez été invité à rejoindre <strong>CasqueEnMain</strong>, 
+                la plateforme de référence pour la gestion de la sécurité sur les chantiers.
+              </p>
+              
+              <div style="background-color: #e7f3ff; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                <p style="margin: 0; color: #004085; font-size: 15px; line-height: 1.6;">
+                  <strong>📋 Avec CasqueEnMain, vous pourrez :</strong>
+                </p>
+                <ul style="margin: 10px 0 0 20px; padding: 0; color: #004085; font-size: 14px;">
+                  <li style="margin: 5px 0;">✅ Gérer vos équipements de protection individuelle</li>
+                  <li style="margin: 5px 0;">📊 Suivre vos formations et certifications</li>
+                  <li style="margin: 5px 0;">🔔 Recevoir des alertes de sécurité en temps réel</li>
+                  <li style="margin: 5px 0;">👷 Collaborer avec votre équipe efficacement</li>
+                </ul>
+              </div>
+              
+              <!-- Button -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 30px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: #ffffff; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);">
+                      ✨ Accepter l'invitation
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Alternative method -->
+              <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">
+                  <strong>Méthode alternative :</strong> Utilisez ce code d'invitation :
+                </p>
+                <div style="background-color: #ffffff; border: 2px dashed #28a745; border-radius: 6px; padding: 15px; text-align: center; margin-top: 10px;">
+                  <code style="font-size: 24px; font-weight: bold; color: #28a745; letter-spacing: 3px;">{{ .Token }}</code>
+                </div>
+              </div>
+              
+              <!-- Getting started -->
+              <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                <p style="margin: 0 0 15px 0; color: #333333; font-size: 15px; font-weight: 600;">
+                  🚀 Pour commencer rapidement :
+                </p>
+                <ol style="margin: 0 0 0 20px; padding: 0; color: #666666; font-size: 14px; line-height: 1.8;">
+                  <li>Cliquez sur le bouton "Accepter l'invitation"</li>
+                  <li>Créez votre mot de passe sécurisé</li>
+                  <li>Complétez votre profil</li>
+                  <li>Explorez les fonctionnalités disponibles</li>
+                </ol>
+              </div>
+              
+              <!-- Expiration warning -->
+              <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 25px 0; border-radius: 4px;">
+                <p style="margin: 0; color: #856404; font-size: 14px;">
+                  <strong>⏰ Attention :</strong> Cette invitation expire dans 7 jours. Après cette date, vous devrez demander une nouvelle invitation.
+                </p>
+              </div>
+              
+              <!-- Support -->
+              <p style="margin: 25px 0 0 0; color: #999999; font-size: 13px; text-align: center;">
+                Besoin d'aide ? Notre équipe support est là pour vous : <a href="mailto:support@casqueenmain.com" style="color: #667eea; text-decoration: none;">support@casqueenmain.com</a>
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 25px 30px; text-align: center; border-top: 1px solid #e9ecef;">
+              <p style="margin: 0 0 5px 0; color: #999999; font-size: 12px;">
+                © 2025 CasqueEnMain - Tous droits réservés
+              </p>
+              <p style="margin: 0; color: #999999; font-size: 12px;">
+                La sécurité sur les chantiers, simplifiée
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+<!-- 
+================================================================================
+5. CHANGE EMAIL ADDRESS (Changement d'adresse email)
+================================================================================
+-->
+<!-- SUBJECT: 📮 Confirmez votre nouvelle adresse email - CasqueEnMain -->
+<!-- MESSAGE CONTENT: -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f5f5f5; padding: 20px 0;">
+    <tr>
+      <td align="center">
+        <table cellpadding="0" cellspacing="0" border="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden;">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700;">🏗️ CasqueEnMain</h1>
+              <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px; opacity: 0.95;">Changement d'adresse email</p>
+            </td>
+          </tr>
+          
+          <!-- Content -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <h2 style="margin: 0 0 20px 0; color: #333333; font-size: 24px; font-weight: 600;">Confirmation du changement d'email 📮</h2>
+              
+              <p style="margin: 0 0 25px 0; color: #666666; font-size: 16px; line-height: 1.6;">
+                Vous avez demandé à modifier votre adresse email sur <strong>CasqueEnMain</strong>.
+              </p>
+              
+              <!-- Email change details -->
+              <div style="background-color: #e7f3ff; border-radius: 8px; padding: 20px; margin: 25px 0;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="padding: 5px 0;">
+                      <span style="color: #666666; font-size: 14px;">📧 Ancienne adresse :</span><br>
+                      <strong style="color: #333333; font-size: 15px;">{{ .Email }}</strong>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 15px 0 5px 0;">
+                      <span style="color: #666666; font-size: 14px;">✉️ Nouvelle adresse :</span><br>
+                      <strong style="color: #28a745; font-size: 15px;">{{ .NewEmail }}</strong>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              
+              <!-- Button -->
+              <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 30px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: #ffffff; text-decoration: none; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);">
+                      ✅ Confirmer le changement
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- Alternative method -->
+              <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 30px 0;">
+                <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">
+                  <strong>Méthode alternative :</strong> Utilisez ces codes de vérification :
+                </p>
+                <div style="background-color: #ffffff; border: 2px dashed #17a2b8; border-radius: 6px; padding: 15px; text-align: center; margin-top: 10px;">
+                  <p style="margin: 0 0 5px 0; color: #666666; font-size: 12px;">Code principal :</p>
+                  <code style="font-size: 22px; font-weight: bold; color: #17a2b8; letter-spacing: 2px;">{{ .Token }}</code>
+                </div>
+              </div>
+              
+              <!-- Important notes -->
+              <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 25px 0; border-radius: 4px;">
+                <p style="margin: 0 0 10px 0; color: #856404; font-size: 14px; font-weight: 600;">
+                  ⚠️ Points importants :
+                </p>
+                <ul style="margin: 5px 0 0 20px; padding: 0; color: #856404; font-size: 13px; line-height: 1.6;">
+                  <li style="margin: 3px 0;">Vous devrez vous reconnecter avec votre nouvelle adresse email</li>
+                  <li style="margin: 3px 0;">Tous vos paramètres et données seront conservés</li>
+                  <li style="margin: 3px 0;">Les notifications seront envoyées à la nouvelle adresse</li>
+                  <li style="margin: 3px 0;">Ce lien expire dans 1 heure</li>
+                </ul>
+              </div>
+              
+              <!-- Security alert -->
+              <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; margin: 25px 0; border-radius: 4px;">
+                <p style="margin: 0; color: #721c24; font-size: 14px;">
+                  <strong>🔒 Alerte sécurité :</strong> Si vous n'avez pas demandé ce changement, votre compte peut être compromis. 
+                  <a href="mailto:security@casqueenmain.com" style="color: #dc3545; font-weight: bold;">Contactez-nous immédiatement</a>.
+                </p>
+              </div>
+              
+              <!-- Support -->
+              <p style="margin: 25px 0 0 0; color: #999999; font-size: 13px; text-align: center;">
+                Une question ? Écrivez-nous : <a href="mailto:support@casqueenmain.com" style="color: #667eea; text-decoration: none;">support@casqueenmain.com</a>
+              </p>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 25px 30px; text-align: center; border-top: 1px solid #e9ecef;">
+              <p style="margin: 0 0 5px 0; color: #999999; font-size: 12px;">
+                © 2025 CasqueEnMain - Tous droits réservés
+              </p>
+              <p style="margin: 0; color: #999999; font-size: 12px;">
+                La sécurité sur les chantiers, simplifiée
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

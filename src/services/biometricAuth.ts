@@ -1,9 +1,12 @@
 import * as LocalAuthentication from 'expo-local-authentication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 const BIOMETRIC_ENABLED_KEY = '@biometric_enabled';
 const REMEMBER_ME_KEY = '@remember_me';
 const SAVED_EMAIL_KEY = '@saved_email';
+const SECURE_CREDENTIALS_KEY = 'secure_credentials';
+const BIOMETRIC_SETUP_SHOWN_KEY = '@biometric_setup_shown';
 
 export class BiometricAuthService {
   static async isBiometricSupported(): Promise<boolean> {
@@ -70,5 +73,58 @@ export class BiometricAuthService {
     } catch {
       return { rememberMe: false, email: null };
     }
+  }
+
+  static async saveCredentials(email: string, password: string): Promise<void> {
+    try {
+      const credentials = JSON.stringify({ email, password });
+      await SecureStore.setItemAsync(SECURE_CREDENTIALS_KEY, credentials);
+      await this.setBiometricEnabled(true);
+    } catch (error) {
+      console.error('Error saving credentials:', error);
+      throw error;
+    }
+  }
+
+  static async getCredentials(): Promise<{ email: string; password: string } | null> {
+    try {
+      const credentials = await SecureStore.getItemAsync(SECURE_CREDENTIALS_KEY);
+      if (credentials) {
+        return JSON.parse(credentials);
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting credentials:', error);
+      return null;
+    }
+  }
+
+  static async removeCredentials(): Promise<void> {
+    try {
+      await SecureStore.deleteItemAsync(SECURE_CREDENTIALS_KEY);
+      await this.setBiometricEnabled(false);
+    } catch (error) {
+      console.error('Error removing credentials:', error);
+    }
+  }
+
+  static async shouldShowBiometricSetup(): Promise<boolean> {
+    try {
+      const shown = await AsyncStorage.getItem(BIOMETRIC_SETUP_SHOWN_KEY);
+      const biometricEnabled = await this.isBiometricEnabled();
+      const biometricSupported = await this.isBiometricSupported();
+
+      return !shown && !biometricEnabled && biometricSupported;
+    } catch {
+      return false;
+    }
+  }
+
+  static async markBiometricSetupShown(): Promise<void> {
+    await AsyncStorage.setItem(BIOMETRIC_SETUP_SHOWN_KEY, 'true');
+  }
+
+  static async resetBiometricSetupShown(): Promise<void> {
+    await AsyncStorage.removeItem(BIOMETRIC_SETUP_SHOWN_KEY);
   }
 }

@@ -5,6 +5,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import { useAuth } from '../../store/AuthContext';
 import { BiometricAuthService } from '../../services/biometricAuth';
 import { useHaptics } from '../../hooks/useHaptics';
+import { supabase } from '../../services/supabase';
 
 interface ILoginHookReturn {
   email: string;
@@ -26,6 +27,22 @@ interface ILoginHookReturn {
   handleGoogleSignIn: () => void;
   handleAppleSignIn: () => Promise<void>;
   validateEmail: (value: string) => string | undefined;
+  modalVisible: boolean;
+  setModalVisible: (value: boolean) => void;
+  modalConfig: {
+    title: string;
+    message: string;
+    type: 'error' | 'success' | 'warning' | 'info';
+    buttons?: {
+      text: string;
+      onPress: () => void;
+      style?: 'primary' | 'secondary' | 'danger';
+    }[];
+  };
+  biometricSetupVisible: boolean;
+  setBiometricSetupVisible: (value: boolean) => void;
+  handleBiometricSetupAccept: () => Promise<void>;
+  handleBiometricSetupDecline: () => void;
 }
 
 const MIN_PASSWORD_LENGTH = 6;
@@ -62,6 +79,15 @@ export function useLoginScreen(): ILoginHookReturn {
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [biometricType, setBiometricType] = useState<string>('Biométrie');
   const [googleAuthAvailable] = useState(isGoogleAuthConfigured());
+  const [modalVisible, setModalVisible] = useState(false);
+  const [biometricSetupVisible, setBiometricSetupVisible] = useState(false);
+  const [currentCredentials, setCurrentCredentials] = useState<{ email: string; password: string } | null>(null);
+  const [modalConfig, setModalConfig] = useState({
+    title: '',
+    message: '',
+    type: 'info' as 'error' | 'success' | 'warning' | 'info',
+    buttons: undefined as any,
+  });
 
   // Google Auth - conditional initialization
   const googleAuthConfig = googleAuthAvailable
@@ -195,9 +221,110 @@ export function useLoginScreen(): ILoginHookReturn {
 
       await signIn(email, password);
       haptics.notification('success');
-    } catch (error) {
+
+      // Vérifier si on doit proposer la biométrie
+      const shouldShow = await BiometricAuthService.shouldShowBiometricSetup();
+      if (shouldShow) {
+        setCurrentCredentials({ email, password });
+        setBiometricSetupVisible(true);
+      }
+    } catch (error: any) {
       haptics.notification('error');
-      Alert.alert('Erreur de connexion', (error as Error).message || 'Une erreur est survenue');
+      const errorMessage = error.message ?? 'Une erreur est survenue';
+
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        email: error.email,
+        fullError: error,
+      }); // Pour déboguer en détail
+
+      // Si l'email n'est pas confirmé, proposer de renvoyer l'email
+      // Vérifier plusieurs conditions pour être sûr de détecter l'erreur
+      const isEmailNotConfirmed =
+        error.code === 'EMAIL_NOT_CONFIRMED' ||
+        errorMessage.includes("n'est pas encore confirmée") ||
+        errorMessage.includes("email n'est pas") ||
+        errorMessage.includes('confirmé');
+
+      if (isEmailNotConfirmed) {
+        setModalConfig({
+          title: '📧 Email non confirmé',
+          message: errorMessage,
+          type: 'warning',
+          buttons: [
+            {
+              text: 'Renvoyer l\'email',
+              style: 'primary',
+              onPress: async () => {
+                setModalVisible(false);
+                try {
+                  setLoading(true);
+                  // Utiliser l'email saisi dans le formulaire
+                  const emailToResend = error.email ?? email;
+                  console.warn('Resending email to:', emailToResend);
+
+                  const { data, error: resendError } = await supabase.auth.resend({
+                    type: 'signup',
+                    email: emailToResend,
+                    options: {
+                      emailRedirectTo: __DEV__
+                        ? 'http://localhost:8081'
+                        : 'casqueenmainv2://email-confirmed',
+                    },
+                  });
+
+                  console.warn('Resend response:', { data, error: resendError });
+
+                  if (resendError) {
+                    console.error('Resend error details:', resendError);
+                    setModalConfig({
+                      title: '❌ Erreur',
+                      message: 'Impossible de renvoyer l\'email de confirmation. Veuillez réessayer plus tard.',
+                      type: 'error',
+                      buttons: [{ text: 'OK', style: 'primary', onPress: () => setModalVisible(false) }],
+                    });
+                    setModalVisible(true);
+                  } else {
+                    setModalConfig({
+                      title: '✉️ Email envoyé !',
+                      message: 'Un nouvel email de confirmation a été envoyé.\n\nVeuillez vérifier votre boîte de réception et vos spams.',
+                      type: 'success',
+                      buttons: [{ text: 'Compris', style: 'primary', onPress: () => setModalVisible(false) }],
+                    });
+                    setModalVisible(true);
+                  }
+                } catch (catchError) {
+                  console.error('Unexpected error during resend:', catchError);
+                  setModalConfig({
+                    title: '❌ Erreur',
+                    message: `Une erreur est survenue lors de l'envoi de l'email: ${(catchError as Error).message || 'Erreur inconnue'}`,
+                    type: 'error',
+                    buttons: [{ text: 'OK', style: 'primary', onPress: () => setModalVisible(false) }],
+                  });
+                  setModalVisible(true);
+                } finally {
+                  setLoading(false);
+                }
+              },
+            },
+            {
+              text: 'Fermer',
+              style: 'secondary',
+              onPress: () => setModalVisible(false),
+            },
+          ],
+        });
+        setModalVisible(true);
+      } else {
+        setModalConfig({
+          title: '🔐 Erreur de connexion',
+          message: errorMessage,
+          type: 'error',
+          buttons: [{ text: 'Réessayer', style: 'primary', onPress: () => setModalVisible(false) }],
+        });
+        setModalVisible(true);
+      }
     } finally {
       setLoading(false);
       setShowLoading(false);
@@ -206,14 +333,48 @@ export function useLoginScreen(): ILoginHookReturn {
 
   const handleBiometricLogin = async (): Promise<void> => {
     haptics.impact();
+
+    // Vérifier d'abord si la biométrie est activée
+    const biometricEnabled = await BiometricAuthService.isBiometricEnabled();
+    if (!biometricEnabled) {
+      setModalConfig({
+        title: '🔐 Biométrie non configurée',
+        message: 'Veuillez d\'abord vous connecter avec vos identifiants pour activer la biométrie.',
+        type: 'warning',
+        buttons: [{ text: 'Compris', style: 'primary', onPress: () => setModalVisible(false) }],
+      });
+      setModalVisible(true);
+      return;
+    }
+
     const authenticated = await BiometricAuthService.authenticate(
       `Utilisez ${biometricType} pour vous connecter`,
     );
 
     if (authenticated) {
-      haptics.notification('success');
-      // TODO: Implémenter la connexion avec les credentials stockés
-      Alert.alert('Succès', 'Authentification biométrique réussie');
+      const credentials = await BiometricAuthService.getCredentials();
+      if (credentials) {
+        try {
+          setLoading(true);
+          setShowLoading(true);
+          await signIn(credentials.email, credentials.password);
+          haptics.notification('success');
+        } catch (error) {
+          haptics.notification('error');
+          setModalConfig({
+            title: '❌ Erreur de connexion',
+            message: 'Impossible de vous connecter avec la biométrie. Veuillez utiliser vos identifiants.',
+            type: 'error',
+            buttons: [{ text: 'OK', style: 'primary', onPress: () => setModalVisible(false) }],
+          });
+          setModalVisible(true);
+          // Supprimer les credentials corrompus
+          await BiometricAuthService.removeCredentials();
+        } finally {
+          setLoading(false);
+          setShowLoading(false);
+        }
+      }
     } else {
       haptics.notification('error');
     }
@@ -252,6 +413,43 @@ export function useLoginScreen(): ILoginHookReturn {
     }
   };
 
+  const handleBiometricSetupAccept = async (): Promise<void> => {
+    if (currentCredentials) {
+      try {
+        await BiometricAuthService.saveCredentials(
+          currentCredentials.email,
+          currentCredentials.password,
+        );
+        await BiometricAuthService.markBiometricSetupShown();
+        setBiometricSetupVisible(false);
+        setCurrentCredentials(null);
+
+        setModalConfig({
+          title: '✅ Biométrie activée',
+          message: `${biometricType} a été configuré avec succès ! Vous pouvez maintenant vous connecter rapidement.`,
+          type: 'success',
+          buttons: [{ text: 'Parfait !', style: 'primary', onPress: () => setModalVisible(false) }],
+        });
+        setModalVisible(true);
+      } catch (error) {
+        console.error('Error setting up biometric:', error);
+        setModalConfig({
+          title: '❌ Erreur',
+          message: 'Impossible de configurer la biométrie. Veuillez réessayer plus tard.',
+          type: 'error',
+          buttons: [{ text: 'OK', style: 'primary', onPress: () => setModalVisible(false) }],
+        });
+        setModalVisible(true);
+      }
+    }
+  };
+
+  const handleBiometricSetupDecline = (): void => {
+    BiometricAuthService.markBiometricSetupShown();
+    setBiometricSetupVisible(false);
+    setCurrentCredentials(null);
+  };
+
   return {
     email,
     setEmail,
@@ -272,5 +470,12 @@ export function useLoginScreen(): ILoginHookReturn {
     handleGoogleSignIn,
     handleAppleSignIn,
     validateEmail,
+    modalVisible,
+    setModalVisible,
+    modalConfig,
+    biometricSetupVisible,
+    setBiometricSetupVisible,
+    handleBiometricSetupAccept,
+    handleBiometricSetupDecline,
   };
 }

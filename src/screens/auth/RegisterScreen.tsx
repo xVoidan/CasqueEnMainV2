@@ -31,7 +31,7 @@ import { FRENCH_DEPARTMENTS } from '../../constants/departments';
 const MIN_USERNAME_LENGTH = 3;
 const MAX_USERNAME_LENGTH = 20;
 const MIN_PASSWORD_LENGTH = 8;
-const PICKER_HEIGHT = 48;
+const PICKER_HEIGHT = 56;
 const TOTAL_STEPS = 3;
 const FADE_DELAY_INCREMENT = 100;
 const SHADOW_COLOR = '#000';
@@ -102,10 +102,11 @@ const styles = StyleSheet.create({
   pickerWrapper: {
     backgroundColor: theme.colors.gray[50],
     borderRadius: theme.borderRadius.lg,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: theme.colors.gray[200],
     overflow: 'hidden',
     height: PICKER_HEIGHT,
+    justifyContent: 'center',
   },
   pickerError: {
     borderColor: theme.colors.error,
@@ -114,9 +115,10 @@ const styles = StyleSheet.create({
     height: PICKER_HEIGHT,
     width: '100%',
     color: theme.colors.text.primary,
+    fontSize: theme.typography.fontSize.base,
   },
   pickerItem: {
-    fontSize: theme.typography.fontSize.sm,
+    fontSize: theme.typography.fontSize.base,
     height: PICKER_HEIGHT,
   },
   errorText: {
@@ -144,13 +146,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: theme.spacing.md,
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.xs,
-  },
-  registerButton: {
-    marginTop: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
+    gap: theme.spacing.md,
   },
   modalContainer: {
     flex: 1,
@@ -178,6 +175,9 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.base,
     color: theme.colors.text.secondary,
     textAlign: 'center',
+  },
+  flexButton: {
+    flex: 1,
   },
 });
 
@@ -367,6 +367,7 @@ export function RegisterScreen(): React.ReactElement {
         return (
           <FadeInView duration={400}>
             <Input
+              key="password-main"
               label="Mot de passe"
               placeholder="••••••••"
               value={formData.password}
@@ -381,6 +382,7 @@ export function RegisterScreen(): React.ReactElement {
             <PasswordStrengthIndicator password={formData.password} />
 
             <Input
+              key="password-confirm"
               label="Confirmer le mot de passe"
               placeholder="••••••••"
               value={formData.confirmPassword}
@@ -462,36 +464,41 @@ export function RegisterScreen(): React.ReactElement {
                 <View style={styles.formContainer}>
                   <View style={styles.stepContainer}>{renderStepContent()}</View>
 
-                  <View style={styles.navigationButtons}>
-                    {currentStep > 0 && (
+                  {currentStep === 0 ? (
+                    <Button
+                      title="Suivant"
+                      onPress={handleNextStep}
+                      size="medium"
+                      fullWidth
+                    />
+                  ) : (
+                    <View style={styles.navigationButtons}>
                       <Button
                         title="Précédent"
                         variant="outline"
                         onPress={handlePrevStep}
                         size="medium"
+                        style={styles.flexButton}
                       />
-                    )}
-
-                    {currentStep < TOTAL_STEPS - 1 ? (
-                      <Button
-                        title="Suivant"
-                        onPress={handleNextStep}
-                        size="medium"
-                        fullWidth={currentStep === 0}
-                      />
-                    ) : (
-                      <View style={styles.registerButton}>
+                      {currentStep < TOTAL_STEPS - 1 ? (
+                        <Button
+                          title="Suivant"
+                          onPress={handleNextStep}
+                          size="medium"
+                          style={styles.flexButton}
+                        />
+                      ) : (
                         <Button
                           title="S'inscrire"
                           // eslint-disable-next-line @typescript-eslint/no-misused-promises
                           onPress={handleRegister}
                           loading={loading}
-                          fullWidth
                           size="medium"
+                          style={styles.flexButton}
                         />
-                      </View>
-                    )}
-                  </View>
+                      )}
+                    </View>
+                  )}
 
                   <View style={styles.loginContainer}>
                     <Text style={styles.loginText}>Déjà un compte ?</Text>

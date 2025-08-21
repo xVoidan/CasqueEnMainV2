@@ -211,6 +211,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
         });
 
         if (error) {
+          // Gérer le cas spécifique de l'email non confirmé
+          if (error.message === 'Email not confirmed') {
+            const customError = new Error(
+              "Votre adresse email n'est pas encore confirmée. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation.",
+            );
+            (customError as any).code = 'EMAIL_NOT_CONFIRMED';
+            (customError as any).email = email;
+            throw customError;
+          }
           throw error;
         }
 
