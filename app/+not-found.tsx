@@ -4,7 +4,24 @@ import { StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-export default function NotFoundScreen() {
+const CONTAINER_PADDING = 20;
+const LINK_MARGIN_TOP = 15;
+const LINK_PADDING_VERTICAL = 15;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: CONTAINER_PADDING,
+  },
+  link: {
+    marginTop: LINK_MARGIN_TOP,
+    paddingVertical: LINK_PADDING_VERTICAL,
+  },
+});
+
+export default function NotFoundScreen(): React.ReactElement {
   return (
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />
@@ -17,16 +34,3 @@ export default function NotFoundScreen() {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-});

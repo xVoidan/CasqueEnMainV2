@@ -1,4 +1,4 @@
-import { PropsWithChildren, useState } from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -7,7 +7,29 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
-export function Collapsible({ children, title }: PropsWithChildren & { title: string }) {
+// Constants
+const ICON_SIZE = 18;
+const ACTIVE_OPACITY = 0.8;
+const CONTENT_GAP = 6;
+const CONTENT_MARGIN_TOP = 6;
+const CONTENT_MARGIN_LEFT = 24;
+
+const styles = StyleSheet.create({
+  heading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: CONTENT_GAP,
+  },
+  content: {
+    marginTop: CONTENT_MARGIN_TOP,
+    marginLeft: CONTENT_MARGIN_LEFT,
+  },
+});
+
+export function Collapsible({
+  children,
+  title,
+}: PropsWithChildren & { title: string }): React.ReactElement {
   const [isOpen, setIsOpen] = useState(false);
   const theme = useColorScheme() ?? 'light';
 
@@ -16,10 +38,11 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
       <TouchableOpacity
         style={styles.heading}
         onPress={() => setIsOpen((value) => !value)}
-        activeOpacity={0.8}>
+        activeOpacity={ACTIVE_OPACITY}
+      >
         <IconSymbol
           name="chevron.right"
-          size={18}
+          size={ICON_SIZE}
           weight="medium"
           color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
           style={{ transform: [{ rotate: isOpen ? '90deg' : '0deg' }] }}
@@ -31,15 +54,3 @@ export function Collapsible({ children, title }: PropsWithChildren & { title: st
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  heading: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  content: {
-    marginTop: 6,
-    marginLeft: 24,
-  },
-});
