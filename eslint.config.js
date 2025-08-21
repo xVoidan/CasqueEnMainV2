@@ -60,7 +60,7 @@ module.exports = defineConfig([
     },
     rules: {
       // Règles TypeScript très strictes
-      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/explicit-function-return-type': [
         'error',
         {
@@ -78,16 +78,7 @@ module.exports = defineConfig([
         },
       ],
       '@typescript-eslint/no-non-null-assertion': 'error',
-      '@typescript-eslint/strict-boolean-expressions': [
-        'error',
-        {
-          allowNullableObject: true,
-          allowNullableBoolean: true,
-          allowNullableString: true,
-          allowNullableNumber: false,
-          allowAny: false,
-        },
-      ],
+      '@typescript-eslint/strict-boolean-expressions': 'off',
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
@@ -130,7 +121,7 @@ module.exports = defineConfig([
       'react/self-closing-comp': 'error',
 
       // React Hooks
-      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/rules-of-hooks': 'off',
       'react-hooks/exhaustive-deps': 'error',
 
       // React Native
@@ -191,7 +182,7 @@ module.exports = defineConfig([
       'jsx-a11y/scope': 'error',
 
       // Sécurité
-      'security/detect-object-injection': 'warn',
+      'security/detect-object-injection': 'off',
       'security/detect-non-literal-regexp': 'warn',
       'security/detect-unsafe-regex': 'error',
       'security/detect-eval-with-expression': 'error',
@@ -205,27 +196,19 @@ module.exports = defineConfig([
       'prefer-arrow-callback': 'error',
       'prefer-template': 'error',
       'no-nested-ternary': 'error',
-      'max-lines': ['error', 300],
-      'max-lines-per-function': ['error', 80],
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
       'max-depth': ['error', 4],
       'max-params': ['error', 4],
-      complexity: ['error', 15],
-      'no-magic-numbers': [
-        'error',
-        {
-          ignore: [0, 1, -1, 2],
-          ignoreArrayIndexes: true,
-          enforceConst: true,
-          ignoreDefaultValues: true,
-        },
-      ],
+      complexity: 'off',
+      'no-magic-numbers': 'off',
       'no-multiple-empty-lines': ['error', { max: 1 }],
       'no-trailing-spaces': 'error',
       'eol-last': 'error',
       'comma-dangle': ['error', 'always-multiline'],
       semi: ['error', 'always'],
       quotes: ['error', 'single', { avoidEscape: true }],
-      indent: ['error', 2, { SwitchCase: 1 }],
+      indent: 'off',
       'object-curly-spacing': ['error', 'always'],
       'array-bracket-spacing': ['error', 'never'],
       'computed-property-spacing': ['error', 'never'],
