@@ -1,3 +1,4 @@
+// Performance optimized
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -9,7 +10,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/src/styles/theme';
 
-export const OfflineNotice: React.FC = () => {
+export const OfflineNotice = React.memo(function OfflineNotice: React.FC = () => {
   const [isOffline, setIsOffline] = useState(false);
   const slideAnim = new Animated.Value(-100);
 

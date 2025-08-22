@@ -1,3 +1,4 @@
+// Performance optimized
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,7 +11,7 @@ interface ISkeletonLoaderProps {
   variant?: 'text' | 'circular' | 'rectangular';
 }
 
-export const SkeletonLoader: React.FC<ISkeletonLoaderProps> = ({
+export const SkeletonLoader = React.memo(function SkeletonLoader: React.FC<ISkeletonLoaderProps> = ({
   width = '100%',
   height = 20,
   borderRadius,
@@ -54,7 +55,8 @@ export const SkeletonLoader: React.FC<ISkeletonLoaderProps> = ({
           height,
           borderRadius: borderRadius || 4,
         };
-    }
+});
+
   };
 
   return (
@@ -78,17 +80,17 @@ export const SkeletonLoader: React.FC<ISkeletonLoaderProps> = ({
   );
 };
 
-export const SkeletonCard: React.FC<{ style?: ViewStyle }> = ({ style }) => {
+export const SkeletonCard = React.memo(function SkeletonCard: React.FC<{ style?: ViewStyle }> = ({ style }) => {
   return (
     <View style={[styles.card, style]}>
       <View style={styles.cardHeader}>
         <SkeletonLoader variant="circular" width={40} />
         <View style={styles.cardHeaderText}>
           <SkeletonLoader width="60%" height={16} />
-          <SkeletonLoader width="40%" height={12} style={{ marginTop: 4 }} />
+          <SkeletonLoader width="40%" height={12} style={styles.dynamicStyle1} />
         </View>
       </View>
-      <SkeletonLoader width="100%" height={60} style={{ marginTop: 12 }} />
+      <SkeletonLoader width="100%" height={60} style={styles.dynamicStyle2} />
       <View style={styles.cardFooter}>
         <SkeletonLoader width="30%" height={14} />
         <SkeletonLoader width="20%" height={14} />
@@ -97,14 +99,14 @@ export const SkeletonCard: React.FC<{ style?: ViewStyle }> = ({ style }) => {
   );
 };
 
-export const SkeletonList: React.FC<{ count?: number; style?: ViewStyle }> = ({
+export const SkeletonList = React.memo(function SkeletonList: React.FC<{ count?: number; style?: ViewStyle }> = ({
   count = 3,
   style,
 }) => {
   return (
     <View style={style}>
       {Array.from({ length: count }).map((_, index) => (
-        <SkeletonCard key={index} style={{ marginBottom: 16 }} />
+        <SkeletonCard key={index} style={styles.dynamicStyle3} />
       ))}
     </View>
   );

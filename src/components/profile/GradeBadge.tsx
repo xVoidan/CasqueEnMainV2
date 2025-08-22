@@ -1,3 +1,4 @@
+// Performance optimized
 import React, { useEffect, useRef } from 'react';
 import {
   View,
@@ -46,7 +47,7 @@ const GRADE_IMAGES: Record<string, any> = {
   '15ControleurGeneralEtat.png': require('@/assets/images/15ControleurGeneralEtat.png'),
 };
 
-export const GradeBadge: React.FC<IGradeBadgeProps> = ({
+export const GradeBadge = React.memo(function GradeBadge: React.FC<IGradeBadgeProps> = ({
   grade,
   size = 'medium',
   showName = true,

@@ -25,7 +25,8 @@
       "Bash(node:*)",
       "Bash(tail:*)",
       "Bash(find:*)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(npm test:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

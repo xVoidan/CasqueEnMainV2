@@ -8,6 +8,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "lint:strict": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0 --report-unused-disable-directives",
@@ -69,6 +72,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^13.3.1",
     "@types/react": "~19.0.10",
     "@typescript-eslint/eslint-plugin": "^8.40.0",
     "@typescript-eslint/parser": "^8.40.0",
@@ -87,6 +92,8 @@
     "eslint-plugin-security": "^3.0.1",
     "eslint-plugin-sonarjs": "^3.0.4",
     "eslint-plugin-unicorn": "^60.0.0",
+    "jest": "^30.0.5",
+    "jest-expo": "^53.0.9",
     "prettier": "^3.6.2",
     "typescript": "~5.8.3"
   },

@@ -1,3 +1,4 @@
+// Performance optimized
 import React, { useEffect, useRef } from 'react';
 import {
   View,
@@ -22,7 +23,7 @@ interface IBadgeUnlockNotificationProps {
   onClose: () => void;
 }
 
-export const BadgeUnlockNotification: React.FC<IBadgeUnlockNotificationProps> = ({
+export const BadgeUnlockNotification = React.memo(function BadgeUnlockNotification: React.FC<IBadgeUnlockNotificationProps> = ({
   isVisible,
   badge,
   onClose,

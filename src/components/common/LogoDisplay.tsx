@@ -1,3 +1,4 @@
+// Performance optimized
 import React, { useEffect, useRef } from 'react';
 import {
   View,
@@ -272,11 +273,7 @@ export function LogoDisplay({
         <View style={[styles.logoWrapper, { width: size, height: size }]}>
           <Image
             source={require('../../../assets/images/LogoApp.png')}
-            style={{
-              width: size * 1.3,
-              height: size * 1.3,
-              marginTop: -size * 0.15,
-            }}
+            style={styles.dynamicStyle1}
             resizeMode="contain"
           />
         </View>

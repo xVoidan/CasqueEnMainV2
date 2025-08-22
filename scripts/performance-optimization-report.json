@@ -1,0 +1,192 @@
+{
+  "timestamp": "2025-08-22T12:49:00.273Z",
+  "filesOptimized": 20,
+  "totalFiles": 43,
+  "optimizations": [
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\components\\profile\\GradeBadge.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 1,
+        "callbacks": 0,
+        "total": 1
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\components\\notifications\\BadgeUnlockNotification.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 1,
+        "callbacks": 0,
+        "total": 1
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\components\\network\\OfflineNotice.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 1,
+        "callbacks": 0,
+        "total": 1
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\components\\loading\\SkeletonLoader.tsx",
+      "optimizations": {
+        "styles": 3,
+        "memoized": 3,
+        "callbacks": 0,
+        "total": 6
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\components\\error\\ErrorBoundary.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 0,
+        "callbacks": 1,
+        "total": 1
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\components\\common\\LogoDisplay.tsx",
+      "optimizations": {
+        "styles": 1,
+        "memoized": 0,
+        "callbacks": 0,
+        "total": 1
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\components\\common\\Input.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 0,
+        "callbacks": 1,
+        "total": 1
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\components\\auth\\UsernameInput.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 0,
+        "callbacks": 1,
+        "total": 1
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\components\\animations\\ConfettiAnimation.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 1,
+        "callbacks": 0,
+        "total": 1
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\screens\\training\\TrainingSessionScreen.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 0,
+        "callbacks": 2,
+        "total": 2
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\screens\\training\\TrainingConfigScreen.tsx",
+      "optimizations": {
+        "styles": 1,
+        "memoized": 0,
+        "callbacks": 12,
+        "total": 13
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\screens\\training\\SessionReportScreen.tsx",
+      "optimizations": {
+        "styles": 2,
+        "memoized": 0,
+        "callbacks": 0,
+        "total": 2
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\screens\\main\\RevisionScreen.tsx",
+      "optimizations": {
+        "styles": 1,
+        "memoized": 1,
+        "callbacks": 5,
+        "total": 7
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\screens\\main\\RankingScreen.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 1,
+        "callbacks": 3,
+        "total": 4
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\screens\\main\\ProgressScreen.tsx",
+      "optimizations": {
+        "styles": 1,
+        "memoized": 1,
+        "callbacks": 2,
+        "total": 4
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\screens\\main\\ProfileScreen.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 1,
+        "callbacks": 3,
+        "total": 4
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\screens\\main\\HomeScreen.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 0,
+        "callbacks": 4,
+        "total": 4
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\screens\\auth\\RegisterScreen.tsx",
+      "optimizations": {
+        "styles": 1,
+        "memoized": 0,
+        "callbacks": 1,
+        "total": 2
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\screens\\auth\\LoginScreen.tsx",
+      "optimizations": {
+        "styles": 2,
+        "memoized": 0,
+        "callbacks": 3,
+        "total": 5
+      }
+    },
+    {
+      "file": "C:\\Users\\jonat\\Desktop\\Projet\\CasqueEnMainV2\\src\\screens\\auth\\ForgotPasswordScreen.tsx",
+      "optimizations": {
+        "styles": 0,
+        "memoized": 0,
+        "callbacks": 3,
+        "total": 3
+      }
+    }
+  ],
+  "summary": {
+    "stylesExtracted": 12,
+    "componentsMemoized": 11,
+    "callbacksOptimized": 41
+  }
+}

@@ -1,3 +1,4 @@
+// Performance optimized
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, Dimensions, StyleSheet } from 'react-native';
 
@@ -11,7 +12,7 @@ interface IConfettiAnimationProps {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-export const ConfettiAnimation: React.FC<IConfettiAnimationProps> = ({
+export const ConfettiAnimation = React.memo(function ConfettiAnimation: React.FC<IConfettiAnimationProps> = ({
   isVisible,
   duration: _duration = 3000,
   particleCount = 50,

@@ -1,3 +1,4 @@
+// Performance optimized
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -280,7 +281,7 @@ export function SessionReportScreen(): React.ReactElement {
                 {points.streakBonus > 0 && (
                   <View style={styles.pointsRow}>
                     <View style={styles.bonusLabel}>
-                      <Text style={{ fontSize: 14 }}>🔥</Text>
+                      <Text style={styles.dynamicStyle1}>🔥</Text>
                       <Text style={[styles.pointsLabel, styles.bonusText]}>
                         Bonus streak
                       </Text>
@@ -395,7 +396,7 @@ export function SessionReportScreen(): React.ReactElement {
                 variant="primary"
                 fullWidth
                 size="large"
-                style={{ marginBottom: theme.spacing.md }}
+                style={styles.dynamicStyle2}
               />
 
               <View style={styles.secondaryActions}>

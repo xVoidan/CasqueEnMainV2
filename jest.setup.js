@@ -1,8 +1,4 @@
 // Jest setup file
-import '@testing-library/jest-native/extend-expect';
-
-// Mock react-native modules
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
 // Mock expo modules
 jest.mock('expo-font', () => ({
@@ -65,6 +61,22 @@ jest.mock('expo-local-authentication', () => ({
   ),
 }));
 
+jest.mock('expo-linear-gradient', () => ({
+  LinearGradient: 'LinearGradient',
+}));
+
+// Mock react-native modules
+jest.mock('react-native', () => {
+  const RN = jest.requireActual('react-native');
+  RN.NativeModules.SettingsManager = {
+    settings: {
+      AppleLocale: 'en_US',
+      AppleLanguages: ['en'],
+    },
+  };
+  return RN;
+});
+
 // Mock react-native-safe-area-context
 jest.mock('react-native-safe-area-context', () => {
   const inset = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -117,6 +129,32 @@ jest.mock('@react-native-community/netinfo', () => ({
     isConnected: true,
     isInternetReachable: true,
   })),
+}));
+
+// Mock react-native-gesture-handler
+jest.mock('react-native-gesture-handler', () => ({
+  Swipeable: ({ children }) => children,
+  RectButton: ({ children }) => children,
+  State: {},
+  PanGestureHandler: ({ children }) => children,
+  BaseButton: ({ children }) => children,
+  Directions: {},
+}));
+
+// Mock react-native-chart-kit
+jest.mock('react-native-chart-kit', () => ({
+  LineChart: () => null,
+  BarChart: () => null,
+  PieChart: () => null,
+  ContributionGraph: () => null,
+  ProgressChart: () => null,
+}));
+
+// Mock @expo/vector-icons
+jest.mock('@expo/vector-icons', () => ({
+  Ionicons: 'Ionicons',
+  MaterialIcons: 'MaterialIcons',
+  FontAwesome: 'FontAwesome',
 }));
 
 // Global test utilities
