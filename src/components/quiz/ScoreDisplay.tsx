@@ -53,17 +53,17 @@ export function ScoreDisplay({
   }, [score, animated, animatedValue, rotateAnim]);
 
   const getScoreColor = (): string[] => {
-    if (score >= 80) return ['#10B981', '#059669']; // Vert
-    if (score >= 60) return ['#F59E0B', '#D97706']; // Orange
+    if (score >= 80) {return ['#10B981', '#059669'];} // Vert
+    if (score >= 60) {return ['#F59E0B', '#D97706'];} // Orange
     return ['#EF4444', '#DC2626']; // Rouge
   };
 
   const getScoreEmoji = (): string => {
-    if (score >= 90) return '🏆';
-    if (score >= 80) return '🌟';
-    if (score >= 70) return '✨';
-    if (score >= 60) return '👍';
-    if (score >= 50) return '💪';
+    if (score >= 90) {return '🏆';}
+    if (score >= 80) {return '🌟';}
+    if (score >= 70) {return '✨';}
+    if (score >= 60) {return '👍';}
+    if (score >= 50) {return '💪';}
     return '📚';
   };
 
@@ -118,7 +118,7 @@ export function ScoreDisplay({
 
       <View style={[styles.innerContent, sizeStyles.container]}>
         <Text style={sizeStyles.emoji}>{getScoreEmoji()}</Text>
-        
+
         <Animated.Text style={[styles.scoreValue, sizeStyles.value]}>
           {animated
             ? animatedValue.interpolate({
@@ -127,7 +127,7 @@ export function ScoreDisplay({
               })
             : `${Math.round(score)}%`}
         </Animated.Text>
-        
+
         {showLabel && (
           <Text style={[styles.scoreLabel, sizeStyles.label]}>
             {score >= 80 && 'Excellent !'}

@@ -101,10 +101,10 @@ export function TrainingSessionScreen(): React.ReactElement {
   const [isPaused, setIsPaused] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(
-    sessionConfig?.timerEnabled ? sessionConfig.timerDuration : null
+    sessionConfig?.timerEnabled ? sessionConfig.timerDuration : null,
   );
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
-  
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
 
@@ -142,7 +142,7 @@ export function TrainingSessionScreen(): React.ReactElement {
   }, [timeRemaining, isPaused, isValidated, sessionConfig?.timerEnabled]);
 
   const toggleAnswer = (answerId: string) => {
-    if (isValidated) return;
+    if (isValidated) {return;}
 
     if (currentQuestion.type === 'single') {
       setSelectedAnswers([answerId]);
@@ -159,12 +159,12 @@ export function TrainingSessionScreen(): React.ReactElement {
 
   const handleValidate = (isTimeout = false) => {
     const timeSpent = (Date.now() - questionStartTime) / 1000;
-    
+
     // Calculer si la réponse est correcte
     const correctAnswerIds = currentQuestion.answers
       .filter(a => a.isCorrect)
       .map(a => a.id);
-    
+
     const isCorrect = currentQuestion.type === 'single'
       ? selectedAnswers.length === 1 && correctAnswerIds.includes(selectedAnswers[0])
       : correctAnswerIds.every(id => selectedAnswers.includes(id)) &&
@@ -272,7 +272,7 @@ export function TrainingSessionScreen(): React.ReactElement {
           {sessionConfig?.timerEnabled && timeRemaining !== null && (
             <View style={[
               styles.timerContainer,
-              timeRemaining <= 10 && styles.timerWarning
+              timeRemaining <= 10 && styles.timerWarning,
             ]}>
               <Ionicons name="time-outline" size={20} color={theme.colors.white} />
               <Text style={styles.timerText}>{formatTime(timeRemaining)}</Text>
@@ -326,7 +326,7 @@ export function TrainingSessionScreen(): React.ReactElement {
           {/* Question */}
           <View style={styles.questionCard}>
             <Text style={styles.questionText}>{currentQuestion.question}</Text>
-            
+
             {currentQuestion.image && (
               <Image
                 source={{ uri: currentQuestion.image }}
@@ -413,7 +413,7 @@ export function TrainingSessionScreen(): React.ReactElement {
               <Text style={styles.modalText}>
                 Que souhaitez-vous faire ?
               </Text>
-              
+
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={[styles.modalButton, styles.resumeButton]}
@@ -422,7 +422,7 @@ export function TrainingSessionScreen(): React.ReactElement {
                   <Ionicons name="play" size={20} color={theme.colors.white} />
                   <Text style={styles.modalButtonText}>Reprendre</Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity
                   style={[styles.modalButton, styles.abandonButton]}
                   onPress={handleAbandon}

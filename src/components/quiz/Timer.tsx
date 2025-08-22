@@ -58,8 +58,8 @@ export function Timer({
   };
 
   const getTimerColor = (): string => {
-    if (duration <= 5) return '#EF4444'; // Rouge
-    if (duration <= warningThreshold) return '#F59E0B'; // Orange
+    if (duration <= 5) {return '#EF4444';} // Rouge
+    if (duration <= warningThreshold) {return '#F59E0B';} // Orange
     return theme.colors.white; // Blanc
   };
 

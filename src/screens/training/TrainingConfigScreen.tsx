@@ -118,7 +118,7 @@ export function TrainingConfigScreen(): React.ReactElement {
           };
         }
         return theme;
-      })
+      }),
     );
   };
 
@@ -145,7 +145,7 @@ export function TrainingConfigScreen(): React.ReactElement {
           };
         }
         return theme;
-      })
+      }),
     );
   };
 
@@ -238,7 +238,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                     <View style={[
                       styles.checkbox,
                       theme.selected && styles.checkboxSelected,
-                      { borderColor: theme.color }
+                      { borderColor: theme.color },
                     ]}>
                       {theme.selected && (
                         <Ionicons name="checkmark" size={16} color={theme.color} />
@@ -264,7 +264,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                         <View style={[
                           styles.checkboxSmall,
                           subTheme.selected && styles.checkboxSelected,
-                          { borderColor: theme.color }
+                          { borderColor: theme.color },
                         ]}>
                           {subTheme.selected && (
                             <Ionicons name="checkmark" size={12} color={theme.color} />
@@ -296,13 +296,13 @@ export function TrainingConfigScreen(): React.ReactElement {
                     key={count}
                     style={[
                       styles.countButton,
-                      questionCount === count && styles.countButtonSelected
+                      questionCount === count && styles.countButtonSelected,
                     ]}
                     onPress={() => setQuestionCount(count)}
                   >
                     <Text style={[
                       styles.countButtonText,
-                      questionCount === count && styles.countButtonTextSelected
+                      questionCount === count && styles.countButtonTextSelected,
                     ]}>
                       {count === -1 ? 'Illimité' : count}
                     </Text>

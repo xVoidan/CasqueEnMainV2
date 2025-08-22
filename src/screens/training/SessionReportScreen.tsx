@@ -60,15 +60,15 @@ export function SessionReportScreen(): React.ReactElement {
   const router = useRouter();
   const { user } = useAuth();
   const params = useLocalSearchParams();
-  
-  const sessionAnswers: ISessionAnswer[] = params.sessionAnswers 
-    ? JSON.parse(params.sessionAnswers as string) 
+
+  const sessionAnswers: ISessionAnswer[] = params.sessionAnswers
+    ? JSON.parse(params.sessionAnswers as string)
     : [];
-  const config: ISessionConfig = params.config 
-    ? JSON.parse(params.config as string) 
+  const config: ISessionConfig = params.config
+    ? JSON.parse(params.config as string)
     : null;
-  const questions = params.questions 
-    ? JSON.parse(params.questions as string) 
+  const questions = params.questions
+    ? JSON.parse(params.questions as string)
     : [];
 
   const [scoreAnimation] = useState(new Animated.Value(0));
@@ -92,9 +92,9 @@ export function SessionReportScreen(): React.ReactElement {
   const calculatePoints = (): IPointsBreakdown => {
     const stats = calculateStats();
     const scoring = config?.scoring || { correct: 1, incorrect: -0.25, skipped: 0, partial: 0.5 };
-    
+
     // Points de base
-    const basePoints = 
+    const basePoints =
       (stats.correct * scoring.correct) +
       (stats.partial * scoring.partial) +
       (stats.incorrect * scoring.incorrect) +
@@ -127,10 +127,10 @@ export function SessionReportScreen(): React.ReactElement {
   const checkLevelUp = () => {
     const currentPoints = 1250; // TODO: Récupérer depuis le profil
     const newPoints = currentPoints + points.totalPoints;
-    
+
     const currentGrade = GRADES.find(g => currentPoints >= g.minPoints);
     const newGrade = GRADES.find(g => newPoints >= g.minPoints);
-    
+
     if (newGrade && currentGrade && newGrade.minPoints > currentGrade.minPoints) {
       setShowGradeUp(true);
       return newGrade;
@@ -176,8 +176,8 @@ export function SessionReportScreen(): React.ReactElement {
   };
 
   const getScoreColor = () => {
-    if (stats.percentage >= 80) return '#10B981';
-    if (stats.percentage >= 60) return '#F59E0B';
+    if (stats.percentage >= 80) {return '#10B981';}
+    if (stats.percentage >= 60) {return '#F59E0B';}
     return '#EF4444';
   };
 
@@ -240,7 +240,7 @@ export function SessionReportScreen(): React.ReactElement {
           <FadeInView duration={800} delay={200}>
             <View style={styles.pointsCard}>
               <Text style={styles.pointsTitle}>Points gagnés</Text>
-              
+
               <View style={styles.pointsBreakdown}>
                 <View style={styles.pointsRow}>
                   <Text style={styles.pointsLabel}>Points de base</Text>
@@ -397,7 +397,7 @@ export function SessionReportScreen(): React.ReactElement {
                 size="large"
                 style={{ marginBottom: theme.spacing.md }}
               />
-              
+
               <View style={styles.secondaryActions}>
                 <TouchableOpacity
                   style={styles.secondaryButton}
@@ -406,7 +406,7 @@ export function SessionReportScreen(): React.ReactElement {
                   <Ionicons name="refresh" size={20} color={theme.colors.primary} />
                   <Text style={styles.secondaryButtonText}>Nouvelle session</Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity
                   style={styles.secondaryButton}
                   onPress={handleBackHome}

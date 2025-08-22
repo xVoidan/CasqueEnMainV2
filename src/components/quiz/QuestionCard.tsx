@@ -63,7 +63,7 @@ export function QuestionCard({
             <Text style={styles.subThemeName}>{subTheme}</Text>
           </View>
         </View>
-        
+
         {difficulty && (
           <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor() }]}>
             <Text style={styles.difficultyText}>
@@ -77,7 +77,7 @@ export function QuestionCard({
 
       {/* Question */}
       <Text style={styles.questionText}>{question}</Text>
-      
+
       {/* Image optionnelle */}
       {imageUrl && (
         <Image
@@ -97,7 +97,7 @@ export function QuestionCard({
             </Text>
           </View>
         )}
-        
+
         {points && points > 1 && (
           <View style={styles.pointsInfo}>
             <Text style={styles.pointsText}>+{points} pts</Text>

@@ -120,11 +120,11 @@ export function AnswerButton({
           <View style={styles.labelContainer}>
             <Text style={styles.label}>{label}</Text>
           </View>
-          
+
           <Text style={[styles.text, { color: getTextColor() }]}>
             {text}
           </Text>
-          
+
           {isValidated && (
             <View style={styles.feedback}>
               {isCorrect ? (

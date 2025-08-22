@@ -78,8 +78,8 @@ export function HomeScreen(): React.ReactElement {
   useEffect(() => {
     // Charger les stats utilisateur depuis Supabase
     const loadUserStats = async () => {
-      if (!user?.id || isGuest) return;
-      
+      if (!user?.id || isGuest) {return;}
+
       // TODO: Récupérer les vraies stats depuis Supabase
       const gradeInfo = getCurrentGrade(userStats.totalPoints);
       setUserStats(prev => ({
@@ -108,22 +108,22 @@ export function HomeScreen(): React.ReactElement {
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
           {/* Header avec profil */}
           <FadeInView duration={600} delay={0}>
             <View style={styles.header}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.profileSection}
                 onPress={handleProfile}
                 activeOpacity={0.8}
               >
                 <View style={styles.avatarContainer}>
                   {userStats.avatarUrl ? (
-                    <Image 
-                      source={{ uri: userStats.avatarUrl }} 
+                    <Image
+                      source={{ uri: userStats.avatarUrl }}
                       style={styles.avatar}
                     />
                   ) : (
@@ -137,12 +137,12 @@ export function HomeScreen(): React.ReactElement {
                     </View>
                   )}
                 </View>
-                
+
                 <View style={styles.userInfo}>
                   <Text style={styles.username}>{userStats.username}</Text>
                   <View style={styles.gradeBadge}>
                     <LinearGradient
-                      colors={[userStats.currentGrade.color, userStats.currentGrade.color + 'DD']}
+                      colors={[userStats.currentGrade.color, `${userStats.currentGrade.color}DD`]}
                       style={styles.gradeGradient}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 0 }}
@@ -154,7 +154,7 @@ export function HomeScreen(): React.ReactElement {
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.settingsButton}
                 onPress={() => router.push('/settings')}
               >
@@ -194,7 +194,7 @@ export function HomeScreen(): React.ReactElement {
 
           {/* Card Entraînement Libre */}
           <FadeInView duration={600} delay={200}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.mainCard}
               onPress={handleStartTraining}
               activeOpacity={0.9}
@@ -222,17 +222,17 @@ export function HomeScreen(): React.ReactElement {
 
           {/* Card Défi Quotidien */}
           <FadeInView duration={600} delay={300}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[
                 styles.challengeCard,
-                userStats.dailyChallengeCompleted && styles.challengeCompleted
+                userStats.dailyChallengeCompleted && styles.challengeCompleted,
               ]}
               onPress={handleDailyChallenge}
               activeOpacity={userStats.dailyChallengeCompleted ? 1 : 0.9}
               disabled={userStats.dailyChallengeCompleted}
             >
               <LinearGradient
-                colors={userStats.dailyChallengeCompleted 
+                colors={userStats.dailyChallengeCompleted
                   ? ['#10B981', '#059669']
                   : ['#1E293B', '#334155']
                 }
@@ -248,7 +248,7 @@ export function HomeScreen(): React.ReactElement {
                     <View>
                       <Text style={styles.challengeTitle}>Défi Quotidien</Text>
                       <Text style={styles.challengeSubtitle}>
-                        {userStats.dailyChallengeCompleted 
+                        {userStats.dailyChallengeCompleted
                           ? 'Complété ! Revenez demain'
                           : '20 questions mixtes - Sans limite de temps'
                         }
@@ -290,21 +290,21 @@ export function HomeScreen(): React.ReactElement {
           {/* Actions rapides */}
           <FadeInView duration={600} delay={500}>
             <View style={styles.quickActions}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => router.push('/leaderboard')}
               >
                 <Ionicons name="podium" size={20} color={theme.colors.primary} />
                 <Text style={styles.actionButtonText}>Classement</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => router.push('/stats')}
               >
                 <Ionicons name="stats-chart" size={20} color={theme.colors.primary} />
                 <Text style={styles.actionButtonText}>Statistiques</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => router.push('/achievements')}
               >

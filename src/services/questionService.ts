@@ -101,7 +101,7 @@ class QuestionService {
     try {
       // Utiliser la date du jour comme seed pour avoir les mêmes questions pour tous
       const today = new Date().toISOString().split('T')[0];
-      
+
       const { data, error } = await supabase
         .from('questions')
         .select('*')
@@ -146,7 +146,7 @@ class QuestionService {
   private deterministicShuffle<T>(array: T[], seed: string): T[] {
     const result = [...array];
     let hash = 0;
-    
+
     for (let i = 0; i < seed.length; i++) {
       hash = seed.charCodeAt(i) + ((hash << 5) - hash);
     }
@@ -252,7 +252,7 @@ class QuestionService {
     for (let i = 0; i < count && i < sampleQuestions.length; i++) {
       result.push(sampleQuestions[i]);
     }
-    
+
     // Si on demande plus de questions que disponibles, répéter
     while (result.length < count) {
       const index = result.length % sampleQuestions.length;

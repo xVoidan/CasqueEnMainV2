@@ -289,13 +289,13 @@ class SessionService {
     try {
       const historyData = await AsyncStorage.getItem(SESSION_HISTORY_KEY);
       const history = historyData ? JSON.parse(historyData) : [];
-      
+
       // Ajouter la nouvelle session au début
       history.unshift(session);
-      
+
       // Garder seulement les 50 dernières sessions
       const limitedHistory = history.slice(0, 50);
-      
+
       await AsyncStorage.setItem(SESSION_HISTORY_KEY, JSON.stringify(limitedHistory));
     } catch (error) {
       console.error('Error saving to history:', error);
@@ -354,7 +354,7 @@ class SessionService {
     const totalPoints = sessions.reduce((sum, s) => sum + (s.points_earned || 0), 0);
     const averageScore = sessions.reduce((sum, s) => sum + (s.score || 0), 0) / totalSessions;
     const bestScore = Math.max(...sessions.map(s => s.score || 0));
-    
+
     // Calculer le temps moyen
     const sessionsWithTime = sessions.filter(s => s.started_at && s.completed_at);
     const averageTime = sessionsWithTime.length > 0

@@ -230,10 +230,10 @@ export function LoginScreen(): React.ReactElement {
 
             <FadeInView duration={600} delay={0}>
               <View style={styles.logoContainer}>
-                <LogoDisplay 
-                  size={200} 
-                  animated 
-                  showHalo 
+                <LogoDisplay
+                  size={200}
+                  animated
+                  showHalo
                   showParticles={false}
                   style={{ marginBottom: 20 }}
                 />

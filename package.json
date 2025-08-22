@@ -61,6 +61,7 @@
     "react-native-screens": "latest",
     "react-native-skeleton-placeholder": "^5.2.4",
     "react-native-svg": "latest",
+    "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "latest",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5"

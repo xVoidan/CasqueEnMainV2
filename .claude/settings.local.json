@@ -18,7 +18,12 @@
       "Bash(git commit:*)",
       "Bash(npx expo prebuild:*)",
       "Bash(git push:*)",
-      "mcp__supabase__apply_migration"
+      "mcp__supabase__apply_migration",
+      "mcp__supabase__get_advisors",
+      "mcp__supabase__execute_sql",
+      "Bash(mkdir:*)",
+      "Bash(node:*)",
+      "Bash(tail:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

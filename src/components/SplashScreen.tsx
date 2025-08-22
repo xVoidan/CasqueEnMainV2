@@ -47,7 +47,7 @@ export function CustomSplashScreen({ onAnimationComplete }: ISplashScreenProps):
         const delay = index * 100;
         const randomX = (Math.random() - 0.5) * width;
         const randomY = -Math.random() * height * 0.5;
-        
+
         Animated.sequence([
           Animated.delay(delay),
           Animated.parallel([
@@ -99,7 +99,7 @@ export function CustomSplashScreen({ onAnimationComplete }: ISplashScreenProps):
     return particleAnims.map((anim, index) => {
       const isRed = index % 2 === 0;
       const size = 4 + Math.random() * 4;
-      
+
       return (
         <Animated.View
           key={index}
@@ -157,10 +157,10 @@ export function CustomSplashScreen({ onAnimationComplete }: ISplashScreenProps):
             },
           ]}
         >
-          <LogoDisplay 
-            size={200} 
-            animated 
-            showHalo 
+          <LogoDisplay
+            size={200}
+            animated
+            showHalo
             showParticles
           />
         </Animated.View>
@@ -179,7 +179,7 @@ export function CustomSplashScreen({ onAnimationComplete }: ISplashScreenProps):
         >
           <Text style={styles.title}>Casque En Mains</Text>
           <Text style={styles.subtitle}>Préparez-vous aux concours SPP</Text>
-          
+
           {/* Barre de progression animée */}
           <View style={styles.progressContainer}>
             <Animated.View
@@ -201,7 +201,7 @@ export function CustomSplashScreen({ onAnimationComplete }: ISplashScreenProps):
               />
             </Animated.View>
           </View>
-          
+
           <Animated.Text
             style={[
               styles.loadingText,

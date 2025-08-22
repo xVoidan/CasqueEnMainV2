@@ -29,8 +29,8 @@ class PointsCalculator {
     const skipped = answers.filter(a => a.isSkipped).length;
     const total = answers.length;
     const percentage = total > 0 ? (correct / total) * 100 : 0;
-    const averageTime = total > 0 
-      ? answers.reduce((acc, a) => acc + a.timeSpent, 0) / total 
+    const averageTime = total > 0
+      ? answers.reduce((acc, a) => acc + a.timeSpent, 0) / total
       : 0;
 
     return {
@@ -53,7 +53,7 @@ class PointsCalculator {
     streakDays: number = 0,
   ): IPointsBreakdown {
     const stats = this.calculateStats(answers);
-    const scoring = config.scoring;
+    const { scoring } = config;
 
     // Points de base selon le barème
     const basePoints = this.calculateBasePoints(stats, scoring);
@@ -69,7 +69,7 @@ class PointsCalculator {
 
     // Total (minimum 0)
     const totalPoints = Math.max(0, Math.round(
-      basePoints + performanceBonus + speedBonus + streakBonus
+      basePoints + performanceBonus + speedBonus + streakBonus,
     ));
 
     return {
@@ -216,9 +216,9 @@ class PointsCalculator {
       if (totalPoints >= grades[i].minPoints) {
         const currentGrade = grades[i];
         const nextGrade = i < grades.length - 1 ? grades[i + 1] : null;
-        
+
         const progress = nextGrade
-          ? ((totalPoints - currentGrade.minPoints) / 
+          ? ((totalPoints - currentGrade.minPoints) /
              (nextGrade.minPoints - currentGrade.minPoints)) * 100
           : 100;
 

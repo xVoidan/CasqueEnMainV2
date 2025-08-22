@@ -220,10 +220,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
             (customError as any).email = email;
             throw customError;
           }
-          
+
           // Traduire les autres erreurs courantes
           let errorMessage = '';
-          
+
           if (error.message === 'Invalid login credentials') {
             errorMessage = '❌ Email ou mot de passe incorrect. Veuillez vérifier vos identifiants et réessayer.';
           } else if (error.message.includes('Invalid email')) {
@@ -238,7 +238,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
             // Message par défaut pour les autres erreurs
             errorMessage = `⚠️ Erreur de connexion : ${error.message}`;
           }
-          
+
           const customError = new Error(errorMessage);
           (customError as any).originalError = error;
           throw customError;
@@ -283,7 +283,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       if (error) {
         // Traduire les erreurs d'inscription
         let errorMessage = '';
-        
+
         if (error.message === 'User already registered') {
           errorMessage = '📧 Un compte existe déjà avec cet email. Veuillez vous connecter.';
         } else if (error.message.includes('Password should be at least')) {
@@ -295,7 +295,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
         } else {
           errorMessage = `⚠️ Erreur d'inscription : ${error.message}`;
         }
-        
+
         const customError = new Error(errorMessage);
         (customError as any).originalError = error;
         throw customError;
