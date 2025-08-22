@@ -8,6 +8,9 @@ import 'react-native-reanimated';
 
 import { queryClient } from '@/src/services/queryClient';
 import { AuthProvider, useAuth } from '@/src/store/AuthContext';
+import { ThemeProvider } from '@/src/store/ThemeContext';
+import { ErrorBoundary } from '@/src/components/error/ErrorBoundary';
+import { OfflineNotice } from '@/src/components/network/OfflineNotice';
 
 function RootLayoutNav(): React.ReactElement {
   const { user, isGuest, loading } = useAuth();
@@ -83,11 +86,16 @@ export default function RootLayout(): React.ReactElement | null {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <StatusBar style="auto" />
-        <RootLayoutNav />
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <StatusBar style="auto" />
+            <OfflineNotice />
+            <RootLayoutNav />
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
