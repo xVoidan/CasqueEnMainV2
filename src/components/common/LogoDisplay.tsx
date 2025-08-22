@@ -4,13 +4,10 @@ import {
   Image,
   StyleSheet,
   Animated,
-  Dimensions,
   ViewStyle,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
-
-const { width } = Dimensions.get('window');
 
 interface ILogoDisplayProps {
   size?: number;
@@ -19,6 +16,48 @@ interface ILogoDisplayProps {
   showHalo?: boolean;
   showParticles?: boolean;
 }
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  halo: {
+    position: 'absolute',
+  },
+  logoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    padding: 0,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 20,
+  },
+  logoWrapper: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  shine: {
+    position: 'absolute',
+    zIndex: 3,
+  },
+  shadow: {
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    transform: [{ scaleX: 1.2 }],
+  },
+  particle: {
+    position: 'absolute',
+  },
+});
 
 export function LogoDisplay({
   size = 120,
@@ -33,7 +72,9 @@ export function LogoDisplay({
   const particlesAnim = useRef([...Array(6)].map(() => new Animated.Value(0))).current;
 
   useEffect(() => {
-    if (!animated) return;
+    if (!animated) {
+      return;
+    }
 
     // Animation de pulsation douce
     Animated.loop(
@@ -48,7 +89,7 @@ export function LogoDisplay({
           duration: 2000,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
 
     // Animation de rotation lente
@@ -57,7 +98,7 @@ export function LogoDisplay({
         toValue: 1,
         duration: 30000,
         useNativeDriver: true,
-      })
+      }),
     ).start();
 
     // Animation du halo lumineux
@@ -73,7 +114,7 @@ export function LogoDisplay({
           duration: 1500,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
 
     // Animation des particules
@@ -94,29 +135,27 @@ export function LogoDisplay({
                 useNativeDriver: true,
               }),
             ]),
-          ])
+          ]),
         ).start();
       });
     }
   }, [animated, pulseAnim, rotateAnim, glowAnim, particlesAnim, showParticles]);
 
-  const rotation = rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
-
   const renderParticles = (): React.ReactElement[] => {
-    if (!showParticles) return [];
+    if (!showParticles) {
+      return [];
+    }
 
     return particlesAnim.map((anim, index) => {
       const angle = (index * 60) * Math.PI / 180;
       const radius = size * 0.8;
       const x = Math.cos(angle) * radius;
       const y = Math.sin(angle) * radius;
+      const particleColor = index % 2 === 0 ? '#ff4444' : '#4444ff';
 
       return (
         <Animated.View
-          key={index}
+          key={`particle-${index}`}
           style={[
             styles.particle,
             {
@@ -124,7 +163,7 @@ export function LogoDisplay({
               width: 8,
               height: 8,
               borderRadius: 4,
-              backgroundColor: index % 2 === 0 ? '#ff4444' : '#4444ff',
+              backgroundColor: particleColor,
               opacity: anim,
               transform: [
                 {
@@ -200,7 +239,6 @@ export function LogoDisplay({
               locations={[0, 0.3, 0.7, 1]}
             />
           </Animated.View>
-
         </>
       )}
 
@@ -229,7 +267,6 @@ export function LogoDisplay({
             ]}
           />
         </BlurView>
-
 
         {/* Logo */}
         <View style={[styles.logoWrapper, { width: size, height: size }]}>
@@ -274,45 +311,3 @@ export function LogoDisplay({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  halo: {
-    position: 'absolute',
-  },
-  logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.98)',
-    padding: 0,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 20,
-  },
-  logoWrapper: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 2,
-  },
-  shine: {
-    position: 'absolute',
-    zIndex: 3,
-  },
-  shadow: {
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-    transform: [{ scaleX: 1.2 }],
-  },
-  particle: {
-    position: 'absolute',
-  },
-});
