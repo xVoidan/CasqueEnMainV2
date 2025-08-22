@@ -19,9 +19,284 @@ import { GradientBackground } from '@/src/components/common/GradientBackground';
 import { FadeInView } from '@/src/components/animations/FadeInView';
 import { theme } from '@/src/styles/theme';
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.xl,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+  },
+  profileSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  avatarContainer: {
+    position: 'relative',
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: theme.colors.white,
+  },
+  defaultAvatar: {
+    backgroundColor: theme.colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  streakBadge: {
+    position: 'absolute',
+    bottom: -5,
+    right: -5,
+    backgroundColor: '#F59E0B',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  streakText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+  },
+  userInfo: {
+    marginLeft: theme.spacing.md,
+    flex: 1,
+  },
+  username: {
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+    marginBottom: 4,
+  },
+  gradeBadge: {
+    alignSelf: 'flex-start',
+  },
+  gradeGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  gradeIcon: {
+    fontSize: 12,
+    marginRight: 4,
+  },
+  gradeName: {
+    fontSize: theme.typography.fontSize.xs,
+    fontWeight: '600',
+    color: theme.colors.white,
+  },
+  settingsButton: {
+    padding: theme.spacing.sm,
+  },
+  progressCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.sm,
+  },
+  pointsText: {
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+  },
+  nextGradeText: {
+    fontSize: theme.typography.fontSize.sm,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  progressBarContainer: {
+    position: 'relative',
+  },
+  progressBarBg: {
+    height: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  progressPercentage: {
+    position: 'absolute',
+    right: 0,
+    top: -20,
+    fontSize: theme.typography.fontSize.xs,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: theme.spacing.md,
+    fontSize: theme.typography.fontSize.base,
+    color: theme.colors.white,
+  },
+  mainCard: {
+    marginBottom: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xl,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  mainCardGradient: {
+    padding: theme.spacing.xl,
+  },
+  mainCardContent: {
+    alignItems: 'center',
+  },
+  mainCardIcon: {
+    fontSize: 48,
+    marginBottom: theme.spacing.md,
+  },
+  mainCardTitle: {
+    fontSize: theme.typography.fontSize.xxl,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+    marginBottom: theme.spacing.xs,
+  },
+  mainCardSubtitle: {
+    fontSize: theme.typography.fontSize.base,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: theme.spacing.lg,
+  },
+  startButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  startButtonText: {
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+    marginRight: theme.spacing.sm,
+  },
+  challengeCard: {
+    marginBottom: theme.spacing.lg,
+    borderRadius: theme.borderRadius.lg,
+    overflow: 'hidden',
+  },
+  challengeCompleted: {
+    opacity: 0.8,
+  },
+  challengeGradient: {
+    padding: theme.spacing.md,
+  },
+  challengeContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  challengeLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  challengeIcon: {
+    fontSize: 28,
+    marginRight: theme.spacing.md,
+  },
+  challengeTitle: {
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+    marginBottom: 2,
+  },
+  challengeSubtitle: {
+    fontSize: theme.typography.fontSize.xs,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  challengeReward: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md,
+  },
+  rewardText: {
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: 'bold',
+    color: '#F59E0B',
+  },
+  rewardLabel: {
+    fontSize: theme.typography.fontSize.xs,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.lg,
+    gap: theme.spacing.sm,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+    marginTop: theme.spacing.xs,
+  },
+  statLabel: {
+    fontSize: theme.typography.fontSize.xs,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginTop: 2,
+  },
+  quickActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: theme.spacing.sm,
+  },
+  actionButton: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  actionButtonText: {
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.white,
+    marginLeft: theme.spacing.xs,
+    fontWeight: '600',
+  },
+});
+
 export default function HomeScreen(): React.ReactElement {
   const router = useRouter();
-  const { } = useAuth();
+  const { signOut } = useAuth();
   const {
     profile,
     currentGrade,
@@ -39,15 +314,15 @@ export default function HomeScreen(): React.ReactElement {
     setRefreshing(false);
   }, [refreshData]);
 
-  const handleStartTraining = () => {
+  const handleStartTraining = (): void => {
     router.push('/training/config');
   };
 
-  const handleDailyChallenge = () => {
+  const handleDailyChallenge = (): void => {
     router.push('/training/daily-challenge');
   };
 
-  const handleProfile = () => {
+  const handleProfile = (): void => {
     router.push('/profile');
   };
 
@@ -105,7 +380,7 @@ export default function HomeScreen(): React.ReactElement {
                 </View>
 
                 <View style={styles.userInfo}>
-                  <Text style={styles.username}>{profile?.username || 'Pompier'}</Text>
+                  <Text style={styles.username}>{profile?.username ?? 'Pompier'}</Text>
                   <View style={styles.gradeBadge}>
                     <LinearGradient
                       colors={[currentGrade.color, `${currentGrade.color}DD`]}
@@ -135,7 +410,7 @@ export default function HomeScreen(): React.ReactElement {
               <View style={styles.progressCard}>
                 <View style={styles.progressHeader}>
                   <Text style={styles.pointsText}>
-                    {(profile?.total_points || 0).toLocaleString()} points
+                    {(profile?.total_points ?? 0).toLocaleString()} points
                   </Text>
                   <Text style={styles.nextGradeText}>
                     Prochain: {nextGrade.name}
@@ -284,280 +559,3 @@ export default function HomeScreen(): React.ReactElement {
     </GradientBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: theme.spacing.md,
-    marginBottom: theme.spacing.lg,
-  },
-  profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  avatarContainer: {
-    position: 'relative',
-  },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 2,
-    borderColor: theme.colors.white,
-  },
-  defaultAvatar: {
-    backgroundColor: theme.colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  streakBadge: {
-    position: 'absolute',
-    bottom: -5,
-    right: -5,
-    backgroundColor: '#F59E0B',
-    borderRadius: 10,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  streakText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: theme.colors.white,
-  },
-  userInfo: {
-    marginLeft: theme.spacing.md,
-    flex: 1,
-  },
-  username: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: 'bold',
-    color: theme.colors.white,
-    marginBottom: 4,
-  },
-  gradeBadge: {
-    alignSelf: 'flex-start',
-  },
-  gradeGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  gradeIcon: {
-    fontSize: 12,
-    marginRight: 4,
-  },
-  gradeName: {
-    fontSize: theme.typography.fontSize.xs,
-    fontWeight: '600',
-    color: theme.colors.white,
-  },
-  settingsButton: {
-    padding: theme.spacing.sm,
-  },
-  progressCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    marginBottom: theme.spacing.lg,
-  },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.sm,
-  },
-  pointsText: {
-    fontSize: theme.typography.fontSize.base,
-    fontWeight: 'bold',
-    color: theme.colors.white,
-  },
-  nextGradeText: {
-    fontSize: theme.typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  progressBarContainer: {
-    position: 'relative',
-  },
-  progressBarBg: {
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  progressPercentage: {
-    position: 'absolute',
-    right: 0,
-    top: -20,
-    fontSize: theme.typography.fontSize.xs,
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  mainCard: {
-    marginBottom: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  mainCardGradient: {
-    padding: theme.spacing.xl,
-  },
-  mainCardContent: {
-    alignItems: 'center',
-  },
-  mainCardIcon: {
-    fontSize: 48,
-    marginBottom: theme.spacing.md,
-  },
-  mainCardTitle: {
-    fontSize: theme.typography.fontSize.xxl,
-    fontWeight: 'bold',
-    color: theme.colors.white,
-    marginBottom: theme.spacing.xs,
-  },
-  mainCardSubtitle: {
-    fontSize: theme.typography.fontSize.base,
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: theme.spacing.lg,
-  },
-  startButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  startButtonText: {
-    fontSize: theme.typography.fontSize.base,
-    fontWeight: 'bold',
-    color: theme.colors.white,
-    marginRight: theme.spacing.sm,
-  },
-  challengeCard: {
-    marginBottom: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-    overflow: 'hidden',
-  },
-  challengeCompleted: {
-    opacity: 0.8,
-  },
-  challengeGradient: {
-    padding: theme.spacing.md,
-  },
-  challengeContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  challengeLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  challengeIcon: {
-    fontSize: 28,
-    marginRight: theme.spacing.md,
-  },
-  challengeTitle: {
-    fontSize: theme.typography.fontSize.base,
-    fontWeight: 'bold',
-    color: theme.colors.white,
-    marginBottom: 2,
-  },
-  challengeSubtitle: {
-    fontSize: theme.typography.fontSize.xs,
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  challengeReward: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
-  },
-  rewardText: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: 'bold',
-    color: '#F59E0B',
-  },
-  rewardLabel: {
-    fontSize: theme.typography.fontSize.xs,
-    color: 'rgba(255, 255, 255, 0.8)',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.lg,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
-    alignItems: 'center',
-    marginHorizontal: theme.spacing.xs,
-  },
-  statValue: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: 'bold',
-    color: theme.colors.white,
-    marginTop: theme.spacing.xs,
-  },
-  statLabel: {
-    fontSize: theme.typography.fontSize.xs,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginTop: 2,
-  },
-  quickActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  actionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.white,
-    marginHorizontal: theme.spacing.xs,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-  },
-  actionButtonText: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: '600',
-    color: theme.colors.text.primary,
-    marginLeft: theme.spacing.xs,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: theme.spacing.md,
-    fontSize: theme.typography.fontSize.base,
-    color: theme.colors.white,
-    opacity: 0.8,
-  },
-});
-
