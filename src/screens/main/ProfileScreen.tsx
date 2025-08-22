@@ -43,7 +43,7 @@ export const ProfileScreen: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [_showPasswordModal, _setShowPasswordModal] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<ISessionHistory[]>([]);
 
   // État pour l'édition
@@ -85,7 +85,7 @@ export const ProfileScreen: React.FC = () => {
       if (error) {throw error;}
       setSessionHistory(data || []);
     } catch (error) {
-      console.error('Erreur lors du chargement de l\'historique:', error);
+
     }
   };
 
@@ -137,7 +137,7 @@ export const ProfileScreen: React.FC = () => {
         await refreshData();
         Alert.alert('Succès', 'Photo de profil mise à jour !');
       } catch (error) {
-        console.error('Erreur upload image:', error);
+
         Alert.alert('Erreur', 'Impossible de mettre à jour la photo');
       } finally {
         setLoading(false);
@@ -187,7 +187,7 @@ export const ProfileScreen: React.FC = () => {
       setIsEditing(false);
       Alert.alert('Succès', 'Profil mis à jour !');
     } catch (error) {
-      console.error('Erreur sauvegarde profil:', error);
+
       Alert.alert('Erreur', 'Impossible de sauvegarder les modifications');
     } finally {
       setLoading(false);

@@ -130,7 +130,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [themeMode, setThemeModeState] = useState<ThemeMode>('light');
 
   useEffect(() => {
-    loadTheme();
+    void loadTheme();
   }, []);
 
   const loadTheme = async (): Promise<void> => {
@@ -140,7 +140,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         setThemeModeState(savedTheme);
       }
     } catch (error) {
-      console.error('Erreur chargement thème:', error);
+
     }
   };
 
@@ -148,13 +148,13 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     try {
       await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
     } catch (error) {
-      console.error('Erreur sauvegarde thème:', error);
+
     }
   };
 
   const setThemeMode = (mode: ThemeMode): void => {
     setThemeModeState(mode);
-    saveTheme(mode);
+    void saveTheme(mode);
   };
 
   const toggleTheme = (): void => {

@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from '@/src/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface ISessionConfig {
@@ -71,10 +71,10 @@ class SessionService {
           });
 
         if (error) {
-          console.error('Error creating session in Supabase:', error);
+
         }
       } catch (error) {
-        console.error('Error creating session:', error);
+
       }
     }
 
@@ -92,7 +92,7 @@ class SessionService {
       }
       return null;
     } catch (error) {
-      console.error('Error getting current session:', error);
+
       return null;
     }
   }
@@ -132,11 +132,11 @@ class SessionService {
               is_skipped: answer.isSkipped,
             });
         } catch (error) {
-          console.error('Error saving answer to Supabase:', error);
+
         }
       }
     } catch (error) {
-      console.error('Error saving answer:', error);
+
       throw error;
     }
   }
@@ -184,13 +184,13 @@ class SessionService {
           // Mettre à jour les points de l'utilisateur
           await this.updateUserPoints(session.userId, pointsEarned);
         } catch (error) {
-          console.error('Error completing session in Supabase:', error);
+
         }
       }
 
       return session;
     } catch (error) {
-      console.error('Error completing session:', error);
+
       throw error;
     }
   }
@@ -225,11 +225,11 @@ class SessionService {
             })
             .eq('id', sessionId);
         } catch (error) {
-          console.error('Error abandoning session in Supabase:', error);
+
         }
       }
     } catch (error) {
-      console.error('Error abandoning session:', error);
+
     }
   }
 
@@ -245,7 +245,7 @@ class SessionService {
       }
       return [];
     } catch (error) {
-      console.error('Error getting session history:', error);
+
       return [];
     }
   }
@@ -275,7 +275,7 @@ class SessionService {
 
       return this.calculateStats(data || []);
     } catch (error) {
-      console.error('Error getting session stats:', error);
+
       // Fallback sur les stats locales
       const history = await this.getSessionHistory(100);
       return this.calculateLocalStats(history);
@@ -298,7 +298,7 @@ class SessionService {
 
       await AsyncStorage.setItem(SESSION_HISTORY_KEY, JSON.stringify(limitedHistory));
     } catch (error) {
-      console.error('Error saving to history:', error);
+
     }
   }
 
@@ -318,7 +318,7 @@ class SessionService {
         throw fetchError;
       }
 
-      const currentPoints = profile?.total_points || 0;
+      const currentPoints = profile?.total_points ?? 0;
       const newPoints = currentPoints + points;
 
       // Mettre à jour les points
@@ -331,7 +331,7 @@ class SessionService {
         throw updateError;
       }
     } catch (error) {
-      console.error('Error updating user points:', error);
+
     }
   }
 
@@ -351,9 +351,9 @@ class SessionService {
     }
 
     const totalSessions = sessions.length;
-    const totalPoints = sessions.reduce((sum, s) => sum + (s.points_earned || 0), 0);
-    const averageScore = sessions.reduce((sum, s) => sum + (s.score || 0), 0) / totalSessions;
-    const bestScore = Math.max(...sessions.map(s => s.score || 0));
+    const totalPoints = sessions.reduce((sum, s) => sum + (s.points_earned ?? 0), 0);
+    const averageScore = sessions.reduce((sum, s) => sum + (s.score ?? 0), 0) / totalSessions;
+    const bestScore = Math.max(...sessions.map(s => s.score ?? 0));
 
     // Calculer le temps moyen
     const sessionsWithTime = sessions.filter(s => s.started_at && s.completed_at);
@@ -365,7 +365,7 @@ class SessionService {
         }, 0) / sessionsWithTime.length
       : 0;
 
-    const successRate = sessions.filter(s => (s.score || 0) >= 60).length / totalSessions * 100;
+    const successRate = sessions.filter(s => (s.score ?? 0) >= 60).length / totalSessions * 100;
 
     return {
       totalSessions,

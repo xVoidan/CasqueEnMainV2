@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
 
 export default function HomeScreen(): React.ReactElement {
   const router = useRouter();
-  const { signOut } = useAuth();
+  const { signOut: _signOut } = useAuth();
   const {
     profile,
     currentGrade,
@@ -348,7 +348,7 @@ export default function HomeScreen(): React.ReactElement {
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
+              onRefresh={() => void onRefresh()}
               tintColor={theme.colors.primary}
             />
           }

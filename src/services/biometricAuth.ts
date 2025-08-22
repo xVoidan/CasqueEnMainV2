@@ -35,7 +35,7 @@ export class BiometricAuthService {
       });
       return result.success;
     } catch (error) {
-      console.error('Biometric authentication error:', error);
+
       return false;
     }
   }
@@ -81,7 +81,7 @@ export class BiometricAuthService {
       await SecureStore.setItemAsync(SECURE_CREDENTIALS_KEY, credentials);
       await this.setBiometricEnabled(true);
     } catch (error) {
-      console.error('Error saving credentials:', error);
+
       throw error;
     }
   }
@@ -94,7 +94,7 @@ export class BiometricAuthService {
       }
       return null;
     } catch (error) {
-      console.error('Error getting credentials:', error);
+
       return null;
     }
   }
@@ -104,7 +104,7 @@ export class BiometricAuthService {
       await SecureStore.deleteItemAsync(SECURE_CREDENTIALS_KEY);
       await this.setBiometricEnabled(false);
     } catch (error) {
-      console.error('Error removing credentials:', error);
+
     }
   }
 

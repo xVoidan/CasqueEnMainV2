@@ -57,7 +57,7 @@ export class ErrorRecoveryService {
         label: 'Réessayer',
         action: () => {
           // Retry logic would be implemented in the calling component
-          console.warn('Retrying...');
+
         },
         type: 'primary',
       });
@@ -65,7 +65,7 @@ export class ErrorRecoveryService {
         label: 'Mode hors ligne',
         action: () => {
           // Switch to offline mode
-          console.warn('Switching to offline mode...');
+
         },
         type: 'secondary',
       });
@@ -77,7 +77,7 @@ export class ErrorRecoveryService {
         label: 'Se reconnecter',
         action: () => {
           // Navigate to login
-          console.warn('Navigating to login...');
+
         },
         type: 'primary',
       });
@@ -85,7 +85,7 @@ export class ErrorRecoveryService {
         label: 'Mot de passe oublié',
         action: () => {
           // Navigate to password reset
-          console.warn('Navigating to password reset...');
+
         },
         type: 'secondary',
       });
@@ -97,7 +97,7 @@ export class ErrorRecoveryService {
         label: 'Corriger',
         action: () => {
           // Focus on invalid field
-          console.warn('Focusing on invalid field...');
+
         },
         type: 'primary',
       });

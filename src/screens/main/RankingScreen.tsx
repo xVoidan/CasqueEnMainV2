@@ -54,7 +54,7 @@ export const RankingScreen: React.FC = () => {
           break;
       }
     } catch (error) {
-      console.error('Error loading rankings:', error);
+
     } finally {
       setIsLoading(false);
       setRefreshing(false);

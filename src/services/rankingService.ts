@@ -92,7 +92,7 @@ class RankingService {
         myPosition,
       };
     } catch (error) {
-      console.error('Error fetching rankings:', error);
+
       return {
         global: [],
         weekly: [],
@@ -153,7 +153,7 @@ class RankingService {
           evolution: 0,
         }));
     } catch (error) {
-      console.error('Error fetching weekly ranking:', error);
+
       return [];
     }
   }
@@ -209,7 +209,7 @@ class RankingService {
           evolution: 0,
         }));
     } catch (error) {
-      console.error('Error fetching monthly ranking:', error);
+
       return [];
     }
   }
@@ -251,7 +251,7 @@ class RankingService {
 
       return rankingsByTheme;
     } catch (error) {
-      console.error('Error fetching theme rankings:', error);
+
       return {};
     }
   }
@@ -281,7 +281,7 @@ class RankingService {
         department: profile.department,
       }));
     } catch (error) {
-      console.error('Error searching player:', error);
+
       return [];
     }
   }
@@ -319,7 +319,7 @@ class RankingService {
 
       // TODO: Mettre à jour les classements en cache si nécessaire
     } catch (error) {
-      console.error('Error updating user ranking:', error);
+
     }
   }
 }

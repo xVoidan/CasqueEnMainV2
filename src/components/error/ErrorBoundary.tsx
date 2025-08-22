@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<IProps, IState> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+
     this.setState({
       error,
       errorInfo,

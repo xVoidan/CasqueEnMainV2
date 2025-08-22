@@ -13,7 +13,7 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export const ConfettiAnimation: React.FC<IConfettiAnimationProps> = ({
   isVisible,
-  duration = 3000,
+  duration: _duration = 3000,
   particleCount = 50,
   colors = ['#DC2626', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'],
   onComplete,
@@ -31,15 +31,15 @@ export const ConfettiAnimation: React.FC<IConfettiAnimationProps> = ({
     particles.current = Array(particleCount).fill(0).map(() => new Animated.Value(0));
 
     // Animer chaque particule
-    const animations = particles.current.map((particle, index) => {
+    const animations = particles.current.map((particle, _index) => {
       const delay = Math.random() * 500;
-      const duration = 2000 + Math.random() * 1000;
+      const animDuration = 2000 + Math.random() * 1000;
 
       return Animated.sequence([
         Animated.delay(delay),
         Animated.timing(particle, {
           toValue: 1,
-          duration,
+          duration: animDuration,
           useNativeDriver: true,
         }),
       ]);

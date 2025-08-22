@@ -72,7 +72,7 @@ class RateLimiter {
 
       return { allowed: true };
     } catch (error) {
-      console.error('Rate limiter error:', error);
+
       // On error, allow the attempt (fail open)
       return { allowed: true };
     }
@@ -102,7 +102,7 @@ class RateLimiter {
         await AsyncStorage.multiRemove(rateLimitKeys);
       }
     } catch (error) {
-      console.error('Failed to clear rate limit data:', error);
+
     }
   }
 

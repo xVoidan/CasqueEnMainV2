@@ -36,7 +36,7 @@ export class FormPersistenceService {
         JSON.stringify(savedForm),
       );
     } catch (error) {
-      console.error('Error saving form:', error);
+
     }
   }
 
@@ -87,7 +87,7 @@ export class FormPersistenceService {
 
       return savedForm;
     } catch (error) {
-      console.error('Error loading form:', error);
+
       return null;
     }
   }
@@ -99,7 +99,7 @@ export class FormPersistenceService {
     try {
       await AsyncStorage.removeItem(`${FORM_STORAGE_PREFIX}${formId}`);
     } catch (error) {
-      console.error('Error deleting form:', error);
+
     }
   }
 
@@ -117,7 +117,7 @@ export class FormPersistenceService {
         );
       }
     } catch (error) {
-      console.error('Error marking form as completed:', error);
+
     }
   }
 
@@ -141,7 +141,7 @@ export class FormPersistenceService {
 
       return forms;
     } catch (error) {
-      console.error('Error getting all forms:', error);
+
       return {};
     }
   }
@@ -200,7 +200,7 @@ export class FormPersistenceService {
         }
       }
     } catch (error) {
-      console.error('Error cleaning up forms:', error);
+
     }
   }
 }

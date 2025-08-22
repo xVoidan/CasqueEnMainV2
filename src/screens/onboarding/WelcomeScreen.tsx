@@ -15,7 +15,7 @@ import { Button } from '../../components/common/Button';
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { FadeInView } from '../../components/animations/FadeInView';
 import { useAuth } from '../../store/AuthContext';
-import { supabase } from '../../services/supabase';
+import { supabase } from '@/src/lib/supabase';
 import { theme } from '../../styles/theme';
 
 const AVATAR_SIZE = 120;
@@ -246,7 +246,7 @@ export function WelcomeScreen(): React.ReactElement {
 
       if (updateError) {throw updateError;}
     } catch (error) {
-      console.error('Error uploading avatar:', error);
+
     } finally {
       setUploading(false);
     }

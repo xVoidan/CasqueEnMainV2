@@ -60,7 +60,7 @@ class UserService {
       if (error) {throw error;}
       return data;
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+
       return null;
     }
   }
@@ -75,7 +75,7 @@ class UserService {
       if (error) {throw error;}
       return true;
     } catch (error) {
-      console.error('Error updating user profile:', error);
+
       return false;
     }
   }
@@ -90,7 +90,7 @@ class UserService {
       if (error) {throw error;}
       return data || [];
     } catch (error) {
-      console.error('Error fetching user stats:', error);
+
       return [];
     }
   }
@@ -107,7 +107,7 @@ class UserService {
       if (error) {throw error;}
       return data || [];
     } catch (error) {
-      console.error('Error fetching user sessions:', error);
+
       return [];
     }
   }
@@ -124,7 +124,7 @@ class UserService {
       if (error) {throw error;}
       return data;
     } catch (error) {
-      console.error('Error fetching daily challenge:', error);
+
       return null;
     }
   }
@@ -141,7 +141,7 @@ class UserService {
       if (error && error.code !== 'PGRST116') {throw error;} // PGRST116 = no rows returned
       return data;
     } catch (error) {
-      console.error('Error fetching challenge progress:', error);
+
       return null;
     }
   }
@@ -160,7 +160,7 @@ class UserService {
       if (error) {throw error;}
       return data || [];
     } catch (error) {
-      console.error('Error fetching user badges:', error);
+
       return [];
     }
   }
@@ -192,7 +192,7 @@ class UserService {
         weekly: weeklyError ? null : weeklyRank,
       };
     } catch (error) {
-      console.error('Error fetching user ranking:', error);
+
       return { global: null, weekly: null };
     }
   }
@@ -212,7 +212,7 @@ class UserService {
       if (error) {throw error;}
       return data || [];
     } catch (error) {
-      console.error('Error fetching leaderboard:', error);
+
       return [];
     }
   }

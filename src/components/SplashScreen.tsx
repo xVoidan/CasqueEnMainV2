@@ -6,6 +6,101 @@ import { BlurView } from 'expo-blur';
 
 const { width, height } = Dimensions.get('window');
 
+// Couleurs constants pour éviter les inline styles
+const PARTICLE_COLORS = {
+  RED: '#ff6b6b',
+  YELLOW: '#ffd93d',
+} as const;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  smokeEffect: {
+    position: 'absolute',
+    width: width * 1.5,
+    height: height * 1.5,
+    opacity: 0.3,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  textContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  title: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 10,
+    letterSpacing: 2,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#ffffff',
+    opacity: 0.9,
+    marginTop: 8,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 5,
+  },
+  progressContainer: {
+    width: 200,
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 2,
+    marginTop: 30,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  loadingText: {
+    fontSize: 12,
+    color: '#ffffff',
+    opacity: 0.7,
+    marginTop: 10,
+    letterSpacing: 1,
+  },
+  shine: {
+    position: 'absolute',
+    top: 0,
+    width: 150,
+    height: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    transform: [{ skewX: '-25deg' }],
+  },
+  particle: {
+    position: 'absolute',
+    top: height / 2,
+    left: width / 2,
+  },
+  badge: {
+    position: 'absolute',
+    bottom: 50,
+    paddingHorizontal: 20,
+  },
+  badgeGradient: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    letterSpacing: 1,
+  },
+});
+
 interface ISplashScreenProps {
   onAnimationComplete?: () => void;
 }
@@ -96,20 +191,20 @@ export function CustomSplashScreen({ onAnimationComplete }: ISplashScreenProps):
   }, [fadeAnim, textFadeAnim, slideUpAnim, particleAnims, onAnimationComplete]);
 
   const renderParticles = (): React.ReactElement[] => {
-    return particleAnims.map((anim, index) => {
-      const isRed = index % 2 === 0;
+    return particleAnims.map((anim, _index) => {
+      const isRed = _index % 2 === 0;
       const size = 4 + Math.random() * 4;
 
       return (
         <Animated.View
-          key={index}
+          key={_index}
           style={[
             styles.particle,
             {
               width: size,
               height: size,
               borderRadius: size / 2,
-              backgroundColor: isRed ? '#ff6b6b' : '#ffd93d',
+              backgroundColor: isRed ? PARTICLE_COLORS.RED : PARTICLE_COLORS.YELLOW,
               opacity: anim.opacity,
               transform: [
                 { translateX: anim.x },
@@ -258,91 +353,3 @@ export function CustomSplashScreen({ onAnimationComplete }: ISplashScreenProps):
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  smokeEffect: {
-    position: 'absolute',
-    width: width * 1.5,
-    height: height * 1.5,
-    opacity: 0.3,
-  },
-  logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  textContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 10,
-    letterSpacing: 2,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#ffffff',
-    opacity: 0.9,
-    marginTop: 8,
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 5,
-  },
-  progressContainer: {
-    width: 200,
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 2,
-    marginTop: 30,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    borderRadius: 2,
-  },
-  loadingText: {
-    fontSize: 12,
-    color: '#ffffff',
-    opacity: 0.7,
-    marginTop: 10,
-    letterSpacing: 1,
-  },
-  shine: {
-    position: 'absolute',
-    top: 0,
-    width: 150,
-    height: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    transform: [{ skewX: '-25deg' }],
-  },
-  particle: {
-    position: 'absolute',
-    top: height / 2,
-    left: width / 2,
-  },
-  badge: {
-    position: 'absolute',
-    bottom: 50,
-    paddingHorizontal: 20,
-  },
-  badgeGradient: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    letterSpacing: 1,
-  },
-});

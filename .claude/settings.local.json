@@ -23,7 +23,9 @@
       "mcp__supabase__execute_sql",
       "Bash(mkdir:*)",
       "Bash(node:*)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "Bash(find:*)",
+      "Bash(npm audit:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

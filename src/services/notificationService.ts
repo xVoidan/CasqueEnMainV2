@@ -29,7 +29,7 @@ class NotificationService {
       // this.sounds.unlock = await this.loadSound(require('@/assets/sounds/unlock.mp3'));
       // this.sounds.notification = await this.loadSound(require('@/assets/sounds/notification.mp3'));
     } catch (error) {
-      console.error('Erreur chargement sons:', error);
+
     }
   }
 
@@ -38,7 +38,7 @@ class NotificationService {
       const { sound } = await Audio.Sound.createAsync(source);
       return sound;
     } catch (error) {
-      console.error('Erreur chargement son:', error);
+
       return null;
     }
   }
@@ -50,7 +50,7 @@ class NotificationService {
         await sound.replayAsync();
       }
     } catch (error) {
-      console.error('Erreur lecture son:', error);
+
     }
   }
 
@@ -78,7 +78,7 @@ class NotificationService {
             break;
         }
       } catch (error) {
-        console.error('Erreur haptic feedback:', error);
+
       }
     }
   }

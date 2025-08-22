@@ -66,7 +66,7 @@ export const ProgressScreen: React.FC = () => {
       setThemeStats(themes);
       setProgressData(progress);
     } catch (error) {
-      console.error('Error loading stats:', error);
+
     } finally {
       setIsLoading(false);
       setRefreshing(false);

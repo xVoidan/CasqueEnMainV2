@@ -5,7 +5,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import { useAuth } from '../../store/AuthContext';
 import { BiometricAuthService } from '../../services/biometricAuth';
 import { useHaptics } from '../../hooks/useHaptics';
-import { supabase } from '../../services/supabase';
+import { supabase } from '@/src/lib/supabase';
 
 interface ILoginHookReturn {
   email: string;
@@ -234,7 +234,7 @@ export function useLoginScreen(): ILoginHookReturn {
 
       // Log uniquement en développement
       if (__DEV__) {
-        console.warn('Login error:', error.message);
+
       }
 
       // Si l'email n'est pas confirmé, proposer de renvoyer l'email

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Session, User, AuthError } from '@supabase/supabase-js';
-import { supabase } from '../services/supabase';
+import { supabase } from '@/src/lib/supabase';
 
 interface IGoogleAuthData {
   isGoogleAuth: boolean;
@@ -76,7 +76,7 @@ const createUserProfile = async (
     .eq('user_id', userId);
 
   if (profileError) {
-    console.error('Error creating profile:', profileError);
+
   }
 };
 
@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
         }
       }
     } catch (error) {
-      console.error('Error checking session:', error);
+
     } finally {
       setLoading(false);
     }
@@ -336,7 +336,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       setIsGuest(false);
       await handleStorageOperations.clearAllSessions();
     } catch (error) {
-      console.error('Error signing out:', error);
+
       throw new Error('Erreur lors de la déconnexion');
     } finally {
       setLoading(false);
@@ -368,7 +368,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
 
       await handleStorageOperations.setGuestSession();
     } catch (error) {
-      console.error('Error setting guest mode:', error);
+
       throw new Error('Erreur lors du passage en mode invité');
     } finally {
       setLoading(false);

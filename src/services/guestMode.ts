@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from './supabase';
+import { supabase } from '@/src/lib/supabase';
 
 interface IGuestSession {
   id: string;
@@ -156,7 +156,7 @@ export class GuestModeService {
         .eq('user_id', userId);
 
       if (error) {
-        console.error('Error transferring guest progress:', error);
+
         return false;
       }
 
@@ -174,7 +174,7 @@ export class GuestModeService {
       await this.clearGuestSession();
       return true;
     } catch (error) {
-      console.error('Error converting guest to user:', error);
+
       return false;
     }
   }

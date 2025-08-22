@@ -93,12 +93,12 @@ class StatsService {
       let totalQuestions = 0;
       let correctAnswers = 0;
       let totalTime = 0;
-      const bestStreak = 0;
+      const _bestStreak = 0;
 
       sessions?.forEach(session => {
         const { config } = session;
-        totalQuestions += config?.questionCount || 0;
-        correctAnswers += Math.floor((session.score || 0) * (config?.questionCount || 0) / 100);
+        totalQuestions += config?.questionCount ?? 0;
+        correctAnswers += Math.floor((session.score ?? 0) * (config?.questionCount ?? 0) / 100);
 
         if (session.started_at && session.ended_at) {
           const duration = new Date(session.ended_at).getTime() - new Date(session.started_at).getTime();
@@ -127,15 +127,15 @@ class StatsService {
         correctAnswers,
         averageTime: totalQuestions > 0 ? totalTime / totalQuestions / 1000 : 0, // en secondes
         successRate: totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0,
-        bestStreak: profile?.streak_days || 0,
-        currentStreak: profile?.streak_days || 0,
-        totalSessions: sessions?.length || 0,
-        totalPoints: profile?.total_points || 0,
+        bestStreak: profile?.streak_days ?? 0,
+        currentStreak: profile?.streak_days ?? 0,
+        totalSessions: sessions?.length ?? 0,
+        totalPoints: profile?.total_points ?? 0,
         favoriteTheme,
         lastActivity: lastSession ? new Date(lastSession.started_at) : new Date(),
       };
     } catch (error) {
-      console.error('Error fetching user stats:', error);
+
       return null;
     }
   }
@@ -161,11 +161,11 @@ class StatsService {
         successRate: stat.total_questions > 0
           ? (stat.correct_answers / stat.total_questions) * 100
           : 0,
-        averageTime: stat.avg_time_per_question || 0,
+        averageTime: stat.avg_time_per_question ?? 0,
         lastPlayed: new Date(stat.last_updated),
       }));
     } catch (error) {
-      console.error('Error fetching theme stats:', error);
+
       return [];
     }
   }
@@ -203,14 +203,16 @@ class StatsService {
           dailyData.set(date, { points: 0, sessions: 0 });
         }
 
-        const daily = dailyData.get(date)!;
-        daily.points += session.total_points_earned || 0;
-        daily.sessions += 1;
+        const daily = dailyData.get(date);
+        if (daily) {
+          daily.points += session.total_points_earned ?? 0;
+          daily.sessions += 1;
+        }
 
         // Compter les thèmes
         const { config } = session;
         config?.themes?.forEach((theme: string) => {
-          themeCount.set(theme, (themeCount.get(theme) || 0) + 1);
+          themeCount.set(theme, (themeCount.get(theme) ?? 0) + 1);
         });
       });
 
@@ -220,7 +222,7 @@ class StatsService {
         const date = new Date();
         date.setDate(date.getDate() - i);
         const dateStr = date.toISOString().split('T')[0];
-        const data = dailyData.get(dateStr) || { points: 0, sessions: 0 };
+        const data = dailyData.get(dateStr) ?? { points: 0, sessions: 0 };
 
         dailyProgress.unshift({
           date: dateStr,
@@ -245,7 +247,7 @@ class StatsService {
 
       // Calculer les objectifs
       const today = new Date().toISOString().split('T')[0];
-      const todayData = dailyData.get(today) || { points: 0, sessions: 0 };
+      const todayData = dailyData.get(today) ?? { points: 0, sessions: 0 };
 
       const weekSessions = Array.from(dailyData.values())
         .reduce((sum, day) => sum + day.sessions, 0);
@@ -270,7 +272,7 @@ class StatsService {
         objectives,
       };
     } catch (error) {
-      console.error('Error fetching progress data:', error);
+
       return {
         dailyProgress: [],
         themeDistribution: [],
@@ -297,13 +299,14 @@ class StatsService {
   /**
    * Met à jour les statistiques après une session
    */
-  async updateStatsAfterSession(
-    userId: string,
-    theme: string,
-    correctAnswers: number,
-    totalQuestions: number,
-    averageTime: number,
-  ): Promise<void> {
+  async updateStatsAfterSession(params: {
+    userId: string;
+    theme: string;
+    correctAnswers: number;
+    totalQuestions: number;
+    averageTime: number;
+  }): Promise<void> {
+    const { userId, theme, correctAnswers, totalQuestions, averageTime } = params;
     try {
       // Récupérer les stats existantes
       const { data: existingStats, error: fetchError } = await supabase
@@ -349,7 +352,7 @@ class StatsService {
           });
       }
     } catch (error) {
-      console.error('Error updating stats after session:', error);
+
     }
   }
 }

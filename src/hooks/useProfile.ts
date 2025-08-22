@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { User } from '@supabase/supabase-js';
-import { supabase } from '../services/supabase';
+import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '../store/AuthContext';
 
 // Constants

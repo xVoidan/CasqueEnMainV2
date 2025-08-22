@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from '@/src/lib/supabase';
 
 export interface IQuestion {
   id: string;
@@ -58,14 +58,14 @@ class QuestionService {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Error fetching questions:', error);
+
         throw error;
       }
 
       // Transformer les données pour correspondre à notre interface
       return (data || []).map(this.transformQuestion);
     } catch (error) {
-      console.error('Error in getQuestions:', error);
+
       // Retourner des questions d'exemple en cas d'erreur
       return this.getSampleQuestions(count);
     }
@@ -83,13 +83,13 @@ class QuestionService {
         .limit(count);
 
       if (error) {
-        console.error('Error fetching random questions:', error);
+
         throw error;
       }
 
       return (data || []).map(this.transformQuestion);
     } catch (error) {
-      console.error('Error in getRandomQuestions:', error);
+
       return this.getSampleQuestions(count);
     }
   }
@@ -109,7 +109,7 @@ class QuestionService {
         .limit(20);
 
       if (error) {
-        console.error('Error fetching daily challenge questions:', error);
+
         throw error;
       }
 
@@ -117,7 +117,7 @@ class QuestionService {
       const shuffled = this.deterministicShuffle(data || [], today);
       return shuffled.slice(0, 20).map(this.transformQuestion);
     } catch (error) {
-      console.error('Error in getDailyChallengeQuestions:', error);
+
       return this.getSampleQuestions(20);
     }
   }

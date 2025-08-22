@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from '@/src/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface IVerificationStatus {

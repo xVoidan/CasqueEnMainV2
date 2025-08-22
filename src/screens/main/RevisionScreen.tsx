@@ -11,9 +11,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
-import { FadeInView } from '@/src/components/animations/FadeInView';
+// import { FadeInView } from '@/src/components/animations/FadeInView';
 import { theme } from '@/src/styles/theme';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/store/AuthContext';
@@ -102,7 +102,7 @@ export const RevisionScreen: React.FC = () => {
 
       setQuestions(formattedQuestions);
     } catch (error) {
-      console.error('Erreur chargement questions:', error);
+      // Erreur chargement questions
       Alert.alert('Erreur', 'Impossible de charger les questions');
     } finally {
       setLoading(false);
@@ -142,7 +142,7 @@ export const RevisionScreen: React.FC = () => {
         { cancelable: true },
       );
     } catch (error) {
-      console.error('Erreur toggle mastered:', error);
+      // Erreur toggle mastered
       Alert.alert('Erreur', 'Impossible de modifier le statut');
     }
   };

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '../services/supabase';
+import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '../store/AuthContext';
 
 // Constants

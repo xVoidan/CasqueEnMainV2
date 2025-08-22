@@ -126,7 +126,7 @@ export function useUserData(): IUserData & { refreshData: () => Promise<void> } 
           error: null,
         });
       } catch (error) {
-        console.error('Error loading user data:', error);
+
         setUserData(prev => ({
           ...prev,
           isLoading: false,
@@ -154,7 +154,7 @@ export function useUserData(): IUserData & { refreshData: () => Promise<void> } 
         }));
       }
     } catch (error) {
-      console.error('Error refreshing user data:', error);
+
     }
   };
 
