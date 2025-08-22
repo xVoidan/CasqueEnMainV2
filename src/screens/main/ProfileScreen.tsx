@@ -45,7 +45,7 @@ export const ProfileScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [sessionHistory, setSessionHistory] = useState<ISessionHistory[]>([]);
-  
+
   // État pour l'édition
   const [editedUsername, setEditedUsername] = useState(profile?.username || '');
   const [editedDepartment, setEditedDepartment] = useState(profile?.department || '');
@@ -64,8 +64,8 @@ export const ProfileScreen: React.FC = () => {
   }, [profile, user]);
 
   const loadSessionHistory = async (): Promise<void> => {
-    if (!user) return;
-    
+    if (!user) {return;}
+
     try {
       const { data, error } = await supabase
         .from('quiz_sessions')
@@ -82,7 +82,7 @@ export const ProfileScreen: React.FC = () => {
         .order('created_at', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
+      if (error) {throw error;}
       setSessionHistory(data || []);
     } catch (error) {
       console.error('Erreur lors du chargement de l\'historique:', error);
@@ -119,7 +119,7 @@ export const ProfileScreen: React.FC = () => {
           .from('avatars')
           .upload(fileName, formData);
 
-        if (uploadError) throw uploadError;
+        if (uploadError) {throw uploadError;}
 
         // Obtenir l'URL publique
         const { data: urlData } = supabase.storage
@@ -132,7 +132,7 @@ export const ProfileScreen: React.FC = () => {
           .update({ avatar_url: urlData.publicUrl })
           .eq('user_id', user.id);
 
-        if (updateError) throw updateError;
+        if (updateError) {throw updateError;}
 
         await refreshData();
         Alert.alert('Succès', 'Photo de profil mise à jour !');
@@ -146,8 +146,8 @@ export const ProfileScreen: React.FC = () => {
   };
 
   const saveProfile = async (): Promise<void> => {
-    if (!user) return;
-    
+    if (!user) {return;}
+
     setLoading(true);
     try {
       // Vérifier l'unicité du username
@@ -173,14 +173,14 @@ export const ProfileScreen: React.FC = () => {
         })
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {throw error;}
 
       // Mettre à jour l'email si modifié
       if (editedEmail !== user.email) {
         const { error: emailError } = await supabase.auth.updateUser({
           email: editedEmail,
         });
-        if (emailError) throw emailError;
+        if (emailError) {throw emailError;}
       }
 
       await refreshData();
@@ -200,15 +200,15 @@ export const ProfileScreen: React.FC = () => {
       'Êtes-vous sûr de vouloir vous déconnecter ?',
       [
         { text: 'Annuler', style: 'cancel' },
-        { 
-          text: 'Déconnexion', 
+        {
+          text: 'Déconnexion',
           style: 'destructive',
           onPress: async () => {
             await signOut();
             router.replace('/auth/login');
-          }
+          },
         },
-      ]
+      ],
     );
   };
 
@@ -263,10 +263,10 @@ export const ProfileScreen: React.FC = () => {
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Mon Profil</Text>
             <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
-              <Ionicons 
-                name={isEditing ? 'checkmark' : 'create-outline'} 
-                size={24} 
-                color={theme.colors.primary} 
+              <Ionicons
+                name={isEditing ? 'checkmark' : 'create-outline'}
+                size={24}
+                color={theme.colors.primary}
               />
             </TouchableOpacity>
           </View>
@@ -321,7 +321,7 @@ export const ProfileScreen: React.FC = () => {
           <FadeInView duration={600} delay={100}>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Informations</Text>
-              
+
               <View style={styles.infoRow}>
                 <Ionicons name="mail-outline" size={20} color={theme.colors.text.secondary} />
                 {isEditing ? (
@@ -337,7 +337,7 @@ export const ProfileScreen: React.FC = () => {
                 )}
               </View>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.infoRow}
                 onPress={() => setShowPasswordModal(true)}
               >
@@ -362,7 +362,7 @@ export const ProfileScreen: React.FC = () => {
           <FadeInView duration={600} delay={200}>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Statistiques</Text>
-              
+
               <View style={styles.statsGrid}>
                 <View style={styles.statCard}>
                   <Text style={styles.statValue}>{profile.total_points.toLocaleString()}</Text>
@@ -399,7 +399,7 @@ export const ProfileScreen: React.FC = () => {
           <FadeInView duration={600} delay={300}>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Historique récent</Text>
-              
+
               {sessionHistory.map((session) => (
                 <View key={session.id} style={styles.historyItem}>
                   <View style={styles.historyLeft}>
@@ -431,8 +431,8 @@ export const ProfileScreen: React.FC = () => {
           </TouchableOpacity>
 
           {isEditing && (
-            <TouchableOpacity 
-              style={styles.saveButton} 
+            <TouchableOpacity
+              style={styles.saveButton}
               onPress={saveProfile}
               disabled={loading}
             >

@@ -28,7 +28,7 @@ export const OfflineNotice: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  if (!isOffline) return null;
+  if (!isOffline) {return null;}
 
   return (
     <Animated.View

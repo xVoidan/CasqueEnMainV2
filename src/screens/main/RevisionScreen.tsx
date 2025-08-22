@@ -52,7 +52,7 @@ export const RevisionScreen: React.FC = () => {
   }, [activeTab, selectedTheme]);
 
   const loadQuestions = async (): Promise<void> => {
-    if (!user) return;
+    if (!user) {return;}
 
     setLoading(true);
     try {
@@ -87,7 +87,7 @@ export const RevisionScreen: React.FC = () => {
         .order('error_count', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (error) {throw error;}
 
       // Transformer les données
       const formattedQuestions: IRevisionQuestion[] = (data || []).map((item: any) => ({
@@ -121,7 +121,7 @@ export const RevisionScreen: React.FC = () => {
   }, [activeTab, selectedTheme]);
 
   const toggleMastered = async (questionId: string, currentStatus: boolean): Promise<void> => {
-    if (!user) return;
+    if (!user) {return;}
 
     try {
       const { error } = await supabase
@@ -130,16 +130,16 @@ export const RevisionScreen: React.FC = () => {
         .eq('user_id', user.id)
         .eq('question_id', questionId);
 
-      if (error) throw error;
+      if (error) {throw error;}
 
       // Retirer la question de la liste actuelle
       setQuestions(prev => prev.filter(q => q.id !== questionId));
-      
+
       Alert.alert(
         'Succès',
         currentStatus ? 'Question marquée à revoir' : 'Question maîtrisée !',
         [{ text: 'OK' }],
-        { cancelable: true }
+        { cancelable: true },
       );
     } catch (error) {
       console.error('Erreur toggle mastered:', error);
@@ -203,11 +203,11 @@ export const RevisionScreen: React.FC = () => {
               </View>
             )}
           </View>
-          
+
           <Text style={styles.questionText} numberOfLines={2}>
             {question.question_text}
           </Text>
-          
+
           <Text style={styles.lastAttempt}>
             Dernière tentative: {formatDate(question.last_attempt)}
           </Text>
@@ -220,10 +220,10 @@ export const RevisionScreen: React.FC = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffInDays === 0) return "Aujourd'hui";
-    if (diffInDays === 1) return "Hier";
-    if (diffInDays < 7) return `Il y a ${diffInDays} jours`;
+
+    if (diffInDays === 0) {return "Aujourd'hui";}
+    if (diffInDays === 1) {return 'Hier';}
+    if (diffInDays < 7) {return `Il y a ${diffInDays} jours`;}
     return date.toLocaleDateString('fr-FR');
   };
 
@@ -270,7 +270,7 @@ export const RevisionScreen: React.FC = () => {
             style={[
               styles.filterChip,
               selectedTheme === theme.id && styles.filterChipActive,
-              { borderColor: theme.color }
+              { borderColor: theme.color },
             ]}
             onPress={() => setSelectedTheme(theme.id)}
           >
@@ -278,7 +278,7 @@ export const RevisionScreen: React.FC = () => {
               style={[
                 styles.filterText,
                 selectedTheme === theme.id && styles.filterTextActive,
-                { color: selectedTheme === theme.id ? theme.color : theme.color }
+                { color: selectedTheme === theme.id ? theme.color : theme.color },
               ]}
             >
               {theme.name}
@@ -308,7 +308,7 @@ export const RevisionScreen: React.FC = () => {
           <View style={styles.emptyContainer}>
             <Ionicons name="school-outline" size={64} color={theme.colors.text.secondary} />
             <Text style={styles.emptyText}>
-              {activeTab === 'review' 
+              {activeTab === 'review'
                 ? 'Aucune question à réviser'
                 : 'Aucune question maîtrisée'}
             </Text>

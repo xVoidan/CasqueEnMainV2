@@ -55,7 +55,7 @@ export const BadgeUnlockNotification: React.FC<IBadgeUnlockNotificationProps> = 
     }
   }, [isVisible, badge]);
 
-  if (!badge) return null;
+  if (!badge) {return null;}
 
   const rotate = rotateAnim.interpolate({
     inputRange: [0, 1],
@@ -71,7 +71,7 @@ export const BadgeUnlockNotification: React.FC<IBadgeUnlockNotificationProps> = 
     >
       <View style={styles.overlay}>
         <ConfettiAnimation isVisible={isVisible} />
-        
+
         <Animated.View
           style={[
             styles.container,
@@ -91,16 +91,16 @@ export const BadgeUnlockNotification: React.FC<IBadgeUnlockNotificationProps> = 
           >
             <View style={styles.content}>
               <Text style={styles.title}>🎉 NOUVEAU BADGE DÉBLOQUÉ!</Text>
-              
+
               <View style={styles.badgeContainer}>
                 <View style={styles.badgeBg}>
                   <Text style={styles.badgeIcon}>{badge.icon}</Text>
                 </View>
               </View>
-              
+
               <Text style={styles.badgeName}>{badge.name}</Text>
               <Text style={styles.badgeDescription}>{badge.description}</Text>
-              
+
               <TouchableOpacity style={styles.button} onPress={onClose}>
                 <LinearGradient
                   colors={[theme.colors.primary, theme.colors.secondary]}

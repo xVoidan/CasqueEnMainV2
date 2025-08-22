@@ -86,10 +86,10 @@ class NotificationService {
   async showBadgeUnlock(badgeName: string): Promise<void> {
     // Jouer le son d'unlock
     await this.playSound('unlock');
-    
+
     // Vibration de succès
     await this.hapticFeedback('success');
-    
+
     // L'animation confettis sera gérée par le composant UI
   }
 

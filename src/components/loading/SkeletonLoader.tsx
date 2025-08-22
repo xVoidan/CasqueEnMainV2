@@ -25,7 +25,7 @@ export const SkeletonLoader: React.FC<ISkeletonLoaderProps> = ({
         toValue: 1,
         duration: 1500,
         useNativeDriver: true,
-      })
+      }),
     ).start();
   }, [shimmerAnim]);
 
@@ -97,9 +97,9 @@ export const SkeletonCard: React.FC<{ style?: ViewStyle }> = ({ style }) => {
   );
 };
 
-export const SkeletonList: React.FC<{ count?: number; style?: ViewStyle }> = ({ 
-  count = 3, 
-  style 
+export const SkeletonList: React.FC<{ count?: number; style?: ViewStyle }> = ({
+  count = 3,
+  style,
 }) => {
   return (
     <View style={style}>

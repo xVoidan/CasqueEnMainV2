@@ -52,7 +52,7 @@ export const ConfettiAnimation: React.FC<IConfettiAnimationProps> = ({
     });
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) {return null;}
 
   return (
     <View style={styles.container} pointerEvents="none">

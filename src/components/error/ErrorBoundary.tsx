@@ -69,7 +69,7 @@ export class ErrorBoundary extends Component<IProps, IState> {
             <View style={styles.iconContainer}>
               <Ionicons name="warning-outline" size={64} color={theme.colors.error} />
             </View>
-            
+
             <Text style={styles.title}>Oops ! Une erreur est survenue</Text>
             <Text style={styles.subtitle}>
               L'application a rencontré un problème inattendu.
@@ -93,8 +93,8 @@ export class ErrorBoundary extends Component<IProps, IState> {
               <Text style={styles.buttonText}>Réessayer</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={[styles.button, styles.secondaryButton]} 
+            <TouchableOpacity
+              style={[styles.button, styles.secondaryButton]}
               onPress={() => {
                 // Rediriger vers l'écran d'accueil
                 this.handleReset();
