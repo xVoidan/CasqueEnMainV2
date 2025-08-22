@@ -11,7 +11,7 @@ interface ISavedForm {
   completed?: boolean;
 }
 
-const FORM_STORAGE_PREFIX = '@CasqueEnMain:form:';
+const FORM_STORAGE_PREFIX = '@CasqueEnMains:form:';
 const FORM_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export class FormPersistenceService {

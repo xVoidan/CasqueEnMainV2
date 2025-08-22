@@ -31,7 +31,7 @@ export function HomeScreen(): React.ReactElement {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Accueil</Text>
-        <Text style={styles.subtitle}>Bienvenue sur CasqueEnMain</Text>
+        <Text style={styles.subtitle}>Bienvenue sur Casque En Mains</Text>
       </View>
     </SafeAreaView>
   );

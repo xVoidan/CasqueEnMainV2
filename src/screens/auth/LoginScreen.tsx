@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
-  Image,
   Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,11 +23,12 @@ import { FadeInView } from '../../components/animations/FadeInView';
 import { SocialLogin } from '../../components/auth/SocialLogin';
 import { SecurityBadge } from '../../components/auth/SecurityBadge';
 import { BiometricSetupModal } from '../../components/auth/BiometricSetupModal';
+import { LogoDisplay } from '../../components/common/LogoDisplay';
 import { useLoginScreen } from './LoginScreen.hooks';
 import { theme } from '../../styles/theme';
 
 // Constants
-const LOGO_SIZE = 100;
+const LOGO_SIZE = 120;
 const BIOMETRIC_ICON_SIZE = 32;
 const FADE_DELAY_INCREMENT = 100;
 const SHADOW_COLOR = '#000';
@@ -67,6 +67,14 @@ const styles = StyleSheet.create({
     width: LOGO_SIZE,
     height: LOGO_SIZE,
     marginBottom: theme.spacing.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: LOGO_SIZE / 2,
+    padding: 15,
+    shadowColor: SHADOW_COLOR,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
   },
   title: {
     fontSize: theme.typography.fontSize.xxxl,
@@ -222,12 +230,14 @@ export function LoginScreen(): React.ReactElement {
 
             <FadeInView duration={600} delay={0}>
               <View style={styles.logoContainer}>
-                <Image
-                  source={require('../../../assets/images/icon.png')}
-                  style={styles.logo}
-                  resizeMode="contain"
+                <LogoDisplay 
+                  size={200} 
+                  animated 
+                  showHalo 
+                  showParticles={false}
+                  style={{ marginBottom: 20 }}
                 />
-                <Text style={styles.title}>CasqueEnMain</Text>
+                <Text style={styles.title}>Casque En Mains</Text>
                 <Text style={styles.subtitle}>Préparez-vous aux concours SPP</Text>
               </View>
             </FadeInView>

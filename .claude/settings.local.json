@@ -14,7 +14,9 @@
       "Bash(npm install:*)",
       "Bash(grep:*)",
       "Bash(sed:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npx expo prebuild:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

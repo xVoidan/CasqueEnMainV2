@@ -13,8 +13,8 @@ interface IOTPVerificationResponse {
   error?: string;
 }
 
-const MAGIC_LINK_KEY = '@CasqueEnMain:pendingMagicLink';
-const OTP_ATTEMPTS_KEY = '@CasqueEnMain:otpAttempts';
+const MAGIC_LINK_KEY = '@CasqueEnMains:pendingMagicLink';
+const OTP_ATTEMPTS_KEY = '@CasqueEnMains:otpAttempts';
 const MAX_OTP_ATTEMPTS = 3;
 const OTP_EXPIRY = 600000; // 10 minutes
 

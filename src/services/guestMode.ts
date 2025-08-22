@@ -14,8 +14,8 @@ interface IGuestSession {
   };
 }
 
-const GUEST_SESSION_KEY = '@CasqueEnMain:guestSession';
-const GUEST_CONVERSION_PROMPT_KEY = '@CasqueEnMain:guestConversionPrompt';
+const GUEST_SESSION_KEY = '@CasqueEnMains:guestSession';
+const GUEST_CONVERSION_PROMPT_KEY = '@CasqueEnMains:guestConversionPrompt';
 const SESSIONS_BEFORE_PROMPT = 3;
 
 export class GuestModeService {

@@ -8,7 +8,7 @@ interface IVerificationStatus {
   reminderCount: number;
 }
 
-const VERIFICATION_STATUS_KEY = '@CasqueEnMain:emailVerification';
+const VERIFICATION_STATUS_KEY = '@CasqueEnMains:emailVerification';
 const REMINDER_INTERVAL = 3 * 24 * 60 * 60 * 1000; // 3 days
 const MAX_REMINDERS = 3;
 

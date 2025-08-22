@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "CasqueEnMainV2",
-    "slug": "CasqueEnMainV2",
+    "name": "Casque En Mains V2",
+    "slug": "CasqueEnMainsV2",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/LogoApp.png",
     "scheme": "casqueenmainv2",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,25 +13,25 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/LogoApp.png",
+        "backgroundColor": "#1a2b4a"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/LogoApp.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/LogoApp.png",
+          "imageWidth": 320,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#0f1a2e"
         }
       ]
     ],

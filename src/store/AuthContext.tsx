@@ -26,8 +26,8 @@ interface IAuthContext {
 
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
-const GUEST_SESSION_KEY = '@CasqueEnMain:guestSession';
-const AUTH_SESSION_KEY = '@CasqueEnMain:authSession';
+const GUEST_SESSION_KEY = '@CasqueEnMains:guestSession';
+const AUTH_SESSION_KEY = '@CasqueEnMains:authSession';
 
 // Magic numbers constants
 const INITIAL_GRADE = 1;
@@ -220,7 +220,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
             (customError as any).email = email;
             throw customError;
           }
-          throw error;
+          
+          // Traduire les autres erreurs courantes
+          let errorMessage = '';
+          
+          if (error.message === 'Invalid login credentials') {
+            errorMessage = '❌ Email ou mot de passe incorrect. Veuillez vérifier vos identifiants et réessayer.';
+          } else if (error.message.includes('Invalid email')) {
+            errorMessage = '📧 Format d\'email invalide. Veuillez entrer une adresse email valide.';
+          } else if (error.message.includes('User not found')) {
+            errorMessage = '🔍 Aucun compte trouvé avec cet email. Veuillez vous inscrire d\'abord.';
+          } else if (error.message.includes('Too many requests')) {
+            errorMessage = '⏱️ Trop de tentatives de connexion. Veuillez patienter quelques instants avant de réessayer.';
+          } else if (error.message.includes('Network')) {
+            errorMessage = '📡 Problème de connexion réseau. Veuillez vérifier votre connexion internet.';
+          } else {
+            // Message par défaut pour les autres erreurs
+            errorMessage = `⚠️ Erreur de connexion : ${error.message}`;
+          }
+          
+          const customError = new Error(errorMessage);
+          (customError as any).originalError = error;
+          throw customError;
         }
 
         if (data.session !== null) {
@@ -260,7 +281,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       });
 
       if (error) {
-        throw error;
+        // Traduire les erreurs d'inscription
+        let errorMessage = '';
+        
+        if (error.message === 'User already registered') {
+          errorMessage = '📧 Un compte existe déjà avec cet email. Veuillez vous connecter.';
+        } else if (error.message.includes('Password should be at least')) {
+          errorMessage = '🔒 Le mot de passe doit contenir au moins 6 caractères.';
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = '📧 Format d\'email invalide. Veuillez entrer une adresse email valide.';
+        } else if (error.message.includes('rate limit')) {
+          errorMessage = '⏱️ Trop de tentatives. Veuillez patienter quelques instants avant de réessayer.';
+        } else {
+          errorMessage = `⚠️ Erreur d'inscription : ${error.message}`;
+        }
+        
+        const customError = new Error(errorMessage);
+        (customError as any).originalError = error;
+        throw customError;
       }
 
       // Créer le profil

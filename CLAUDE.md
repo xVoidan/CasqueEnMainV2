@@ -1,10 +1,10 @@
-# CasqueEnMainV2 - Mémo Claude
+# Casque En Mains V2 - Mémo Claude
 
 ## 📋 État du Projet
 
 ### Vue d'ensemble
 
-- **Nom**: CasqueEnMainV2
+- **Nom**: Casque En Mains V2
 - **Type**: Application React Native avec Expo Router
 - **Backend**: Supabase (projet: ucwgtiaebljfbvhokicf)
 - **Langages**: TypeScript strict, React Native 0.79.5

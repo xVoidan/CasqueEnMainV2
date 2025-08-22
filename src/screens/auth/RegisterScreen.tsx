@@ -526,7 +526,7 @@ export function RegisterScreen(): React.ReactElement {
               <View style={styles.successContainer}>
                 <Text style={styles.successTitle}>🎉 Inscription réussie !</Text>
                 <Text style={styles.successText}>
-                  Bienvenue chez CasqueEnMain !{'\n'}
+                  Bienvenue chez Casque En Mains !{'\n'}
                   Vous êtes maintenant Aspirant.{'\n\n'}
                   Redirection en cours...
                 </Text>

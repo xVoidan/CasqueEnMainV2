@@ -232,12 +232,10 @@ export function useLoginScreen(): ILoginHookReturn {
       haptics.notification('error');
       const errorMessage = error.message ?? 'Une erreur est survenue';
 
-      console.error('Error details:', {
-        message: error.message,
-        code: error.code,
-        email: error.email,
-        fullError: error,
-      }); // Pour déboguer en détail
+      // Log uniquement en développement
+      if (__DEV__) {
+        console.warn('Login error:', error.message);
+      }
 
       // Si l'email n'est pas confirmé, proposer de renvoyer l'email
       // Vérifier plusieurs conditions pour être sûr de détecter l'erreur
@@ -262,7 +260,7 @@ export function useLoginScreen(): ILoginHookReturn {
                   setLoading(true);
                   // Utiliser l'email saisi dans le formulaire
                   const emailToResend = error.email ?? email;
-                  console.warn('Resending email to:', emailToResend);
+                  // Email à renvoyer
 
                   const { data, error: resendError } = await supabase.auth.resend({
                     type: 'signup',
@@ -274,10 +272,10 @@ export function useLoginScreen(): ILoginHookReturn {
                     },
                   });
 
-                  console.warn('Resend response:', { data, error: resendError });
+                  // Réponse du renvoi
 
                   if (resendError) {
-                    console.error('Resend error details:', resendError);
+                    // Erreur lors du renvoi
                     setModalConfig({
                       title: '❌ Erreur',
                       message: 'Impossible de renvoyer l\'email de confirmation. Veuillez réessayer plus tard.',
@@ -295,7 +293,7 @@ export function useLoginScreen(): ILoginHookReturn {
                     setModalVisible(true);
                   }
                 } catch (catchError) {
-                  console.error('Unexpected error during resend:', catchError);
+                  // Erreur inattendue
                   setModalConfig({
                     title: '❌ Erreur',
                     message: `Une erreur est survenue lors de l'envoi de l'email: ${(catchError as Error).message || 'Erreur inconnue'}`,
@@ -431,8 +429,8 @@ export function useLoginScreen(): ILoginHookReturn {
           buttons: [{ text: 'Parfait !', style: 'primary', onPress: () => setModalVisible(false) }],
         });
         setModalVisible(true);
-      } catch (error) {
-        console.error('Error setting up biometric:', error);
+      } catch (_error) {
+        // Erreur lors de la configuration biométrique
         setModalConfig({
           title: '❌ Erreur',
           message: 'Impossible de configurer la biométrie. Veuillez réessayer plus tard.',
