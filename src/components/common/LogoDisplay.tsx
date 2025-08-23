@@ -273,7 +273,7 @@ export function LogoDisplay({
         <View style={[styles.logoWrapper, { width: size, height: size }]}>
           <Image
             source={require('../../../assets/images/LogoApp.png')}
-            style={styles.dynamicStyle1}
+            style={{ width: size * 0.8, height: size * 0.8 }}
             resizeMode="contain"
           />
         </View>
