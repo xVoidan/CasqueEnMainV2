@@ -125,7 +125,7 @@ export function useUserData(): IUserData & { refreshData: () => Promise<void> } 
           isLoading: false,
           error: null,
         });
-      } catch (error) {
+      } catch (_error) {
 
         setUserData(prev => ({
           ...prev,
@@ -153,7 +153,7 @@ export function useUserData(): IUserData & { refreshData: () => Promise<void> } 
           progressToNextGrade: gradeInfo.progress,
         }));
       }
-    } catch (error) {
+    } catch (_error) {
 
     }
   };

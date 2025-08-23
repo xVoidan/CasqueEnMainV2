@@ -104,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
           setIsGuest(true);
         }
       }
-    } catch (error) {
+    } catch (_error) {
 
     } finally {
       setLoading(false);
@@ -251,7 +251,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
           await handleStorageOperations.setAuthSession(data.session);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       const authError = error as AuthError;
       throw new Error(authError.message ?? 'Erreur de connexion');
     } finally {
@@ -312,7 +312,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
         setIsGuest(false);
         await AsyncStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(data.session));
       }
-    } catch (error) {
+    } catch (_error) {
       const authError = error as AuthError;
       throw new Error(authError.message || "Erreur lors de l'inscription");
     } finally {
@@ -335,7 +335,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       setSession(null);
       setIsGuest(false);
       await handleStorageOperations.clearAllSessions();
-    } catch (error) {
+    } catch (_error) {
 
       throw new Error('Erreur lors de la déconnexion');
     } finally {
@@ -353,7 +353,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       if (error) {
         throw error;
       }
-    } catch (error) {
+    } catch (_error) {
       const authError = error as AuthError;
       throw new Error(authError.message || 'Erreur lors de la réinitialisation');
     } finally {
@@ -367,7 +367,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): React
       setIsGuest(true);
 
       await handleStorageOperations.setGuestSession();
-    } catch (error) {
+    } catch (_error) {
 
       throw new Error('Erreur lors du passage en mode invité');
     } finally {

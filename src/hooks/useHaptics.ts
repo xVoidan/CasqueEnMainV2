@@ -12,16 +12,16 @@ interface IHapticsFunctions {
   impact: (style?: ImpactStyle) => Promise<void>;
   notification: (type?: NotificationType) => Promise<void>;
   selection: () => Promise<void>;
-  
+
   // Alias pratiques
   tap: () => Promise<void>;
   press: () => Promise<void>;
   longPress: () => Promise<void>;
   toggle: () => Promise<void>;
-  
+
   // Patterns spéciaux
   pattern: (type: PatternType) => Promise<void>;
-  
+
   // Configuration
   setEnabled: (enabled: boolean) => Promise<void>;
   isEnabled: boolean;
@@ -51,7 +51,7 @@ export const useHaptics = (): IHapticsFunctions => {
         setIsEnabled(false);
         return;
       }
-      
+
       try {
         const enabled = await AsyncStorage.getItem(HAPTICS_ENABLED_KEY);
         setIsEnabled(enabled !== 'false'); // Activé par défaut
@@ -81,7 +81,7 @@ export const useHaptics = (): IHapticsFunctions => {
   }, [isEnabled]);
 
   const pattern = useCallback(async (type: PatternType): Promise<void> => {
-    if (!isEnabled || Platform.OS === 'web') return;
+    if (!isEnabled || Platform.OS === 'web') {return;}
 
     switch (type) {
       case 'double':
@@ -92,7 +92,7 @@ export const useHaptics = (): IHapticsFunctions => {
       case 'triple':
         for (let i = 0; i < 3; i++) {
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          if (i < 2) await new Promise(resolve => setTimeout(resolve, 100));
+          if (i < 2) {await new Promise(resolve => setTimeout(resolve, 100));}
         }
         break;
       case 'long':
@@ -111,16 +111,16 @@ export const useHaptics = (): IHapticsFunctions => {
     impact,
     notification,
     selection,
-    
+
     // Alias pratiques
     tap: useCallback(() => impact('light'), [impact]),
     press: useCallback(() => impact('medium'), [impact]),
     longPress: useCallback(() => impact('heavy'), [impact]),
     toggle: selection,
-    
+
     // Patterns spéciaux
     pattern,
-    
+
     // Configuration
     setEnabled: setEnabledPref,
     isEnabled,

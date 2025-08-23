@@ -23,7 +23,7 @@ interface IBadgeUnlockNotificationProps {
   onClose: () => void;
 }
 
-export const BadgeUnlockNotification = React.memo(function BadgeUnlockNotification: React.FC<IBadgeUnlockNotificationProps> = ({
+export const BadgeUnlockNotification: React.FC<IBadgeUnlockNotificationProps> = React.memo(({
   isVisible,
   badge,
   onClose,
@@ -118,7 +118,9 @@ export const BadgeUnlockNotification = React.memo(function BadgeUnlockNotificati
       </View>
     </Modal>
   );
-};
+});
+
+BadgeUnlockNotification.displayName = 'BadgeUnlockNotification';
 
 const styles = StyleSheet.create({
   overlay: {

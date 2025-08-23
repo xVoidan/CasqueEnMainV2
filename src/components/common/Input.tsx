@@ -191,11 +191,6 @@ export function Input({
     return theme.colors.gray[400];
   };
 
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
@@ -233,7 +228,7 @@ export function Input({
         )}
         {isPassword && (
           <TouchableOpacity
-            onPress={handlePress} {
+            onPress={() => {
               setHidePassword(!hidePassword);
             }}
             style={styles.rightIcon}

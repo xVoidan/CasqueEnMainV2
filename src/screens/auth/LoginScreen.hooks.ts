@@ -89,18 +89,14 @@ export function useLoginScreen(): ILoginHookReturn {
     buttons: undefined as any,
   });
 
-  // Google Auth - conditional initialization
-  const googleAuthConfig = googleAuthAvailable
-    ? {
-        iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-        androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
-        webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-      }
-    : undefined;
+  // Google Auth - always initialize hook but with conditional config
+  const googleAuthConfig = {
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '',
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID || '',
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '',
+  };
 
-  const [_request, response, promptAsync] = googleAuthAvailable
-    ? Google.useAuthRequest(googleAuthConfig)
-    : [undefined, undefined, undefined];
+  const [_request, response, promptAsync] = Google.useAuthRequest(googleAuthConfig);
 
   const checkBiometricAvailability = async (): Promise<void> => {
     const isAvailable = await BiometricAuthService.isBiometricSupported();
@@ -262,7 +258,7 @@ export function useLoginScreen(): ILoginHookReturn {
                   const emailToResend = error.email ?? email;
                   // Email à renvoyer
 
-                  const { data, error: resendError } = await supabase.auth.resend({
+                  const { data: _data, error: resendError } = await supabase.auth.resend({
                     type: 'signup',
                     email: emailToResend,
                     options: {
@@ -357,7 +353,7 @@ export function useLoginScreen(): ILoginHookReturn {
           setShowLoading(true);
           await signIn(credentials.email, credentials.password);
           haptics.notification('success');
-        } catch (error) {
+        } catch (_error) {
           haptics.notification('error');
           setModalConfig({
             title: '❌ Erreur de connexion',

@@ -74,9 +74,9 @@ export const SwipeableItem: React.FC<ISwipeableItemProps> = ({
 
   const renderLeftActions = (
     progress: Animated.AnimatedInterpolation<number>,
-    dragX: Animated.AnimatedInterpolation<number>
+    _dragX: Animated.AnimatedInterpolation<number>,
   ) => {
-    if (leftActions.length === 0) return null;
+    if (leftActions.length === 0) {return null;}
 
     return (
       <View style={styles.actionsContainer}>
@@ -122,9 +122,9 @@ export const SwipeableItem: React.FC<ISwipeableItemProps> = ({
 
   const renderRightActions = (
     progress: Animated.AnimatedInterpolation<number>,
-    dragX: Animated.AnimatedInterpolation<number>
+    _dragX: Animated.AnimatedInterpolation<number>,
   ) => {
-    if (rightActions.length === 0) return null;
+    if (rightActions.length === 0) {return null;}
 
     return (
       <View style={[styles.actionsContainer, styles.rightActionsContainer]}>
@@ -185,6 +185,8 @@ export const SwipeableItem: React.FC<ISwipeableItemProps> = ({
     </Swipeable>
   );
 };
+
+SwipeableItem.displayName = 'SwipeableItem';
 
 // Composants prédéfinis pour les actions courantes
 export const DeleteSwipeAction: SwipeAction = {
@@ -268,7 +270,7 @@ export const SwipeableListItem: React.FC<ISwipeableListItemProps> = ({
             <Ionicons name={leftIcon} size={24} color={theme.colors.text.secondary} />
           </View>
         )}
-        
+
         <View style={styles.listItemContent}>
           <Text style={styles.listItemTitle}>{title}</Text>
           {subtitle && (
@@ -285,6 +287,8 @@ export const SwipeableListItem: React.FC<ISwipeableListItemProps> = ({
     </SwipeableItem>
   );
 };
+
+SwipeableListItem.displayName = 'SwipeableListItem';
 
 const styles = StyleSheet.create({
   actionsContainer: {

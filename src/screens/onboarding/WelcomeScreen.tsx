@@ -19,7 +19,7 @@ import { supabase } from '@/src/lib/supabase';
 import { theme } from '../../styles/theme';
 
 const AVATAR_SIZE = 120;
-const ICON_SIZE = 32;
+const _ICON_SIZE = 32;
 
 const styles = StyleSheet.create({
   container: {
@@ -245,7 +245,7 @@ export function WelcomeScreen(): React.ReactElement {
         .eq('user_id', user.id);
 
       if (updateError) {throw updateError;}
-    } catch (error) {
+    } catch (_error) {
 
     } finally {
       setUploading(false);

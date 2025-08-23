@@ -10,7 +10,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/src/styles/theme';
 
-export const OfflineNotice = React.memo(function OfflineNotice: React.FC = () => {
+export const OfflineNotice: React.FC = React.memo(() => {
   const [isOffline, setIsOffline] = useState(false);
   const slideAnim = new Animated.Value(-100);
 
@@ -47,7 +47,9 @@ export const OfflineNotice = React.memo(function OfflineNotice: React.FC = () =>
       </View>
     </Animated.View>
   );
-};
+});
+
+OfflineNotice.displayName = 'OfflineNotice';
 
 const styles = StyleSheet.create({
   container: {

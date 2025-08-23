@@ -64,11 +64,6 @@ export class ErrorBoundary extends Component<IProps, IState> {
         return this.props.fallback;
       }
 
-      
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
   return (
         <View style={styles.container}>
           <ScrollView contentContainerStyle={styles.content}>
@@ -101,7 +96,7 @@ export class ErrorBoundary extends Component<IProps, IState> {
 
             <TouchableOpacity
               style={[styles.button, styles.secondaryButton]}
-              onPress={handlePress} {
+              onPress={() => {
                 // Rediriger vers l'écran d'accueil
                 this.handleReset();
               }}

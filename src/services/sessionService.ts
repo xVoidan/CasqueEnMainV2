@@ -73,7 +73,7 @@ class SessionService {
         if (error) {
 
         }
-      } catch (error) {
+      } catch (_error) {
 
       }
     }
@@ -91,7 +91,7 @@ class SessionService {
         return JSON.parse(sessionData);
       }
       return null;
-    } catch (error) {
+    } catch (_error) {
 
       return null;
     }
@@ -131,11 +131,11 @@ class SessionService {
               is_partial: answer.isPartial,
               is_skipped: answer.isSkipped,
             });
-        } catch (error) {
+        } catch (_error) {
 
         }
       }
-    } catch (error) {
+    } catch (_error) {
 
       throw error;
     }
@@ -183,13 +183,13 @@ class SessionService {
 
           // Mettre à jour les points de l'utilisateur
           await this.updateUserPoints(session.userId, pointsEarned);
-        } catch (error) {
+        } catch (_error) {
 
         }
       }
 
       return session;
-    } catch (error) {
+    } catch (_error) {
 
       throw error;
     }
@@ -224,11 +224,11 @@ class SessionService {
               completed_at: session.completedAt,
             })
             .eq('id', sessionId);
-        } catch (error) {
+        } catch (_error) {
 
         }
       }
-    } catch (error) {
+    } catch (_error) {
 
     }
   }
@@ -244,7 +244,7 @@ class SessionService {
         return history.slice(0, limit);
       }
       return [];
-    } catch (error) {
+    } catch (_error) {
 
       return [];
     }
@@ -274,7 +274,7 @@ class SessionService {
       }
 
       return this.calculateStats(data || []);
-    } catch (error) {
+    } catch (_error) {
 
       // Fallback sur les stats locales
       const history = await this.getSessionHistory(100);
@@ -297,7 +297,7 @@ class SessionService {
       const limitedHistory = history.slice(0, 50);
 
       await AsyncStorage.setItem(SESSION_HISTORY_KEY, JSON.stringify(limitedHistory));
-    } catch (error) {
+    } catch (_error) {
 
     }
   }
@@ -330,7 +330,7 @@ class SessionService {
       if (updateError) {
         throw updateError;
       }
-    } catch (error) {
+    } catch (_error) {
 
     }
   }

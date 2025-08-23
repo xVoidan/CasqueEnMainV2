@@ -95,7 +95,7 @@ export function TrainingSessionScreen(): React.ReactElement {
   const { config } = useLocalSearchParams();
   const sessionConfig: ISessionConfig = config ? JSON.parse(config as string) : null;
 
-  const [questions, setQuestions] = useState<IQuestion[]>(SAMPLE_QUESTIONS);
+  const [questions, _setQuestions] = useState<IQuestion[]>(SAMPLE_QUESTIONS);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [sessionAnswers, setSessionAnswers] = useState<ISessionAnswer[]>([]);
@@ -133,16 +133,6 @@ export function TrainingSessionScreen(): React.ReactElement {
           return prev - 1;
         });
       }, 1000);
-
-      
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
 
   return () => {
         if (timerRef.current) {
@@ -362,7 +352,7 @@ export function TrainingSessionScreen(): React.ReactElement {
               <TouchableOpacity
                 key={answer.id}
                 style={[styles.answerButton, getAnswerStyle(answer.id)]}
-                onPress={handlePress} toggleAnswer(answer.id)}
+                onPress={() => toggleAnswer(answer.id)}
                 disabled={isValidated}
                 activeOpacity={0.8}
               >
@@ -404,7 +394,7 @@ export function TrainingSessionScreen(): React.ReactElement {
           <View style={styles.bottomActions}>
             <Button
               title="VALIDER"
-              onPress={handlePress} handleValidate(false)}
+              onPress={() => handleValidate(false)}
               disabled={selectedAnswers.length === 0}
               fullWidth
               size="large"

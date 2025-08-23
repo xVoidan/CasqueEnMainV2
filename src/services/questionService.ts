@@ -55,16 +55,16 @@ class QuestionService {
       // Ordre aléatoire
       query = query.order('random()');
 
-      const { data, error } = await query;
+      const { data, error: _error } = await query;
 
-      if (error) {
+      if (_error) {
 
-        throw error;
+        throw _error;
       }
 
       // Transformer les données pour correspondre à notre interface
       return (data || []).map(this.transformQuestion);
-    } catch (error) {
+    } catch (_error) {
 
       // Retourner des questions d'exemple en cas d'erreur
       return this.getSampleQuestions(count);
@@ -88,7 +88,7 @@ class QuestionService {
       }
 
       return (data || []).map(this.transformQuestion);
-    } catch (error) {
+    } catch (_error) {
 
       return this.getSampleQuestions(count);
     }
@@ -116,7 +116,7 @@ class QuestionService {
       // Mélanger de manière déterministe basée sur la date
       const shuffled = this.deterministicShuffle(data || [], today);
       return shuffled.slice(0, 20).map(this.transformQuestion);
-    } catch (error) {
+    } catch (_error) {
 
       return this.getSampleQuestions(20);
     }

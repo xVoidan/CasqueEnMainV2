@@ -51,15 +51,15 @@ export interface IUserChallenge {
 class UserService {
   async getUserProfile(userId: string): Promise<IUserProfile | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error: _error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
         .single();
 
-      if (error) {throw error;}
+      if (_error) {throw _error;}
       return data;
-    } catch (error) {
+    } catch (_error) {
 
       return null;
     }
@@ -67,14 +67,14 @@ class UserService {
 
   async updateUserProfile(userId: string, updates: Partial<IUserProfile>): Promise<boolean> {
     try {
-      const { error } = await supabase
+      const { error: _error } = await supabase
         .from('profiles')
         .update(updates)
         .eq('user_id', userId);
 
-      if (error) {throw error;}
+      if (_error) {throw _error;}
       return true;
-    } catch (error) {
+    } catch (_error) {
 
       return false;
     }
@@ -82,14 +82,14 @@ class UserService {
 
   async getUserStats(userId: string): Promise<IUserStats[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error: _error } = await supabase
         .from('user_stats')
         .select('*')
         .eq('user_id', userId);
 
-      if (error) {throw error;}
+      if (_error) {throw _error;}
       return data || [];
-    } catch (error) {
+    } catch (_error) {
 
       return [];
     }
@@ -97,16 +97,16 @@ class UserService {
 
   async getUserSessions(userId: string, limit = 10): Promise<ISession[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error: _error } = await supabase
         .from('sessions')
         .select('*')
         .eq('user_id', userId)
         .order('started_at', { ascending: false })
         .limit(limit);
 
-      if (error) {throw error;}
+      if (_error) {throw _error;}
       return data || [];
-    } catch (error) {
+    } catch (_error) {
 
       return [];
     }
@@ -115,15 +115,15 @@ class UserService {
   async getTodayChallenge(): Promise<IDailyChallenge | null> {
     try {
       const today = new Date().toISOString().split('T')[0];
-      const { data, error } = await supabase
+      const { data, error: _error } = await supabase
         .from('daily_challenges')
         .select('*')
         .eq('date', today)
         .single();
 
-      if (error) {throw error;}
+      if (_error) {throw _error;}
       return data;
-    } catch (error) {
+    } catch (_error) {
 
       return null;
     }
@@ -131,16 +131,16 @@ class UserService {
 
   async getUserChallengeProgress(userId: string, challengeId: string): Promise<IUserChallenge | null> {
     try {
-      const { data, error } = await supabase
+      const { data, error: _error } = await supabase
         .from('user_challenges')
         .select('*')
         .eq('user_id', userId)
         .eq('challenge_id', challengeId)
         .single();
 
-      if (error && error.code !== 'PGRST116') {throw error;} // PGRST116 = no rows returned
+      if (_error && _error.code !== 'PGRST116') {throw _error;} // PGRST116 = no rows returned
       return data;
-    } catch (error) {
+    } catch (_error) {
 
       return null;
     }
@@ -148,7 +148,7 @@ class UserService {
 
   async getUserBadges(userId: string): Promise<any[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error: _error } = await supabase
         .from('user_badges')
         .select(`
           *,
@@ -157,9 +157,9 @@ class UserService {
         .eq('user_id', userId)
         .order('earned_at', { ascending: false });
 
-      if (error) {throw error;}
+      if (_error) {throw _error;}
       return data || [];
-    } catch (error) {
+    } catch (_error) {
 
       return [];
     }
@@ -191,7 +191,7 @@ class UserService {
         global: globalError ? null : globalRank,
         weekly: weeklyError ? null : weeklyRank,
       };
-    } catch (error) {
+    } catch (_error) {
 
       return { global: null, weekly: null };
     }
@@ -199,7 +199,7 @@ class UserService {
 
   async getLeaderboard(type: 'global' | 'weekly' = 'global', limit = 10): Promise<any[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error: _error } = await supabase
         .from('rankings')
         .select(`
           *,
@@ -209,9 +209,9 @@ class UserService {
         .order('rank', { ascending: true })
         .limit(limit);
 
-      if (error) {throw error;}
+      if (_error) {throw _error;}
       return data || [];
-    } catch (error) {
+    } catch (_error) {
 
       return [];
     }

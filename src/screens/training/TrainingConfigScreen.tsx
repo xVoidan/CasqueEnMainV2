@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+// import { LinearGradient } from 'expo-linear-gradient';
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { Button } from '../../components/common/Button';
 import { FadeInView } from '../../components/animations/FadeInView';
@@ -198,66 +198,6 @@ export function TrainingConfigScreen(): React.ReactElement {
     setScoring(prev => ({ ...prev, [field]: numValue }));
   };
 
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
@@ -265,7 +205,7 @@ export function TrainingConfigScreen(): React.ReactElement {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={handlePress} router.back()}
+            onPress={() => router.back()}
           >
             <Ionicons name="arrow-back" size={24} color={theme.colors.white} />
           </TouchableOpacity>
@@ -285,11 +225,11 @@ export function TrainingConfigScreen(): React.ReactElement {
                 Sélectionnez les thèmes et sous-thèmes pour votre session
               </Text>
 
-              {themes.map((theme, index) => (
+              {themes.map((theme, _index) => (
                 <View key={theme.id} style={styles.themeCard}>
                   <TouchableOpacity
                     style={styles.themeHeader}
-                    onPress={handlePress} toggleTheme(theme.id)}
+                    onPress={() => toggleTheme(theme.id)}
                     activeOpacity={0.8}
                   >
                     <View style={styles.themeLeft}>
@@ -313,7 +253,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                       <TouchableOpacity
                         key={subTheme.id}
                         style={styles.subThemeItem}
-                        onPress={handlePress} toggleSubTheme(theme.id, subTheme.id)}
+                        onPress={() => toggleSubTheme(theme.id, subTheme.id)}
                         activeOpacity={0.8}
                       >
                         <View style={styles.subThemeLeft}>
@@ -359,7 +299,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                       styles.countButton,
                       questionCount === count && styles.countButtonSelected,
                     ]}
-                    onPress={handlePress} setQuestionCount(count)}
+                    onPress={() => setQuestionCount(count)}
                   >
                     <Text style={[
                       styles.countButtonText,
@@ -418,7 +358,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                   <View style={styles.scoringInputContainer}>
                     <TouchableOpacity
                       style={styles.stepperButton}
-                      onPress={handlePress} updateScoring('correct', String(Math.max(0, scoring.correct - 0.25)))}
+                      onPress={() => updateScoring('correct', String(Math.max(0, scoring.correct - 0.25)))}
                     >
                       <Ionicons name="remove" size={20} color={theme.colors.white} />
                     </TouchableOpacity>
@@ -430,7 +370,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                     />
                     <TouchableOpacity
                       style={styles.stepperButton}
-                      onPress={handlePress} updateScoring('correct', String(scoring.correct + 0.25))}
+                      onPress={() => updateScoring('correct', String(scoring.correct + 0.25))}
                     >
                       <Ionicons name="add" size={20} color={theme.colors.white} />
                     </TouchableOpacity>
@@ -445,7 +385,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                   <View style={styles.scoringInputContainer}>
                     <TouchableOpacity
                       style={styles.stepperButton}
-                      onPress={handlePress} updateScoring('incorrect', String(scoring.incorrect - 0.25))}
+                      onPress={() => updateScoring('incorrect', String(scoring.incorrect - 0.25))}
                     >
                       <Ionicons name="remove" size={20} color={theme.colors.white} />
                     </TouchableOpacity>
@@ -457,7 +397,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                     />
                     <TouchableOpacity
                       style={styles.stepperButton}
-                      onPress={handlePress} updateScoring('incorrect', String(scoring.incorrect + 0.25))}
+                      onPress={() => updateScoring('incorrect', String(scoring.incorrect + 0.25))}
                     >
                       <Ionicons name="add" size={20} color={theme.colors.white} />
                     </TouchableOpacity>
@@ -472,7 +412,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                   <View style={styles.scoringInputContainer}>
                     <TouchableOpacity
                       style={styles.stepperButton}
-                      onPress={handlePress} updateScoring('skipped', String(scoring.skipped - 0.25))}
+                      onPress={() => updateScoring('skipped', String(scoring.skipped - 0.25))}
                     >
                       <Ionicons name="remove" size={20} color={theme.colors.white} />
                     </TouchableOpacity>
@@ -484,7 +424,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                     />
                     <TouchableOpacity
                       style={styles.stepperButton}
-                      onPress={handlePress} updateScoring('skipped', String(scoring.skipped + 0.25))}
+                      onPress={() => updateScoring('skipped', String(scoring.skipped + 0.25))}
                     >
                       <Ionicons name="add" size={20} color={theme.colors.white} />
                     </TouchableOpacity>
@@ -499,7 +439,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                   <View style={styles.scoringInputContainer}>
                     <TouchableOpacity
                       style={styles.stepperButton}
-                      onPress={handlePress} updateScoring('partial', String(Math.max(0, scoring.partial - 0.25)))}
+                      onPress={() => updateScoring('partial', String(Math.max(0, scoring.partial - 0.25)))}
                     >
                       <Ionicons name="remove" size={20} color={theme.colors.white} />
                     </TouchableOpacity>
@@ -511,7 +451,7 @@ export function TrainingConfigScreen(): React.ReactElement {
                     />
                     <TouchableOpacity
                       style={styles.stepperButton}
-                      onPress={handlePress} updateScoring('partial', String(scoring.partial + 0.25))}
+                      onPress={() => updateScoring('partial', String(scoring.partial + 0.25))}
                     >
                       <Ionicons name="add" size={20} color={theme.colors.white} />
                     </TouchableOpacity>

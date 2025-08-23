@@ -94,7 +94,7 @@ export const InteractiveOnboarding: React.FC<IInteractiveOnboardingProps> = ({
 
   const handleNext = useCallback(async () => {
     await haptics.tap();
-    
+
     if (currentStep < onboardingSteps.length - 1) {
       // Animate transition
       Animated.parallel([
@@ -111,7 +111,7 @@ export const InteractiveOnboarding: React.FC<IInteractiveOnboardingProps> = ({
       ]).start(() => {
         setCurrentStep(currentStep + 1);
         scrollViewRef.current?.scrollTo({ x: SCREEN_WIDTH * (currentStep + 1), animated: true });
-        
+
         Animated.parallel([
           Animated.timing(fadeAnim, {
             toValue: 1,
@@ -147,7 +147,7 @@ export const InteractiveOnboarding: React.FC<IInteractiveOnboardingProps> = ({
   const completeOnboarding = async () => {
     await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
     await haptics.notification('success');
-    
+
     if (onComplete) {
       onComplete();
     } else {

@@ -12,7 +12,7 @@ interface IConfettiAnimationProps {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-export const ConfettiAnimation = React.memo(function ConfettiAnimation: React.FC<IConfettiAnimationProps> = ({
+export const ConfettiAnimation: React.FC<IConfettiAnimationProps> = React.memo(({
   isVisible,
   duration: _duration = 3000,
   particleCount = 50,
@@ -67,22 +67,18 @@ export const ConfettiAnimation = React.memo(function ConfettiAnimation: React.FC
           inputRange: [0, 1],
           outputRange: [-50, screenHeight + 50],
         });
-
         const translateX = particle.interpolate({
           inputRange: [0, 0.5, 1],
           outputRange: [0, (Math.random() - 0.5) * 200, (Math.random() - 0.5) * 400],
         });
-
         const rotate = particle.interpolate({
           inputRange: [0, 1],
           outputRange: ['0deg', `${randomRotation}deg`],
         });
-
         const opacity = particle.interpolate({
           inputRange: [0, 0.1, 0.9, 1],
           outputRange: [0, 1, 1, 0],
         });
-
         return (
           <Animated.View
             key={index}
@@ -106,7 +102,9 @@ export const ConfettiAnimation = React.memo(function ConfettiAnimation: React.FC
       })}
     </View>
   );
-};
+});
+
+ConfettiAnimation.displayName = 'ConfettiAnimation';
 
 const styles = StyleSheet.create({
   container: {

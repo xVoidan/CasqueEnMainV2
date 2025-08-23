@@ -2,7 +2,6 @@ import { sessionService } from '@/src/services/sessionService';
 import { questionService } from '@/src/services/questionService';
 import { statsService } from '@/src/services/statsService';
 import { IQuestion, ISession, IAnswer } from '@/src/types/quiz';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -63,8 +62,7 @@ describe('Quiz Services Tests', () => {
 
     it('should return sample questions on error', async () => {
       jest.spyOn(questionService, 'getQuestions').mockImplementation(async () => {
-        const samples = await questionService.getSampleQuestions(5);
-        return samples;
+        return questionService.getSampleQuestions(5);
       });
 
       const questions = await questionService.getQuestions({ count: 5 });

@@ -139,12 +139,7 @@ export function UsernameInput({
 
   const getStatusIcon = (): React.ReactElement | null => {
     if (isChecking) {
-      
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  return (
+      return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={theme.colors.primary} />
         </View>
@@ -237,7 +232,7 @@ export function UsernameInput({
               <TouchableOpacity
                 key={suggestion}
                 style={styles.suggestionChip}
-                onPress={handlePress} handleSuggestionPress(suggestion)}
+                onPress={() => handleSuggestionPress(suggestion)}
                 activeOpacity={0.7}
               >
                 <Text style={styles.suggestionText}>{suggestion}</Text>

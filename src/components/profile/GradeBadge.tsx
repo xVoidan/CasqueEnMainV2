@@ -47,7 +47,7 @@ const GRADE_IMAGES: Record<string, any> = {
   '15ControleurGeneralEtat.png': require('@/assets/images/15ControleurGeneralEtat.png'),
 };
 
-export const GradeBadge = React.memo(function GradeBadge: React.FC<IGradeBadgeProps> = ({
+const GradeBadgeComponent: React.FC<IGradeBadgeProps> = ({
   grade,
   size = 'medium',
   showName = true,
@@ -216,6 +216,10 @@ export const GradeBadge = React.memo(function GradeBadge: React.FC<IGradeBadgePr
   );
 };
 
+GradeBadgeComponent.displayName = 'GradeBadge';
+
+export const GradeBadge = React.memo(GradeBadgeComponent);
+
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
@@ -274,4 +278,5 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: 'bold',
   },
+
 });

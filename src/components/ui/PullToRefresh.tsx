@@ -11,6 +11,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useHaptics } from '@/src/hooks/useHaptics';
 import { theme } from '@/src/styles/theme';
 
+// Version pour FlatList
+import { FlatList, FlatListProps } from 'react-native';
+
 interface IPullToRefreshProps extends ScrollViewProps {
   onRefresh: () => Promise<void> | void;
   children: React.ReactNode;
@@ -40,12 +43,15 @@ export const PullToRefresh: React.FC<IPullToRefreshProps> = ({
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     void haptics.tap();
-    
+
     try {
-      await onRefresh();
+      const result = onRefresh();
+      if (result instanceof Promise) {
+        await result;
+      }
       setLastUpdate(new Date());
       void haptics.notification('success');
-    } catch (error) {
+    } catch (_error) {
       void haptics.notification('error');
     } finally {
       setRefreshing(false);
@@ -59,9 +65,9 @@ export const PullToRefresh: React.FC<IPullToRefreshProps> = ({
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return "À l'instant";
-    if (minutes < 60) return `Il y a ${minutes} minute${minutes > 1 ? 's' : ''}`;
-    if (hours < 24) return `Il y a ${hours} heure${hours > 1 ? 's' : ''}`;
+    if (minutes < 1) {return "À l'instant";}
+    if (minutes < 60) {return `Il y a ${minutes} minute${minutes > 1 ? 's' : ''}`;}
+    if (hours < 24) {return `Il y a ${hours} heure${hours > 1 ? 's' : ''}`;}
     return `Il y a ${days} jour${days > 1 ? 's' : ''}`;
   };
 
@@ -98,9 +104,6 @@ export const PullToRefresh: React.FC<IPullToRefreshProps> = ({
   );
 };
 
-// Version pour FlatList
-import { FlatList, FlatListProps } from 'react-native';
-
 export function PullToRefreshFlatList<T>({
   onRefresh,
   showLastUpdate = true,
@@ -122,12 +125,15 @@ export function PullToRefreshFlatList<T>({
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     void haptics.tap();
-    
+
     try {
-      await onRefresh();
+      const result = onRefresh();
+      if (result instanceof Promise) {
+        await result;
+      }
       setLastUpdate(new Date());
       void haptics.notification('success');
-    } catch (error) {
+    } catch (_error) {
       void haptics.notification('error');
     } finally {
       setRefreshing(false);
@@ -138,11 +144,11 @@ export function PullToRefreshFlatList<T>({
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const minutes = Math.floor(diff / 60000);
-    
-    if (minutes < 1) return "À l'instant";
-    if (minutes < 60) return `Mis à jour il y a ${minutes}min`;
+
+    if (minutes < 1) {return "À l'instant";}
+    if (minutes < 60) {return `Mis à jour il y a ${minutes}min`;}
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `Mis à jour il y a ${hours}h`;
+    if (hours < 24) {return `Mis à jour il y a ${hours}h`;}
     const days = Math.floor(hours / 24);
     return `Mis à jour il y a ${days}j`;
   };

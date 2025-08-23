@@ -53,7 +53,7 @@ export class MagicLinkAuthService {
         success: true,
         message: 'Un lien de connexion a été envoyé à votre email',
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         success: false,
         message: 'Une erreur est survenue',
@@ -96,7 +96,7 @@ export class MagicLinkAuthService {
         success: true,
         message: 'Un code de vérification a été envoyé à votre email',
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         success: false,
         message: 'Une erreur est survenue',
@@ -158,7 +158,7 @@ export class MagicLinkAuthService {
         success: true,
         session: data.session,
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         success: false,
         error: (error as Error).message,

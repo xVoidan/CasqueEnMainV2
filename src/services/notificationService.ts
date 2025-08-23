@@ -28,7 +28,7 @@ class NotificationService {
       // this.sounds.error = await this.loadSound(require('@/assets/sounds/error.mp3'));
       // this.sounds.unlock = await this.loadSound(require('@/assets/sounds/unlock.mp3'));
       // this.sounds.notification = await this.loadSound(require('@/assets/sounds/notification.mp3'));
-    } catch (error) {
+    } catch (_error) {
 
     }
   }
@@ -37,7 +37,7 @@ class NotificationService {
     try {
       const { sound } = await Audio.Sound.createAsync(source);
       return sound;
-    } catch (error) {
+    } catch (_error) {
 
       return null;
     }
@@ -49,7 +49,7 @@ class NotificationService {
       if (sound) {
         await sound.replayAsync();
       }
-    } catch (error) {
+    } catch (_error) {
 
     }
   }
@@ -77,13 +77,13 @@ class NotificationService {
             await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             break;
         }
-      } catch (error) {
+      } catch (_error) {
 
       }
     }
   }
 
-  async showBadgeUnlock(badgeName: string): Promise<void> {
+  async showBadgeUnlock(_badgeName: string): Promise<void> {
     // Jouer le son d'unlock
     await this.playSound('unlock');
 

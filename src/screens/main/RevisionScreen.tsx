@@ -8,11 +8,11 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
-} , StyleSheet } from 'react-native';
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from 'expo-linear-gradient';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 // import { FadeInView } from '@/src/components/animations/FadeInView';
 import { theme } from '@/src/styles/theme';
@@ -39,7 +39,7 @@ const THEMES = [
   { id: 'diverse', name: 'Divers', color: '#3B82F6' },
 ];
 
-export const RevisionScreen = React.memo(function RevisionScreen: React.FC = () => {
+export const RevisionScreen: React.FC = React.memo(() => {
   const router = useRouter();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('review');
@@ -102,7 +102,7 @@ export const RevisionScreen = React.memo(function RevisionScreen: React.FC = () 
       }));
 
       setQuestions(formattedQuestions);
-    } catch (error) {
+    } catch (_error) {
       // Erreur chargement questions
       Alert.alert('Erreur', 'Impossible de charger les questions');
     } finally {
@@ -142,7 +142,7 @@ export const RevisionScreen = React.memo(function RevisionScreen: React.FC = () 
         [{ text: 'OK' }],
         { cancelable: true },
       );
-    } catch (error) {
+    } catch (_error) {
       // Erreur toggle mastered
       Alert.alert('Erreur', 'Impossible de modifier le statut');
     }
@@ -168,35 +168,10 @@ export const RevisionScreen = React.memo(function RevisionScreen: React.FC = () 
   };
 
   const renderRightActions = (questionId: string, isMastered: boolean) => {
-    
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  return (
+    return (
       <TouchableOpacity
         style={[styles.swipeAction, isMastered ? styles.swipeUnmaster : styles.swipeMaster]}
-        onPress={handlePress} toggleMastered(questionId, isMastered)}
+        onPress={() => toggleMastered(questionId, isMastered)}
       >
         <Ionicons
           name={isMastered ? 'refresh' : 'checkmark-circle'}
@@ -257,7 +232,7 @@ export const RevisionScreen = React.memo(function RevisionScreen: React.FC = () 
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={handlePress} router.back()}>
+        <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Révisions</Text>
@@ -268,7 +243,7 @@ export const RevisionScreen = React.memo(function RevisionScreen: React.FC = () 
       <View style={styles.tabs}>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'review' && styles.activeTab]}
-          onPress={handlePress} setActiveTab('review')}
+          onPress={() => setActiveTab('review')}
         >
           <Text style={[styles.tabText, activeTab === 'review' && styles.activeTabText]}>
             À revoir ({questions.length})
@@ -276,7 +251,7 @@ export const RevisionScreen = React.memo(function RevisionScreen: React.FC = () 
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'mastered' && styles.activeTab]}
-          onPress={handlePress} setActiveTab('mastered')}
+          onPress={() => setActiveTab('mastered')}
         >
           <Text style={[styles.tabText, activeTab === 'mastered' && styles.activeTabText]}>
             Maîtrisées
@@ -298,7 +273,7 @@ export const RevisionScreen = React.memo(function RevisionScreen: React.FC = () 
               selectedTheme === theme.id && styles.filterChipActive,
               { borderColor: theme.color },
             ]}
-            onPress={handlePress} setSelectedTheme(theme.id)}
+            onPress={() => setSelectedTheme(theme.id)}
           >
             <Text
               style={[
@@ -355,7 +330,7 @@ export const RevisionScreen = React.memo(function RevisionScreen: React.FC = () 
       {activeTab === 'review' && questions.length > 0 && (
         <TouchableOpacity style={styles.reviseButton} onPress={startRevisionSession}>
           <LinearGradient
-            colors={[theme.colors.primary, theme.colors.secondary]}
+            colors={[theme.colors.primary, theme.colors.secondary] as const}
             style={styles.reviseGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
@@ -369,4 +344,6 @@ export const RevisionScreen = React.memo(function RevisionScreen: React.FC = () 
       )}
     </SafeAreaView>
   );
-};
+});
+
+RevisionScreen.displayName = 'RevisionScreen';

@@ -173,7 +173,7 @@ export class GuestModeService {
       // Clear guest session
       await this.clearGuestSession();
       return true;
-    } catch (error) {
+    } catch (_error) {
 
       return false;
     }

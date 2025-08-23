@@ -1,6 +1,11 @@
-import { supabase } from '@/src/lib/supabase';
-import { AuthProvider } from '@/src/store/AuthContext';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '@/src/lib/supabase';
+
+const TEST_EMAIL = 'test@example.com';
+const TEST_PASSWORD = 'SecurePass123!';
+const INVALID_EMAIL = 'invalid-email';
+const SHORT_PASSWORD = '123';
 
 // Mock Supabase
 jest.mock('@/src/lib/supabase', () => ({
@@ -41,7 +46,7 @@ describe('Authentication Tests', () => {
     it('should successfully login with email and password', async () => {
       const mockUser = {
         id: 'test-user-id',
-        email: 'test@example.com',
+        email: TEST_EMAIL,
       };
 
       const mockSession = {
@@ -55,14 +60,14 @@ describe('Authentication Tests', () => {
       });
 
       const result = await supabase.auth.signInWithPassword({
-        email: 'test@example.com',
+        email: TEST_EMAIL,
         password: 'password123',
       });
 
       expect(result.data?.user).toEqual(mockUser);
       expect(result.error).toBeNull();
       expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
-        email: 'test@example.com',
+        email: TEST_EMAIL,
         password: 'password123',
       });
     });
@@ -79,7 +84,7 @@ describe('Authentication Tests', () => {
       });
 
       const result = await supabase.auth.signInWithPassword({
-        email: 'test@example.com',
+        email: TEST_EMAIL,
         password: 'wrongpassword',
       });
 
@@ -89,7 +94,7 @@ describe('Authentication Tests', () => {
 
     it('should store session in AsyncStorage after successful login', async () => {
       const mockSession = {
-        user: { id: 'user-id', email: 'test@example.com' },
+        user: { id: 'user-id', email: TEST_EMAIL },
         access_token: 'token',
       };
 
@@ -99,7 +104,7 @@ describe('Authentication Tests', () => {
       });
 
       await supabase.auth.signInWithPassword({
-        email: 'test@example.com',
+        email: TEST_EMAIL,
         password: 'password123',
       });
 
@@ -193,7 +198,7 @@ describe('Authentication Tests', () => {
   describe('Session Persistence', () => {
     it('should restore session from AsyncStorage on app start', async () => {
       const mockSession = {
-        user: { id: 'user-id', email: 'test@example.com' },
+        user: { id: 'user-id', email: TEST_EMAIL },
         access_token: 'stored-token',
       };
 
@@ -241,14 +246,14 @@ describe('Authentication Tests', () => {
       await AsyncStorage.setItem('guest_session', JSON.stringify({ isGuest: true }));
 
       // Login
-      const mockUser = { id: 'user-id', email: 'test@example.com' };
+      const mockUser = { id: 'user-id', email: TEST_EMAIL };
       (supabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
         data: { user: mockUser },
         error: null,
       });
 
       await supabase.auth.signInWithPassword({
-        email: 'test@example.com',
+        email: TEST_EMAIL,
         password: 'password123',
       });
 
@@ -267,12 +272,12 @@ describe('Authentication Tests', () => {
       });
 
       const result = await (supabase.auth as any).resetPasswordForEmail(
-        'test@example.com',
+        TEST_EMAIL,
       );
 
       expect(result.error).toBeNull();
       expect((supabase.auth as any).resetPasswordForEmail).toHaveBeenCalledWith(
-        'test@example.com',
+        TEST_EMAIL,
       );
     });
   });

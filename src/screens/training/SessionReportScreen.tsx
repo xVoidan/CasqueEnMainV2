@@ -59,7 +59,7 @@ const GRADES = [
 
 export function SessionReportScreen(): React.ReactElement {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const params = useLocalSearchParams();
 
   const sessionAnswers: ISessionAnswer[] = params.sessionAnswers

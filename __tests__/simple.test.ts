@@ -79,7 +79,7 @@ describe('Async Tests', () => {
         setTimeout(() => resolve('done'), 10);
       });
     };
-    
+
     const result = await asyncFunc();
     expect(result).toBe('done');
   });

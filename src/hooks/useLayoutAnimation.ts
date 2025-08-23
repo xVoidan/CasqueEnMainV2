@@ -28,9 +28,9 @@ export const useLayoutAnimation = () => {
   const animateCustom = useCallback((
     duration: number = 300,
     type: 'spring' | 'linear' | 'easeInEaseOut' = 'easeInEaseOut',
-    property: 'opacity' | 'scaleXY' | 'scaleX' | 'scaleY' = 'opacity'
+    property: 'opacity' | 'scaleXY' | 'scaleX' | 'scaleY' = 'opacity',
   ) => {
-    const animationType = 
+    const animationType =
       type === 'spring' ? LayoutAnimation.Types.spring :
       type === 'linear' ? LayoutAnimation.Types.linear :
       LayoutAnimation.Types.easeInEaseOut;
@@ -128,7 +128,7 @@ export const useLayoutAnimation = () => {
   const animateStateChange = useCallback(<T,>(
     setter: React.Dispatch<React.SetStateAction<T>>,
     value: T,
-    animationType: 'default' | 'spring' | 'linear' = 'default'
+    animationType: 'default' | 'spring' | 'linear' = 'default',
   ) => {
     if (animationType === 'spring') {
       animateSpring();
@@ -145,14 +145,14 @@ export const useLayoutAnimation = () => {
     animateNext,
     animateSpring,
     animateLinear,
-    
+
     // Animations spécifiques
     animateInsert,
     animateDelete,
     animateResize,
     animateModal,
     animateTabChange,
-    
+
     // Animations personnalisées
     animateCustom,
     animateStateChange,

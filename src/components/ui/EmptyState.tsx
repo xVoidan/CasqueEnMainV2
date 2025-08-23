@@ -38,7 +38,7 @@ export const EmptyState: React.FC<IEmptyStateProps> = ({
   animated = true,
 }) => {
   const haptics = useHaptics();
-  
+
   const handleActionPress = () => {
     void haptics.tap();
     action?.onPress();
@@ -104,6 +104,8 @@ export const EmptyState: React.FC<IEmptyStateProps> = ({
   );
 };
 
+EmptyState.displayName = 'EmptyState';
+
 // Composants prédéfinis pour les cas courants
 export const NoDataEmptyState: React.FC<{ onRefresh?: () => void }> = ({ onRefresh }) => (
   <EmptyState
@@ -111,12 +113,14 @@ export const NoDataEmptyState: React.FC<{ onRefresh?: () => void }> = ({ onRefre
     title="Aucune donnée disponible"
     subtitle="Commencez à jouer pour voir vos statistiques"
     action={onRefresh ? {
-      label: "Rafraîchir",
+      label: 'Rafraîchir',
       onPress: onRefresh,
-      variant: 'secondary'
+      variant: 'secondary',
     } : undefined}
   />
 );
+
+NoDataEmptyState.displayName = 'NoDataEmptyState';
 
 export const NoQuestionsEmptyState: React.FC<{ onAddQuestion?: () => void }> = ({ onAddQuestion }) => (
   <EmptyState
@@ -124,12 +128,14 @@ export const NoQuestionsEmptyState: React.FC<{ onAddQuestion?: () => void }> = (
     title="Aucune question"
     subtitle="Il n'y a pas encore de questions dans cette catégorie"
     action={onAddQuestion ? {
-      label: "Ajouter une question",
+      label: 'Ajouter une question',
       onPress: onAddQuestion,
-      variant: 'primary'
+      variant: 'primary',
     } : undefined}
   />
 );
+
+NoQuestionsEmptyState.displayName = 'NoQuestionsEmptyState';
 
 export const NoConnectionEmptyState: React.FC<{ onRetry?: () => void }> = ({ onRetry }) => (
   <EmptyState
@@ -137,12 +143,14 @@ export const NoConnectionEmptyState: React.FC<{ onRetry?: () => void }> = ({ onR
     title="Pas de connexion"
     subtitle="Vérifiez votre connexion internet et réessayez"
     action={onRetry ? {
-      label: "Réessayer",
+      label: 'Réessayer',
       onPress: onRetry,
-      variant: 'primary'
+      variant: 'primary',
     } : undefined}
   />
 );
+
+NoConnectionEmptyState.displayName = 'NoConnectionEmptyState';
 
 export const SearchEmptyState: React.FC<{ query: string; onClear?: () => void }> = ({ query, onClear }) => (
   <EmptyState
@@ -150,12 +158,14 @@ export const SearchEmptyState: React.FC<{ query: string; onClear?: () => void }>
     title="Aucun résultat"
     subtitle={`Aucun résultat trouvé pour "${query}"`}
     action={onClear ? {
-      label: "Effacer la recherche",
+      label: 'Effacer la recherche',
       onPress: onClear,
-      variant: 'secondary'
+      variant: 'secondary',
     } : undefined}
   />
 );
+
+SearchEmptyState.displayName = 'SearchEmptyState';
 
 export const ErrorEmptyState: React.FC<{ error?: string; onRetry?: () => void }> = ({ error, onRetry }) => (
   <EmptyState
@@ -163,12 +173,14 @@ export const ErrorEmptyState: React.FC<{ error?: string; onRetry?: () => void }>
     title="Une erreur est survenue"
     subtitle={error || "Quelque chose s'est mal passé. Veuillez réessayer."}
     action={onRetry ? {
-      label: "Réessayer",
+      label: 'Réessayer',
       onPress: onRetry,
-      variant: 'primary'
+      variant: 'primary',
     } : undefined}
   />
 );
+
+ErrorEmptyState.displayName = 'ErrorEmptyState';
 
 const styles = StyleSheet.create({
   container: {

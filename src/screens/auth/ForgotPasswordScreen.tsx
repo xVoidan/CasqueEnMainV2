@@ -161,21 +161,6 @@ export function ForgotPasswordScreen(): React.ReactElement {
     }
   };
 
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -186,7 +171,7 @@ export function ForgotPasswordScreen(): React.ReactElement {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <TouchableOpacity style={styles.backButton} onPress={handlePress} router.back()}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={ICON_SIZE.back} color={theme.colors.text.primary} />
             <Text style={styles.backText}>Retour</Text>
           </TouchableOpacity>
@@ -221,7 +206,7 @@ export function ForgotPasswordScreen(): React.ReactElement {
               </Text>
               <Button
                 title="Retour à la connexion"
-                onPress={handlePress} router.push(AUTH_LOGIN_ROUTE)}
+                onPress={() => router.push(AUTH_LOGIN_ROUTE)}
                 fullWidth
                 size="large"
                 style={styles.successButton}
@@ -245,7 +230,7 @@ export function ForgotPasswordScreen(): React.ReactElement {
 
               <Button
                 title="Envoyer le lien"
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+
                 onPress={handleResetPassword}
                 loading={loading}
                 fullWidth
@@ -254,7 +239,7 @@ export function ForgotPasswordScreen(): React.ReactElement {
 
               <TouchableOpacity
                 style={styles.loginLink}
-                onPress={handlePress} router.push(AUTH_LOGIN_ROUTE)}
+                onPress={() => router.push(AUTH_LOGIN_ROUTE)}
               >
                 <Text style={styles.loginLinkText}>Je me souviens de mon mot de passe</Text>
               </TouchableOpacity>

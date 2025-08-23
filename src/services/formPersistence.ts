@@ -35,7 +35,7 @@ export class FormPersistenceService {
         `${FORM_STORAGE_PREFIX}${formId}`,
         JSON.stringify(savedForm),
       );
-    } catch (error) {
+    } catch (_error) {
 
     }
   }
@@ -86,7 +86,7 @@ export class FormPersistenceService {
       }
 
       return savedForm;
-    } catch (error) {
+    } catch (_error) {
 
       return null;
     }
@@ -98,7 +98,7 @@ export class FormPersistenceService {
   static async deleteForm(formId: string): Promise<void> {
     try {
       await AsyncStorage.removeItem(`${FORM_STORAGE_PREFIX}${formId}`);
-    } catch (error) {
+    } catch (_error) {
 
     }
   }
@@ -116,7 +116,7 @@ export class FormPersistenceService {
           JSON.stringify(savedForm),
         );
       }
-    } catch (error) {
+    } catch (_error) {
 
     }
   }
@@ -140,7 +140,7 @@ export class FormPersistenceService {
       }
 
       return forms;
-    } catch (error) {
+    } catch (_error) {
 
       return {};
     }
@@ -199,7 +199,7 @@ export class FormPersistenceService {
           await this.deleteForm(formId);
         }
       }
-    } catch (error) {
+    } catch (_error) {
 
     }
   }

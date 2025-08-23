@@ -71,7 +71,7 @@ class RateLimiter {
       await AsyncStorage.setItem(storageKey, JSON.stringify(data));
 
       return { allowed: true };
-    } catch (error) {
+    } catch (_error) {
 
       // On error, allow the attempt (fail open)
       return { allowed: true };
@@ -101,7 +101,7 @@ class RateLimiter {
       if (rateLimitKeys.length > 0) {
         await AsyncStorage.multiRemove(rateLimitKeys);
       }
-    } catch (error) {
+    } catch (_error) {
 
     }
   }

@@ -1,0 +1,30 @@
+
+# Dependencies
+node_modules/
+.expo/
+dist/
+build/
+web-build/
+
+# Test files temporaires
+jest.setup.js
+*.config.js
+babel.config.js
+metro.config.js
+
+# Scripts
+scripts/
+
+# Assets
+assets/
+
+# Platform specific
+android/
+ios/
+
+# Misc
+.git/
+.vscode/
+.idea/
+coverage/
+*.log

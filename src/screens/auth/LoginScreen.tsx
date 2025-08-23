@@ -203,21 +203,6 @@ export function LoginScreen(): React.ReactElement {
     handleBiometricSetupDecline,
   } = useLoginScreen();
 
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
@@ -232,7 +217,7 @@ export function LoginScreen(): React.ReactElement {
             {biometricAvailable && (
               <TouchableOpacity
                 style={styles.biometricButton}
-                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+
                 onPress={handleBiometricLogin}
                 activeOpacity={0.8}
               >
@@ -294,12 +279,12 @@ export function LoginScreen(): React.ReactElement {
                   <View style={styles.rememberContainer}>
                     <Checkbox
                       checked={rememberMe}
-                      onPress={handlePress} setRememberMe(!rememberMe)}
+                      onPress={() => setRememberMe(!rememberMe)}
                       label="Se souvenir de moi"
                     />
                     <TouchableOpacity
                       style={styles.forgotPassword}
-                      onPress={handlePress} router.push('/(auth)/forgot-password')}
+                      onPress={() => router.push('/(auth)/forgot-password')}
                     >
                       <Text style={styles.forgotPasswordText}>Mot de passe oublié ?</Text>
                     </TouchableOpacity>
@@ -307,7 +292,7 @@ export function LoginScreen(): React.ReactElement {
 
                   <Button
                     title="Se connecter"
-                    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+
                     onPress={handleLogin}
                     loading={loading}
                     fullWidth
@@ -317,7 +302,7 @@ export function LoginScreen(): React.ReactElement {
                   {googleAuthAvailable && (
                     <SocialLogin
                       onGoogleLogin={handleGoogleSignIn}
-                      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+
                       onAppleLogin={handleAppleSignIn}
                       loading={loading}
                     />
@@ -332,7 +317,7 @@ export function LoginScreen(): React.ReactElement {
                   <Button
                     title="Continuer en invité"
                     variant="outline"
-                    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+
                     onPress={handleContinueAsGuest}
                     loading={loading}
                     fullWidth
@@ -341,7 +326,7 @@ export function LoginScreen(): React.ReactElement {
 
                   <View style={styles.registerContainer}>
                     <Text style={styles.registerText}>Pas encore de compte ?</Text>
-                    <TouchableOpacity onPress={handlePress} router.push('/(auth)/register')}>
+                    <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
                       <Text style={styles.registerLink}>S&apos;inscrire</Text>
                     </TouchableOpacity>
                   </View>

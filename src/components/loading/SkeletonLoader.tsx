@@ -11,7 +11,7 @@ interface ISkeletonLoaderProps {
   variant?: 'text' | 'circular' | 'rectangular';
 }
 
-export const SkeletonLoader = React.memo(function SkeletonLoader: React.FC<ISkeletonLoaderProps> = ({
+export const SkeletonLoader: React.FC<ISkeletonLoaderProps> = React.memo(({
   width = '100%',
   height = 20,
   borderRadius,
@@ -55,8 +55,7 @@ export const SkeletonLoader = React.memo(function SkeletonLoader: React.FC<ISkel
           height,
           borderRadius: borderRadius || 4,
         };
-});
-
+    }
   };
 
   return (
@@ -78,9 +77,11 @@ export const SkeletonLoader = React.memo(function SkeletonLoader: React.FC<ISkel
       </Animated.View>
     </View>
   );
-};
+});
 
-export const SkeletonCard = React.memo(function SkeletonCard: React.FC<{ style?: ViewStyle }> = ({ style }) => {
+SkeletonLoader.displayName = 'SkeletonLoader';
+
+export const SkeletonCard: React.FC<{ style?: ViewStyle }> = React.memo(({ style }) => {
   return (
     <View style={[styles.card, style]}>
       <View style={styles.cardHeader}>
@@ -97,9 +98,11 @@ export const SkeletonCard = React.memo(function SkeletonCard: React.FC<{ style?:
       </View>
     </View>
   );
-};
+});
 
-export const SkeletonList = React.memo(function SkeletonList: React.FC<{ count?: number; style?: ViewStyle }> = ({
+SkeletonCard.displayName = 'SkeletonCard';
+
+export const SkeletonList: React.FC<{ count?: number; style?: ViewStyle }> = React.memo(({
   count = 3,
   style,
 }) => {
@@ -110,7 +113,9 @@ export const SkeletonList = React.memo(function SkeletonList: React.FC<{ count?:
       ))}
     </View>
   );
-};
+});
+
+SkeletonList.displayName = 'SkeletonList';
 
 const styles = StyleSheet.create({
   container: {
@@ -147,5 +152,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 12,
+  },
+  dynamicStyle1: {
+    marginTop: 4,
+  },
+  dynamicStyle2: {
+    marginTop: 12,
+  },
+  dynamicStyle3: {
+    marginBottom: 12,
   },
 });

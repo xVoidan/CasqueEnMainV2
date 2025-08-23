@@ -157,6 +157,42 @@ jest.mock('@expo/vector-icons', () => ({
   FontAwesome: 'FontAwesome',
 }));
 
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+);
+
+// Mock Supabase
+jest.mock('@supabase/supabase-js', () => ({
+  createClient: jest.fn(() => ({
+    auth: {
+      signInWithPassword: jest.fn(),
+      signUp: jest.fn(),
+      signOut: jest.fn(),
+      getSession: jest.fn(),
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
+    },
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        eq: jest.fn(() => Promise.resolve({ data: [], error: null })),
+        single: jest.fn(() => Promise.resolve({ data: null, error: null })),
+      })),
+      insert: jest.fn(() => Promise.resolve({ data: null, error: null })),
+      update: jest.fn(() => ({
+        eq: jest.fn(() => Promise.resolve({ data: null, error: null })),
+      })),
+      delete: jest.fn(() => ({
+        eq: jest.fn(() => Promise.resolve({ data: null, error: null })),
+      })),
+    })),
+  })),
+}));
+
+// Mock du module winter d'Expo pour corriger l'erreur d'import
+global.__ExpoImportMetaRegistry = {};
+
 // Global test utilities
 global.mockConsole = () => {
   const originalConsole = { ...console };
@@ -171,3 +207,6 @@ global.mockConsole = () => {
     console.warn = originalConsole.warn;
   });
 };
+
+// Configuration globale
+global.__DEV__ = true;

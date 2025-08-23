@@ -34,7 +34,7 @@ export class BiometricAuthService {
         cancelLabel: 'Annuler',
       });
       return result.success;
-    } catch (error) {
+    } catch (_error) {
 
       return false;
     }
@@ -80,7 +80,7 @@ export class BiometricAuthService {
       const credentials = JSON.stringify({ email, password });
       await SecureStore.setItemAsync(SECURE_CREDENTIALS_KEY, credentials);
       await this.setBiometricEnabled(true);
-    } catch (error) {
+    } catch (_error) {
 
       throw error;
     }
@@ -93,7 +93,7 @@ export class BiometricAuthService {
         return JSON.parse(credentials);
       }
       return null;
-    } catch (error) {
+    } catch (_error) {
 
       return null;
     }
@@ -103,7 +103,7 @@ export class BiometricAuthService {
     try {
       await SecureStore.deleteItemAsync(SECURE_CREDENTIALS_KEY);
       await this.setBiometricEnabled(false);
-    } catch (error) {
+    } catch (_error) {
 
     }
   }

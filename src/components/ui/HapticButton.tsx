@@ -64,7 +64,7 @@ export const HapticButton: React.FC<IHapticButtonProps> = ({
   }, [scaleAnim]);
 
   const handlePress = useCallback(async (event: GestureResponderEvent) => {
-    if (disabled || loading) return;
+    if (disabled || loading) {return;}
 
     // Haptic feedback basé sur le type
     switch (hapticType) {

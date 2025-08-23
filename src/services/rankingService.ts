@@ -91,7 +91,7 @@ class RankingService {
         byTheme,
         myPosition,
       };
-    } catch (error) {
+    } catch (_error) {
 
       return {
         global: [],
@@ -152,7 +152,7 @@ class RankingService {
           grade: getCurrentGrade(user.points),
           evolution: 0,
         }));
-    } catch (error) {
+    } catch (_error) {
 
       return [];
     }
@@ -208,7 +208,7 @@ class RankingService {
           grade: getCurrentGrade(user.points),
           evolution: 0,
         }));
-    } catch (error) {
+    } catch (_error) {
 
       return [];
     }
@@ -250,7 +250,7 @@ class RankingService {
       }
 
       return rankingsByTheme;
-    } catch (error) {
+    } catch (_error) {
 
       return {};
     }
@@ -271,7 +271,7 @@ class RankingService {
         throw error;
       }
 
-      return (data || []).map((profile, index) => ({
+      return (data || []).map((profile, _index) => ({
         rank: 0, // Sera calculé dans le contexte global
         user_id: profile.user_id,
         username: profile.username,
@@ -280,7 +280,7 @@ class RankingService {
         grade: getCurrentGrade(profile.total_points),
         department: profile.department,
       }));
-    } catch (error) {
+    } catch (_error) {
 
       return [];
     }
@@ -318,7 +318,7 @@ class RankingService {
       }
 
       // TODO: Mettre à jour les classements en cache si nécessaire
-    } catch (error) {
+    } catch (_error) {
 
     }
   }

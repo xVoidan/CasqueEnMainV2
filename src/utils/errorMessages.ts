@@ -2,14 +2,19 @@
  * Messages d'erreur contextuels et user-friendly
  */
 
-interface ErrorMessage {
+/**
+ * Helper pour afficher une alerte d'erreur contextuelle
+ */
+import { Alert } from 'react-native';
+
+interface IErrorMessage {
   title: string;
   message: string;
-  actions?: Array<{
+  actions?: {
     text: string;
     style?: 'default' | 'cancel' | 'destructive';
     onPress?: () => void;
-  }>;
+  }[];
 }
 
 export const ErrorMessages: Record<string, ErrorMessage> = {
@@ -22,7 +27,7 @@ export const ErrorMessages: Record<string, ErrorMessage> = {
       { text: 'Mode hors ligne', style: 'cancel' },
     ],
   },
-  
+
   TIMEOUT_ERROR: {
     title: 'Délai dépassé',
     message: 'Le serveur met trop de temps à répondre. Veuillez réessayer.',
@@ -189,27 +194,27 @@ export const ErrorMessages: Record<string, ErrorMessage> = {
 /**
  * Obtenir un message d'erreur contextuel basé sur le code d'erreur
  */
-export const getErrorMessage = (errorCode: string | Error): ErrorMessage => {
+export const getErrorMessage = (errorCode: string | Error): IErrorMessage => {
   // Si c'est une Error, essayer d'extraire le code
   if (errorCode instanceof Error) {
     const message = errorCode.message.toLowerCase();
-    
+
     // Mapper les messages d'erreur courants
-    if (message.includes('network')) return ErrorMessages.NETWORK_ERROR;
-    if (message.includes('timeout')) return ErrorMessages.TIMEOUT_ERROR;
-    if (message.includes('invalid') && message.includes('credentials')) return ErrorMessages.INVALID_CREDENTIALS;
-    if (message.includes('email') && message.includes('not') && message.includes('verified')) return ErrorMessages.EMAIL_NOT_VERIFIED;
-    if (message.includes('weak') && message.includes('password')) return ErrorMessages.WEAK_PASSWORD;
-    if (message.includes('email') && message.includes('exists')) return ErrorMessages.EMAIL_ALREADY_EXISTS;
-    if (message.includes('username') && message.includes('taken')) return ErrorMessages.USERNAME_TAKEN;
+    if (message.includes('network')) {return ErrorMessages.NETWORK_ERROR;}
+    if (message.includes('timeout')) {return ErrorMessages.TIMEOUT_ERROR;}
+    if (message.includes('invalid') && message.includes('credentials')) {return ErrorMessages.INVALID_CREDENTIALS;}
+    if (message.includes('email') && message.includes('not') && message.includes('verified')) {return ErrorMessages.EMAIL_NOT_VERIFIED;}
+    if (message.includes('weak') && message.includes('password')) {return ErrorMessages.WEAK_PASSWORD;}
+    if (message.includes('email') && message.includes('exists')) {return ErrorMessages.EMAIL_ALREADY_EXISTS;}
+    if (message.includes('username') && message.includes('taken')) {return ErrorMessages.USERNAME_TAKEN;}
     if (message.includes('permission') && message.includes('denied')) {
-      if (message.includes('camera')) return ErrorMessages.CAMERA_PERMISSION_DENIED;
-      if (message.includes('storage')) return ErrorMessages.STORAGE_PERMISSION_DENIED;
-      if (message.includes('notification')) return ErrorMessages.NOTIFICATION_PERMISSION_DENIED;
+      if (message.includes('camera')) {return ErrorMessages.CAMERA_PERMISSION_DENIED;}
+      if (message.includes('storage')) {return ErrorMessages.STORAGE_PERMISSION_DENIED;}
+      if (message.includes('notification')) {return ErrorMessages.NOTIFICATION_PERMISSION_DENIED;}
     }
-    if (message.includes('session') && message.includes('expired')) return ErrorMessages.SESSION_EXPIRED;
-    if (message.includes('rate') && message.includes('limit')) return ErrorMessages.RATE_LIMIT;
-    
+    if (message.includes('session') && message.includes('expired')) {return ErrorMessages.SESSION_EXPIRED;}
+    if (message.includes('rate') && message.includes('limit')) {return ErrorMessages.RATE_LIMIT;}
+
     // Par défaut
     return ErrorMessages.UNKNOWN_ERROR;
   }
@@ -223,21 +228,16 @@ export const getErrorMessage = (errorCode: string | Error): ErrorMessage => {
   return ErrorMessages.UNKNOWN_ERROR;
 };
 
-/**
- * Helper pour afficher une alerte d'erreur contextuelle
- */
-import { Alert } from 'react-native';
-
-export const showErrorAlert = (error: string | Error, customActions?: ErrorMessage['actions']): void => {
+export const showErrorAlert = (error: string | Error, customActions?: IErrorMessage['actions']): void => {
   const errorMessage = getErrorMessage(error);
-  
+
   Alert.alert(
     errorMessage.title,
     errorMessage.message,
-    customActions || errorMessage.actions?.map(action => ({
+    customActions ?? errorMessage.actions?.map(action => ({
       text: action.text,
       style: action.style,
       onPress: action.onPress,
-    })) || [{ text: 'OK' }]
+    })) || [{ text: 'OK' }],
   );
 };

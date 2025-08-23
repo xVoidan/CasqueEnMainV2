@@ -23,7 +23,7 @@ import { theme } from '@/src/styles/theme';
 
 type TabType = 'global' | 'weekly' | 'monthly' | 'themes';
 
-export const RankingScreen = React.memo(function RankingScreen: React.FC = () => {
+export const RankingScreen: React.FC = React.memo(() => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('global');
   const [rankings, setRankings] = useState<IRankingEntry[]>([]);
@@ -54,7 +54,7 @@ export const RankingScreen = React.memo(function RankingScreen: React.FC = () =>
           setRankings(data.byTheme[selectedTheme] || []);
           break;
       }
-    } catch (error) {
+    } catch (_error) {
 
     } finally {
       setIsLoading(false);
@@ -85,7 +85,7 @@ export const RankingScreen = React.memo(function RankingScreen: React.FC = () =>
   const renderTab = (tab: TabType, label: string) => (
     <TouchableOpacity
       style={[styles.tab, activeTab === tab && styles.activeTab]}
-      onPress={handlePress} setActiveTab(tab)}
+      onPress={() => setActiveTab(tab)}
     >
       <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
         {label}
@@ -96,21 +96,6 @@ export const RankingScreen = React.memo(function RankingScreen: React.FC = () =>
   const renderRankingItem = ({ item, index }: { item: IRankingEntry; index: number }) => {
     const isMe = item.user_id === user?.id;
     const isTop3 = item.rank <= 3;
-
-    
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
 
   return (
       <FadeInView duration={300} delay={index * 50}>
@@ -211,7 +196,7 @@ export const RankingScreen = React.memo(function RankingScreen: React.FC = () =>
             returnKeyType="search"
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={handlePress} {
+            <TouchableOpacity onPress={() => {
               setSearchQuery('');
               void loadRankings();
             }}>
@@ -236,7 +221,7 @@ export const RankingScreen = React.memo(function RankingScreen: React.FC = () =>
                   styles.themeButton,
                   selectedTheme === theme && styles.selectedThemeButton,
                 ]}
-                onPress={handlePress} setSelectedTheme(theme)}
+                onPress={() => setSelectedTheme(theme)}
               >
                 <Text
                   style={[
@@ -279,7 +264,9 @@ export const RankingScreen = React.memo(function RankingScreen: React.FC = () =>
       </SafeAreaView>
     </GradientBackground>
   );
-};
+});
+
+RankingScreen.displayName = 'RankingScreen';
 
 const styles = StyleSheet.create({
   container: {

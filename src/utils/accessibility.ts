@@ -5,6 +5,11 @@
 import { Platform, AccessibilityInfo } from 'react-native';
 
 /**
+ * Hook pour gérer l'état du lecteur d'écran
+ */
+import { useEffect, useState } from 'react';
+
+/**
  * Labels d'accessibilité pour les éléments interactifs
  */
 export const A11yLabels = {
@@ -15,7 +20,7 @@ export const A11yLabels = {
   SETTINGS_BUTTON: 'Paramètres',
   PROFILE_BUTTON: 'Profil',
   HOME_BUTTON: 'Accueil',
-  
+
   // Actions communes
   SUBMIT_BUTTON: 'Valider',
   CANCEL_BUTTON: 'Annuler',
@@ -27,27 +32,27 @@ export const A11yLabels = {
   SEARCH_BUTTON: 'Rechercher',
   FILTER_BUTTON: 'Filtrer',
   SORT_BUTTON: 'Trier',
-  
+
   // Auth
   LOGIN_BUTTON: 'Se connecter',
   LOGOUT_BUTTON: 'Se déconnecter',
   REGISTER_BUTTON: "S'inscrire",
   FORGOT_PASSWORD_BUTTON: 'Mot de passe oublié',
-  
+
   // Quiz
   START_QUIZ_BUTTON: 'Commencer le quiz',
   NEXT_QUESTION_BUTTON: 'Question suivante',
   PREVIOUS_QUESTION_BUTTON: 'Question précédente',
   SUBMIT_ANSWER_BUTTON: 'Valider la réponse',
   SKIP_QUESTION_BUTTON: 'Passer la question',
-  
+
   // Media
   PLAY_BUTTON: 'Lecture',
   PAUSE_BUTTON: 'Pause',
   STOP_BUTTON: 'Arrêter',
   MUTE_BUTTON: 'Couper le son',
   UNMUTE_BUTTON: 'Activer le son',
-  
+
   // States
   LOADING: 'Chargement en cours',
   ERROR: 'Erreur',
@@ -114,7 +119,7 @@ export const createA11yProps = (options: {
   };
   liveRegion?: 'none' | 'polite' | 'assertive';
   important?: boolean;
-}) => {
+}): void => {
   const props: any = {
     accessible: true,
     accessibilityLabel: options.label,
@@ -147,12 +152,7 @@ export const createA11yProps = (options: {
   return props;
 };
 
-/**
- * Hook pour gérer l'état du lecteur d'écran
- */
-import { useEffect, useState } from 'react';
-
-export const useScreenReader = () => {
+export const useScreenReader = (): void => {
   const [isEnabled, setIsEnabled] = useState(false);
 
   useEffect(() => {
@@ -165,7 +165,7 @@ export const useScreenReader = () => {
 
     const subscription = AccessibilityInfo.addEventListener(
       'screenReaderChanged',
-      setIsEnabled
+      setIsEnabled,
     );
 
     return () => {
@@ -173,13 +173,13 @@ export const useScreenReader = () => {
     };
   }, []);
 
-  const announce = (message: string, delay = 0) => {
+  const announce = (message: string, delay = 0): void => {
     setTimeout(() => {
       AccessibilityInfo.announceForAccessibility(message);
     }, delay);
   };
 
-  const focusElement = (element: any) => {
+  const focusElement = (element: any): void => {
     if (Platform.OS === 'ios') {
       AccessibilityInfo.setAccessibilityFocus(element);
     }
@@ -207,10 +207,10 @@ export const TouchTargetSizes = {
  */
 export const checkColorContrast = (
   foreground: string,
-  background: string
+  background: string,
 ): { ratio: number; passes: { AA: boolean; AAA: boolean } } => {
   // Convertir hex en RGB
-  const hexToRgb = (hex: string) => {
+  const hexToRgb = (hex: string): void => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result
       ? {
@@ -222,9 +222,9 @@ export const checkColorContrast = (
   };
 
   // Calculer la luminance relative
-  const getLuminance = (rgb: { r: number; g: number; b: number }) => {
+  const getLuminance = (rgb: { r: number; g: number; b: number }): void => {
     const [r, g, b] = [rgb.r, rgb.g, rgb.b].map((val) => {
-      val = val / 255;
+      val /= 255;
       return val <= 0.03928 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);
     });
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
@@ -260,7 +260,7 @@ export const generateImageDescription = (context: {
   type: 'decorative' | 'informative' | 'functional';
   content?: string;
   action?: string;
-}) => {
+}): void => {
   if (context.type === 'decorative') {
     return ''; // Les images décoratives ne nécessitent pas de description
   }
@@ -281,9 +281,9 @@ export const formatTimeForScreenReader = (seconds: number): string => {
   const secs = seconds % 60;
 
   const parts = [];
-  if (hours > 0) parts.push(`${hours} heure${hours > 1 ? 's' : ''}`);
-  if (minutes > 0) parts.push(`${minutes} minute${minutes > 1 ? 's' : ''}`);
-  if (secs > 0 || parts.length === 0) parts.push(`${secs} seconde${secs > 1 ? 's' : ''}`);
+  if (hours > 0) {parts.push(`${hours} heure${hours > 1 ? 's' : ''}`);}
+  if (minutes > 0) {parts.push(`${minutes} minute${minutes > 1 ? 's' : ''}`);}
+  if (secs > 0 || parts.length === 0) {parts.push(`${secs} seconde${secs > 1 ? 's' : ''}`);}
 
   return parts.join(' et ');
 };

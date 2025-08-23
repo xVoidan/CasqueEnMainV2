@@ -106,26 +106,6 @@ export function HomeScreen(): React.ReactElement {
     router.push('/profile');
   };
 
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
@@ -177,7 +157,7 @@ export function HomeScreen(): React.ReactElement {
 
               <TouchableOpacity
                 style={styles.settingsButton}
-                onPress={handlePress} router.push('/settings')}
+                onPress={() => router.push('/settings')}
               >
                 <Ionicons name="settings-outline" size={24} color={theme.colors.white} />
               </TouchableOpacity>
@@ -313,21 +293,21 @@ export function HomeScreen(): React.ReactElement {
             <View style={styles.quickActions}>
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={handlePress} router.push('/leaderboard')}
+                onPress={() => router.push('/leaderboard')}
               >
                 <Ionicons name="podium" size={20} color={theme.colors.primary} />
                 <Text style={styles.actionButtonText}>Classement</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={handlePress} router.push('/stats')}
+                onPress={() => router.push('/stats')}
               >
                 <Ionicons name="stats-chart" size={20} color={theme.colors.primary} />
                 <Text style={styles.actionButtonText}>Statistiques</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={handlePress} router.push('/achievements')}
+                onPress={() => router.push('/achievements')}
               >
                 <Ionicons name="medal" size={20} color={theme.colors.primary} />
                 <Text style={styles.actionButtonText}>Succès</Text>

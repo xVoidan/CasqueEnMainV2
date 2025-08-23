@@ -134,7 +134,7 @@ class StatsService {
         favoriteTheme,
         lastActivity: lastSession ? new Date(lastSession.started_at) : new Date(),
       };
-    } catch (error) {
+    } catch (_error) {
 
       return null;
     }
@@ -164,7 +164,7 @@ class StatsService {
         averageTime: stat.avg_time_per_question ?? 0,
         lastPlayed: new Date(stat.last_updated),
       }));
-    } catch (error) {
+    } catch (_error) {
 
       return [];
     }
@@ -271,7 +271,7 @@ class StatsService {
         activityHeatmap,
         objectives,
       };
-    } catch (error) {
+    } catch (_error) {
 
       return {
         dailyProgress: [],
@@ -351,7 +351,7 @@ class StatsService {
             last_updated: new Date().toISOString(),
           });
       }
-    } catch (error) {
+    } catch (_error) {
 
     }
   }

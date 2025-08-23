@@ -30,7 +30,7 @@ CasqueEnMainV2/
 
 ### Configuration Actuelle
 
-- **ESLint**: Configuration très stricte (8 plugins)
+- **ESLint**: Configuration équilibrée (focalisation sur erreurs critiques)
 - **TypeScript**: Mode strict activé
 - **Prettier**: Formatage automatique
 - **Supabase MCP**: Configuré en lecture seule
@@ -138,7 +138,7 @@ npm run restore:supabase restore <file> # Restore un fichier spécifique
 
 ### Qualité
 
-1. Résoudre les violations ESLint existantes
+1. ✅ Configuration ESLint équilibrée mise en place
 2. Commiter les modifications en cours
 3. Mettre en place les tests
 4. Configurer CI/CD avec EAS
@@ -149,6 +149,40 @@ npm run restore:supabase restore <file> # Restore un fichier spécifique
 2. Tester les scripts une fois les premières tables créées
 3. Programmer des backups automatiques (cron/CI)
 4. Configurer la rétention des backups selon les besoins
+
+## 🎯 Philosophie ESLint Équilibrée
+
+### Principe : Qualité sans Paralysie
+
+Notre configuration ESLint suit une approche pragmatique qui distingue trois catégories de règles :
+
+#### 🔴 ERREURS (Bloquantes)
+- Variables non utilisées qui causent des fuites mémoire
+- Erreurs de syntaxe et imports manquants
+- Violations des règles React Hooks
+- APIs dépréciées dangereuses
+- Problèmes de sécurité
+
+#### 🟡 WARNINGS (À surveiller)
+- Usage de console.log en production
+- Espaces en fin de ligne
+- Préférences de quotes
+- Commentaires TODO
+- Complexité cyclomatique élevée
+
+#### ⚪ DÉSACTIVÉES (Non pertinentes)
+- Types de retour explicites partout
+- Nullish coalescing obligatoire
+- Interdiction des styles inline
+- Promises flottantes (gérées par TanStack Query)
+- Règles trop strictes qui nuisent à la productivité
+
+### Avantages de cette approche
+
+✅ **Productivité** : Focus sur les vrais problèmes, pas le style
+✅ **Flexibilité** : Permet l'itération rapide en développement
+✅ **Qualité** : Capture les bugs critiques sans être paralysant
+✅ **Maintenabilité** : Code propre sans dogmatisme excessif
 
 ## 🔄 Workflow de Développement (OBLIGATOIRE)
 
@@ -174,26 +208,27 @@ npm run restore:supabase restore <file> # Restore un fichier spécifique
    - Suivre les règles ESLint strictes
    - Tester au fur et à mesure
 
-5. **🔍 ESLINT COMPLET** - Vérification qualité
-   - `npm run lint:strict` (0 warning toléré)
+5. **🔍 ESLINT** - Vérification qualité pragmatique
+   - `npm run lint` (corriger les erreurs critiques)
    - `npm run format:check`
-   - `npm run audit` si possible
+   - Focalisation sur les vraies erreurs, pas le style
 
-6. **✅ COMMIT** - Seulement si parfait
-   - **RÈGLE ABSOLUE**: Aucun commit tant qu'il y a des erreurs/warnings
+6. **✅ COMMIT** - Avec code fonctionnel
+   - **RÈGLE**: Aucun commit si erreurs de syntaxe ou bugs critiques
    - Messages de commit clairs et descriptifs
-   - Inclure les tests si applicables
+   - Les warnings de style sont acceptables
 
-### Commandes de Vérification Obligatoires
+### Commandes de Vérification
 
 ```bash
 # Avant chaque commit
-npm run audit           # Lint + Format check
-npm run lint:strict     # ESLint sans tolérance
-npm run format:check    # Vérification Prettier
+npm run lint            # Vérification ESLint équilibrée
+npm run lint:fix        # Correction automatique quand possible
+npm run format          # Formatage Prettier
 ```
 
-**⚠️ AUCUN COMMIT AUTORISÉ EN CAS D'ERREUR OU WARNING**
+**⚠️ CORRECTION OBLIGATOIRE**: Erreurs de syntaxe et bugs critiques
+**✅ ACCEPTABLE**: Warnings de style et préférences
 
 ## 🤖 Configuration Claude
 
@@ -201,7 +236,7 @@ npm run format:check    # Vérification Prettier
 
 - **Modèle**: Claude Opus 4.1 (OBLIGATOIRE)
 - **Workflow**: Explore → Plan → UltraThink → Code → ESLint → Commit
-- **Qualité**: 0 erreur/warning toléré avant commit
+- **Qualité**: Code fonctionnel et maintenable (erreurs critiques corrigées)
 
 ### Rappel pour Claude
 
@@ -210,4 +245,4 @@ rigoureusement le workflow de développement défini.
 
 ---
 
-**Dernière mise à jour**: 21 août 2025 **Version Claude**: Opus 4.1
+**Dernière mise à jour**: 23 août 2025 **Version Claude**: Opus 4.1

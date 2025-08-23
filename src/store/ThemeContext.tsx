@@ -139,7 +139,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       if (savedTheme === 'dark' || savedTheme === 'light') {
         setThemeModeState(savedTheme);
       }
-    } catch (error) {
+    } catch (_error) {
 
     }
   };
@@ -147,7 +147,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const saveTheme = async (mode: ThemeMode): Promise<void> => {
     try {
       await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
-    } catch (error) {
+    } catch (_error) {
 
     }
   };

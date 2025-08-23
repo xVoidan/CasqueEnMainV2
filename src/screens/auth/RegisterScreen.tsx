@@ -331,10 +331,6 @@ export function RegisterScreen(): React.ReactElement {
   const renderStepContent = (): React.ReactElement | null => {
     switch (currentStep) {
       case 0:
-        
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
 
   return (
           <FadeInView duration={400}>
@@ -496,7 +492,7 @@ export function RegisterScreen(): React.ReactElement {
                       ) : (
                         <Button
                           title="S'inscrire"
-                          // eslint-disable-next-line @typescript-eslint/no-misused-promises
+
                           onPress={handleRegister}
                           loading={loading}
                           size="medium"
@@ -508,7 +504,7 @@ export function RegisterScreen(): React.ReactElement {
 
                   <View style={styles.loginContainer}>
                     <Text style={styles.loginText}>Déjà un compte ?</Text>
-                    <TouchableOpacity onPress={handlePress} router.push('/(auth)/login')}>
+                    <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
                       <Text style={styles.loginLink}>Se connecter</Text>
                     </TouchableOpacity>
                   </View>

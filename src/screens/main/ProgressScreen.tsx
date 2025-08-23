@@ -12,12 +12,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import {
   LineChart,
-  PieChart,
-  BarChart,
-  ContributionGraph,
 } from 'react-native-chart-kit';
 import { useAuth } from '@/src/store/AuthContext';
 import { statsService, IUserStats, IThemeStats, IProgressData } from '@/src/services/statsService';
@@ -44,10 +40,10 @@ const chartConfig = {
   },
 };
 
-export const ProgressScreen = React.memo(function ProgressScreen: React.FC = () => {
+const ProgressScreenComponent: React.FC = () => {
   const { user } = useAuth();
   const [userStats, setUserStats] = useState<IUserStats | null>(null);
-  const [themeStats, setThemeStats] = useState<IThemeStats[]>([]);
+  const [_themeStats, setThemeStats] = useState<IThemeStats[]>([]);
   const [progressData, setProgressData] = useState<IProgressData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -66,8 +62,8 @@ export const ProgressScreen = React.memo(function ProgressScreen: React.FC = () 
       setUserStats(stats);
       setThemeStats(themes);
       setProgressData(progress);
-    } catch (error) {
-
+    } catch (_error) {
+      // Erreur silencieuse
     } finally {
       setIsLoading(false);
       setRefreshing(false);
@@ -84,17 +80,7 @@ export const ProgressScreen = React.memo(function ProgressScreen: React.FC = () 
   }, [loadStats]);
 
   if (isLoading || !userStats || !progressData) {
-    
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  
-  const handlePress = useCallback(() => {
-    // TODO: Implement onPress logic
-  }, []);
-
-  return (
+    return (
       <GradientBackground>
         <SafeAreaView style={styles.container}>
           <View style={styles.loadingContainer}>
@@ -119,38 +105,7 @@ export const ProgressScreen = React.memo(function ProgressScreen: React.FC = () 
     ],
   };
 
-  const pieChartData = progressData.themeDistribution.map(theme => ({
-    name: theme.theme,
-    population: theme.value,
-    color: theme.theme === 'Mathématiques'
-      ? '#3B82F6'
-      : theme.theme === 'Français'
-        ? '#10B981'
-        : '#F59E0B',
-    legendFontColor: '#FFF',
-    legendFontSize: 12,
-  }));
-
-  const barChartData = {
-    labels: themeStats.map(t => t.theme.substring(0, 4)),
-    datasets: [
-      {
-        data: themeStats.map(t => t.successRate),
-      },
-    ],
-  };
-
-  // Générer les données pour la heatmap
-  const generateHeatmapData = () => {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 90);
-
-    return progressData.activityHeatmap.map(day => ({
-      date: day.date,
-      count: day.intensity,
-    }));
-  };
+  // Données supprimées temporairement pour debug
 
   return (
     <GradientBackground>
@@ -265,7 +220,7 @@ export const ProgressScreen = React.memo(function ProgressScreen: React.FC = () 
                 <View style={styles.periodSelector}>
                   <TouchableOpacity
                     style={[styles.periodButton, selectedPeriod === 7 && styles.activePeriodButton]}
-                    onPress={handlePress} setSelectedPeriod(7)}
+                    onPress={() => setSelectedPeriod(7)}
                   >
                     <Text style={[styles.periodButtonText, selectedPeriod === 7 && styles.activePeriodButtonText]}>
                       7j
@@ -273,7 +228,7 @@ export const ProgressScreen = React.memo(function ProgressScreen: React.FC = () 
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.periodButton, selectedPeriod === 30 && styles.activePeriodButton]}
-                    onPress={handlePress} setSelectedPeriod(30)}
+                    onPress={() => setSelectedPeriod(30)}
                   >
                     <Text style={[styles.periodButtonText, selectedPeriod === 30 && styles.activePeriodButtonText]}>
                       30j
@@ -295,63 +250,9 @@ export const ProgressScreen = React.memo(function ProgressScreen: React.FC = () 
             </View>
           </FadeInView>
 
-          {/* Répartition par thème */}
-          {pieChartData.length > 0 && (
-            <FadeInView duration={400} delay={300}>
-              <View style={styles.chartCard}>
-                <Text style={styles.sectionTitle}>Répartition par thème</Text>
-                <PieChart
-                  data={pieChartData}
-                  width={screenWidth - theme.spacing.lg * 2 - theme.spacing.md * 2}
-                  height={200}
-                  chartConfig={chartConfig}
-                  accessor="population"
-                  backgroundColor="transparent"
-                  paddingLeft="15"
-                  absolute
-                />
-              </View>
-            </FadeInView>
-          )}
+          {/* Sections temporairement supprimées pour debug */}
 
-          {/* Comparaison des performances */}
-          {themeStats.length > 0 && (
-            <FadeInView duration={400} delay={400}>
-              <View style={styles.chartCard}>
-                <Text style={styles.sectionTitle}>Taux de réussite par thème</Text>
-                <BarChart
-                  data={barChartData}
-                  width={screenWidth - theme.spacing.lg * 2 - theme.spacing.md * 2}
-                  height={200}
-                  chartConfig={chartConfig}
-                  style={styles.chart}
-                  withInnerLines={false}
-                  showBarTops={false}
-                  yAxisSuffix="%"
-                />
-              </View>
-            </FadeInView>
-          )}
-
-          {/* Heatmap d'activité */}
-          <FadeInView duration={400} delay={500}>
-            <View style={styles.chartCard}>
-              <Text style={styles.sectionTitle}>Activité des 90 derniers jours</Text>
-              <ContributionGraph
-                values={generateHeatmapData()}
-                endDate={new Date()}
-                numDays={90}
-                width={screenWidth - theme.spacing.lg * 2 - theme.spacing.md * 2}
-                height={200}
-                chartConfig={{
-                  ...chartConfig,
-                  color: (opacity = 1) => `rgba(220, 38, 38, ${opacity})`,
-                }}
-                style={styles.chart}
-                tooltipDataAttrs={() => ({})}
-              />
-            </View>
-          </FadeInView>
+          {/* Heatmap d'activité - Temporairement supprimée pour debug */}
 
           <View style={styles.dynamicStyle1} />
         </ScrollView>
@@ -359,6 +260,9 @@ export const ProgressScreen = React.memo(function ProgressScreen: React.FC = () 
     </GradientBackground>
   );
 };
+
+export const ProgressScreen = React.memo(ProgressScreenComponent);
+ProgressScreen.displayName = 'ProgressScreen';
 
 const styles = StyleSheet.create({
   container: {
@@ -486,5 +390,8 @@ const styles = StyleSheet.create({
   chart: {
     marginVertical: theme.spacing.sm,
     borderRadius: theme.borderRadius.md,
+  },
+  dynamicStyle1: {
+    display: 'none',
   },
 });
