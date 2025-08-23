@@ -14,21 +14,21 @@ DROP VIEW IF EXISTS public.user_profiles CASCADE;
 -- Recréer la vue SANS SECURITY DEFINER pour respecter RLS
 CREATE OR REPLACE VIEW public.user_profiles AS
 SELECT 
-  p.user_id,
-  p.username,
-  p.department,
-  p.avatar_url,
-  p.total_points,
-  p.current_grade,
-  p.streak_days,
-  p.best_score,
-  p.sessions_completed,
-  p.total_time_played,
-  p.preferences,
-  p.created_at,
-  p.updated_at
-FROM profiles p
-WHERE p.user_id = auth.uid();
+  user_id,
+  username,
+  department,
+  avatar_url,
+  total_points,
+  current_grade,
+  streak_days,
+  best_score,
+  sessions_completed,
+  total_time_played,
+  preferences,
+  created_at,
+  updated_at
+FROM profiles
+WHERE user_id = auth.uid();
 
 -- Appliquer les permissions appropriées
 ALTER VIEW public.user_profiles OWNER TO authenticated;

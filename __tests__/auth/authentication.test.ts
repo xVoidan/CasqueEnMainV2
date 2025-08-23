@@ -3,9 +3,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/src/lib/supabase';
 
 const TEST_EMAIL = 'test@example.com';
-const TEST_PASSWORD = 'SecurePass123!';
-const INVALID_EMAIL = 'invalid-email';
-const SHORT_PASSWORD = '123';
+const _TEST_PASSWORD = 'SecurePass123!';
+const _INVALID_EMAIL = 'invalid-email';
+const _SHORT_PASSWORD = '123';
 
 // Mock Supabase
 jest.mock('@/src/lib/supabase', () => ({

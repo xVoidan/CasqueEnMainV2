@@ -36,7 +36,8 @@
       "Bash(npm run:*)",
       "Bash(npx prettier:*)",
       "Bash(npx kill-port:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npx expo:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
