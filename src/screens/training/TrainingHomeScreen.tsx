@@ -60,16 +60,16 @@ export function TrainingHomeScreen(): React.ReactElement {
 
   const checkPausedSession = async () => {
     if (!user) return;
-    
+
     try {
       const savedProgress = await AsyncStorage.getItem(`${SESSION_STORAGE_KEY}_${user.id}`);
       if (savedProgress) {
         const parsed = JSON.parse(savedProgress);
-        
+
         // Vérifier si c'est une session récente et non terminée
         const hoursSinceLastSave = (Date.now() - parsed.timestamp) / (1000 * 60 * 60);
         const isSessionIncomplete = parsed.currentQuestionIndex < (parsed.totalQuestions || 0) - 1;
-        
+
         if (hoursSinceLastSave < 24 && isSessionIncomplete) {
           setPausedSession(parsed);
         } else {
@@ -87,9 +87,9 @@ export function TrainingHomeScreen(): React.ReactElement {
     if (pausedSession) {
       router.push({
         pathname: '/training/session',
-        params: { 
+        params: {
           config: JSON.stringify(pausedSession.config),
-          resumeSession: 'true'
+          resumeSession: 'true',
         },
       });
     }

@@ -65,17 +65,17 @@ export function TrainingSessionScreenV2(): React.ReactElement {
   const [sessionAnswers, setSessionAnswers] = useState<ISessionAnswer[]>([]);
   const [isValidated, setIsValidated] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(
-    sessionConfig?.timerEnabled ? sessionConfig.timerDuration : null
+    sessionConfig?.timerEnabled ? sessionConfig.timerDuration : null,
   );
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const [sessionId] = useState(Date.now().toString());
   const [showPauseNotification, setShowPauseNotification] = useState(false);
-  
+
   // États pour les performances
   const [streak, setStreak] = useState(0);
   const [totalPoints, setTotalPoints] = useState(0);
   const [questionsToReview, setQuestionsToReview] = useState<string[]>([]);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [_showConfetti, _setShowConfetti] = useState(false);
 
   // Refs
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -120,24 +120,24 @@ export function TrainingSessionScreenV2(): React.ReactElement {
       const loadedQuestions = await questionService.getQuestions(
         themeFilters,
         sessionConfig.questionCount,
-        sessionConfig.questionTypeFilter || 'all'
+        sessionConfig.questionTypeFilter || 'all',
       );
 
       if (loadedQuestions.length === 0) {
         setError('Aucune question trouvée pour les thèmes sélectionnés');
       } else {
         setQuestions(loadedQuestions);
-        
+
         // Vérifier s'il y a une session sauvegardée
         await checkSavedProgress();
       }
     } catch (err) {
       console.error('Erreur chargement questions:', err);
       setError('Erreur lors du chargement des questions. Utilisation des questions d\'exemple.');
-      
+
       // Utiliser les questions d'exemple en cas d'erreur
       const sampleQuestions = await questionService.getRandomQuestions(
-        sessionConfig.questionCount > 0 ? sessionConfig.questionCount : 20
+        sessionConfig.questionCount > 0 ? sessionConfig.questionCount : 20,
       );
       setQuestions(sampleQuestions);
     } finally {
@@ -147,53 +147,53 @@ export function TrainingSessionScreenV2(): React.ReactElement {
 
   const checkSavedProgress = async () => {
     if (!user) return;
-    
+
     try {
       const savedProgress = await AsyncStorage.getItem(`${SESSION_STORAGE_KEY}_${user.id}`);
       if (savedProgress) {
         const parsed = JSON.parse(savedProgress);
-        
+
         // Vérifier si c'est une session récente (moins de 24h) ET non terminée
         const hoursSinceLastSave = (Date.now() - parsed.timestamp) / (1000 * 60 * 60);
         const isSessionIncomplete = parsed.currentQuestionIndex < (parsed.totalQuestions || questions.length) - 1;
-        
+
         if (hoursSinceLastSave < 24 && isSessionIncomplete) {
           Alert.alert(
             'Session en cours',
             `Voulez-vous reprendre votre session précédente ? (Question ${parsed.currentQuestionIndex + 1}/${parsed.totalQuestions || questions.length})`,
             [
-              { 
-                text: 'Supprimer', 
+              {
+                text: 'Supprimer',
                 onPress: () => {
                   Alert.alert(
                     'Supprimer la session',
                     'Attention : En supprimant cette session, vous perdrez tous les points et statistiques associés. Êtes-vous sûr ?',
                     [
                       { text: 'Annuler', style: 'cancel' },
-                      { 
-                        text: 'Supprimer', 
+                      {
+                        text: 'Supprimer',
                         style: 'destructive',
-                        onPress: () => clearSavedProgress()
-                      }
-                    ]
+                        onPress: () => clearSavedProgress(),
+                      },
+                    ],
                   );
                 },
-                style: 'destructive'
+                style: 'destructive',
               },
-              { 
-                text: 'Nouvelle session', 
+              {
+                text: 'Nouvelle session',
                 onPress: () => clearSavedProgress(),
-                style: 'cancel'
+                style: 'cancel',
               },
-              { 
-                text: 'Reprendre', 
+              {
+                text: 'Reprendre',
                 onPress: () => {
                   setCurrentQuestionIndex(parsed.currentQuestionIndex);
                   setSessionAnswers(parsed.sessionAnswers || []);
                   setQuestionsToReview(parsed.questionsToReview || []);
                   setTotalPoints(parsed.totalPoints || 0);
                   setStreak(parsed.streak || 0);
-                }
+                },
               },
             ],
           );
@@ -209,12 +209,12 @@ export function TrainingSessionScreenV2(): React.ReactElement {
 
   const saveProgress = async () => {
     if (!user || questions.length === 0) return;
-    
+
     // Ne pas sauvegarder si la session est terminée
     if (currentQuestionIndex >= questions.length - 1 && isValidated) {
       return;
     }
-    
+
     try {
       const progressData = {
         sessionId,
@@ -228,10 +228,10 @@ export function TrainingSessionScreenV2(): React.ReactElement {
         config: sessionConfig,
         questions: questions, // Sauvegarder les questions pour pouvoir reprendre
       };
-      
+
       await AsyncStorage.setItem(
         `${SESSION_STORAGE_KEY}_${user.id}`,
-        JSON.stringify(progressData)
+        JSON.stringify(progressData),
       );
     } catch (err) {
       console.error('Erreur sauvegarde progression:', err);
@@ -240,7 +240,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
 
   const clearSavedProgress = async () => {
     if (!user) return;
-    
+
     try {
       await AsyncStorage.removeItem(`${SESSION_STORAGE_KEY}_${user.id}`);
     } catch (err) {
@@ -326,16 +326,16 @@ export function TrainingSessionScreenV2(): React.ReactElement {
 
     setSessionAnswers(prev => [...prev, answer]);
     setIsValidated(true);
-    
+
     // Calculer les points et jouer les sons
     let pointsEarned = 0;
     if (isCorrect) {
       pointsEarned = sessionConfig?.scoring?.correct || 1;
       setStreak(prev => prev + 1);
-      
+
       // Jouer le son de bonne réponse (utilise le feedback haptique pour l'instant)
       soundService.playSimpleCorrect();
-      
+
       // Animation de confettis pour 3+ bonnes réponses consécutives
       if (streak >= 2) {
         setShowConfetti(true);
@@ -343,7 +343,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
         // Jouer le son de streak (utilise le feedback haptique pour l'instant)
         soundService.playSimpleStreak();
       }
-      
+
       // Animation de pulse pour bonne réponse
       Animated.sequence([
         Animated.timing(pulseAnim, {
@@ -370,10 +370,10 @@ export function TrainingSessionScreenV2(): React.ReactElement {
     } else {
       pointsEarned = sessionConfig?.scoring?.incorrect || 0;
       setStreak(0);
-      
+
       // Jouer le son d'erreur (utilise le feedback haptique pour l'instant)
       soundService.playSimpleIncorrect();
-      
+
       // Animation de shake pour mauvaise réponse
       Animated.sequence([
         Animated.timing(shakeAnim, { toValue: 10, duration: 100, useNativeDriver: true }),
@@ -382,7 +382,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
         Animated.timing(shakeAnim, { toValue: 0, duration: 100, useNativeDriver: true }),
       ]).start();
     }
-    
+
     // Animer les points
     setTotalPoints(prev => {
       const newTotal = prev + pointsEarned;
@@ -429,10 +429,10 @@ export function TrainingSessionScreenV2(): React.ReactElement {
   const handleEndSession = async () => {
     // Jouer le son de fin de session (utilise le feedback haptique pour l'instant)
     soundService.playSimpleComplete();
-    
+
     // IMPORTANT: Supprimer immédiatement la progression sauvegardée
     await clearSavedProgress();
-    
+
     // Navigation vers le rapport
     router.replace({
       pathname: '/training/report',
@@ -449,42 +449,42 @@ export function TrainingSessionScreenV2(): React.ReactElement {
   const handlePause = async () => {
     // Sauvegarder la progression
     await saveProgress();
-    
+
     // Afficher la notification élégante
     setShowPauseNotification(true);
   };
-  
+
   const handleContinueFromPause = () => {
     setShowPauseNotification(false);
   };
-  
+
   const handleQuitFromPause = () => {
     setShowPauseNotification(false);
     router.back();
   };
 
 
-  const handleAbandon = () => {
+  const _handleAbandon = () => {
     Alert.alert(
       'Abandonner la session',
       'Attention : En abandonnant cette session, vous perdrez tous les points et statistiques associés. Voulez-vous continuer ?',
       [
         { text: 'Annuler', style: 'cancel' },
-        { 
-          text: 'Abandonner', 
+        {
+          text: 'Abandonner',
           style: 'destructive',
           onPress: async () => {
             // Supprimer la progression locale
             await clearSavedProgress();
-            
+
             // Si une session était en cours dans Supabase, la marquer comme abandonnée
             if (sessionId && user) {
               try {
                 await supabase
                   .from('sessions')
-                  .update({ 
+                  .update({
                     status: 'abandoned',
-                    ended_at: new Date().toISOString()
+                    ended_at: new Date().toISOString(),
                   })
                   .eq('id', sessionId)
                   .eq('user_id', user.id);
@@ -492,9 +492,9 @@ export function TrainingSessionScreenV2(): React.ReactElement {
                 console.error('Erreur mise à jour session abandonnée:', error);
               }
             }
-            
+
             router.back();
-          }
+          },
         },
       ],
     );
@@ -502,7 +502,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
 
   const getAnswerStyle = (answerId: string) => {
     if (!currentQuestion) return styles.answerDefault;
-    
+
     const answer = currentQuestion.answers.find(a => a.id === answerId);
     const isSelected = selectedAnswers.includes(answerId);
 
@@ -604,16 +604,16 @@ export function TrainingSessionScreenV2(): React.ReactElement {
             </Animated.Text>
           </View>
           <View style={styles.performanceItem}>
-            <Ionicons 
-              name="speedometer" 
-              size={20} 
+            <Ionicons
+              name="speedometer"
+              size={20}
               color={
-                questionStartTime && (Date.now() - questionStartTime) / 1000 < 10 
-                  ? '#10B981' 
-                  : (Date.now() - questionStartTime) / 1000 < 20 
-                  ? '#F59E0B' 
+                questionStartTime && (Date.now() - questionStartTime) / 1000 < 10
+                  ? '#10B981'
+                  : (Date.now() - questionStartTime) / 1000 < 20
+                  ? '#F59E0B'
                   : '#EF4444'
-              } 
+              }
             />
             <Text style={styles.performanceText}>
               {questionStartTime && `${Math.floor((Date.now() - questionStartTime) / 1000)}s`}
@@ -635,10 +635,10 @@ export function TrainingSessionScreenV2(): React.ReactElement {
             ]}
           />
         </View>
-        
+
         {/* Mini-carte de progression */}
-        <ScrollView 
-          horizontal 
+        <ScrollView
+          horizontal
           style={styles.miniMapContainer}
           showsHorizontalScrollIndicator={false}
         >
@@ -663,7 +663,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
         </ScrollView>
 
         {/* Contenu de la question */}
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
@@ -690,15 +690,15 @@ export function TrainingSessionScreenV2(): React.ReactElement {
               </View>
 
               {/* Réponses */}
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.answersContainer,
                   {
                     transform: [
                       { translateX: shakeAnim },
-                      { scale: pulseAnim }
-                    ]
-                  }
+                      { scale: pulseAnim },
+                    ],
+                  },
                 ]}
               >
                 {currentQuestion.answers.map((answer) => (
@@ -777,8 +777,8 @@ export function TrainingSessionScreenV2(): React.ReactElement {
                   disabled={selectedAnswers.length === 0}
                 >
                   <LinearGradient
-                colors={selectedAnswers.length > 0 
-                  ? ['#8B5CF6', '#7C3AED'] 
+                colors={selectedAnswers.length > 0
+                  ? ['#8B5CF6', '#7C3AED']
                   : ['#6B7280', '#4B5563']}
                 style={styles.validateGradient}
               >
@@ -791,7 +791,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
                 <TouchableOpacity
                   style={[
                     styles.reviewButton,
-                    questionsToReview.includes(currentQuestion.id) && styles.reviewButtonActive
+                    questionsToReview.includes(currentQuestion.id) && styles.reviewButtonActive,
                   ]}
                   onPress={() => {
                     if (questionsToReview.includes(currentQuestion.id)) {
@@ -801,19 +801,19 @@ export function TrainingSessionScreenV2(): React.ReactElement {
                     }
                   }}
                 >
-                  <Ionicons 
-                    name={questionsToReview.includes(currentQuestion.id) ? "bookmark" : "bookmark-outline"} 
-                    size={20} 
-                    color={questionsToReview.includes(currentQuestion.id) ? "#F59E0B" : "#FFFFFF"} 
+                  <Ionicons
+                    name={questionsToReview.includes(currentQuestion.id) ? 'bookmark' : 'bookmark-outline'}
+                    size={20}
+                    color={questionsToReview.includes(currentQuestion.id) ? '#F59E0B' : '#FFFFFF'}
                   />
                   <Text style={[
                     styles.reviewButtonText,
-                    questionsToReview.includes(currentQuestion.id) && styles.reviewButtonTextActive
+                    questionsToReview.includes(currentQuestion.id) && styles.reviewButtonTextActive,
                   ]}>
-                    {questionsToReview.includes(currentQuestion.id) ? "Marquée" : "À revoir"}
+                    {questionsToReview.includes(currentQuestion.id) ? 'Marquée' : 'À revoir'}
                   </Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity
                   style={styles.nextButton}
                   onPress={handleNextQuestion}
@@ -823,16 +823,16 @@ export function TrainingSessionScreenV2(): React.ReactElement {
                     style={styles.nextGradient}
                   >
                     <Text style={styles.nextText}>
-                      {currentQuestionIndex < questions.length - 1 
-                        ? 'SUIVANTE' 
+                      {currentQuestionIndex < questions.length - 1
+                        ? 'SUIVANTE'
                         : 'TERMINER'}
                     </Text>
-                    <Ionicons 
-                      name={currentQuestionIndex < questions.length - 1 
-                        ? "arrow-forward" 
-                        : "checkmark-done"} 
-                      size={20} 
-                      color="#FFFFFF" 
+                    <Ionicons
+                      name={currentQuestionIndex < questions.length - 1
+                        ? 'arrow-forward'
+                        : 'checkmark-done'}
+                      size={20}
+                      color="#FFFFFF"
                     />
                   </LinearGradient>
                 </TouchableOpacity>
@@ -842,7 +842,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
         )}
 
       </SafeAreaView>
-      
+
       {/* Notification de pause élégante */}
       <SessionPauseNotification
         visible={showPauseNotification}

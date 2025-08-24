@@ -35,7 +35,7 @@ class QuestionService {
   ): Promise<IQuestion[]> {
     try {
       console.log('Getting questions with themes:', themes);
-      
+
       // Extraire tous les IDs de sous-thèmes
       const subThemeIds: string[] = [];
       themes.forEach(theme => {
@@ -43,7 +43,7 @@ class QuestionService {
           subThemeIds.push(subTheme);
         });
       });
-      
+
       console.log('Sub-theme IDs:', subThemeIds);
 
       // Si aucun sous-thème sélectionné, récupérer toutes les questions
@@ -77,7 +77,7 @@ class QuestionService {
 
       // Charger les informations des thèmes et sous-thèmes séparément
       const subThemeIdsFromQuestions = [...new Set(data.map(q => q.sub_theme_id))];
-      
+
       const { data: subThemesData } = await supabase
         .from('sub_themes')
         .select(`
@@ -166,7 +166,7 @@ class QuestionService {
     // Extraire les informations du thème et sous-thème si disponibles
     const themeName = subThemeData?.themes?.name || dbQuestion.sub_themes?.themes?.name || 'Métier';
     const subThemeName = subThemeData?.name || dbQuestion.sub_themes?.name || 'Général';
-    
+
     // Créer les réponses à partir des données de la BDD
     const answers: IAnswer[] = [
       { id: 'a', text: dbQuestion.correct_answer, isCorrect: true },
@@ -174,10 +174,10 @@ class QuestionService {
       { id: 'c', text: dbQuestion.wrong_answer_2, isCorrect: false },
       { id: 'd', text: dbQuestion.wrong_answer_3, isCorrect: false },
     ];
-    
+
     // Mélanger les réponses pour éviter que la bonne soit toujours en premier
     const shuffled = this.shuffleArray(answers);
-    
+
     return {
       id: dbQuestion.id,
       theme: themeName,
@@ -191,7 +191,7 @@ class QuestionService {
       answers: shuffled,
     };
   }
-  
+
   /**
    * Mélange un tableau de manière aléatoire
    */

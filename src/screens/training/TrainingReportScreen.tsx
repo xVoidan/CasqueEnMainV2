@@ -32,11 +32,11 @@ interface IQuestion {
   theme: string;
   subTheme: string;
   question: string;
-  answers: Array<{
+  answers: {
     id: string;
     text: string;
     isCorrect: boolean;
-  }>;
+  }[];
   explanation?: string;
 }
 
@@ -65,21 +65,21 @@ export function TrainingReportScreen(): React.ReactElement {
   const router = useRouter();
   const { user } = useAuth();
   const params = useLocalSearchParams();
-  
-  const sessionAnswers: ISessionAnswer[] = params.sessionAnswers 
-    ? JSON.parse(params.sessionAnswers as string) 
+
+  const sessionAnswers: ISessionAnswer[] = params.sessionAnswers
+    ? JSON.parse(params.sessionAnswers as string)
     : [];
-  const questions: IQuestion[] = params.questions 
-    ? JSON.parse(params.questions as string) 
+  const questions: IQuestion[] = params.questions
+    ? JSON.parse(params.questions as string)
     : [];
-  const config: ISessionConfig = params.config 
-    ? JSON.parse(params.config as string) 
+  const config: ISessionConfig = params.config
+    ? JSON.parse(params.config as string)
     : { scoring: { correct: 1, incorrect: 0, skipped: 0, partial: 0.5 } };
-  const questionsToReview: string[] = params.questionsToReview 
-    ? JSON.parse(params.questionsToReview as string) 
+  const questionsToReview: string[] = params.questionsToReview
+    ? JSON.parse(params.questionsToReview as string)
     : [];
-  const totalPoints: number = params.totalPoints 
-    ? parseInt(params.totalPoints as string) 
+  const totalPoints: number = params.totalPoints
+    ? parseInt(params.totalPoints as string)
     : 0;
 
   const [stats, setStats] = useState<IStats>({
@@ -105,7 +105,7 @@ export function TrainingReportScreen(): React.ReactElement {
     if (!sessionAnswers || sessionAnswers.length === 0) {
       return;
     }
-    
+
     const correct = sessionAnswers.filter(a => a && a.isCorrect === true).length;
     const incorrect = sessionAnswers.filter(a => a && !a.isCorrect && !a.isPartial && !a.isSkipped).length;
     const partial = sessionAnswers.filter(a => a && a.isPartial === true).length;
@@ -113,7 +113,7 @@ export function TrainingReportScreen(): React.ReactElement {
     const totalTime = sessionAnswers.reduce((sum, a) => sum + (a?.timeSpent || 0), 0);
     const avgTime = sessionAnswers.length > 0 ? totalTime / sessionAnswers.length : 0;
 
-    const score = 
+    const score =
       correct * config.scoring.correct +
       incorrect * config.scoring.incorrect +
       partial * (config.scoring.partial || 0.5) +
@@ -136,7 +136,7 @@ export function TrainingReportScreen(): React.ReactElement {
 
   const saveSessionToHistory = async () => {
     if (!user || !sessionAnswers || sessionAnswers.length === 0) return;
-    
+
     setSaving(true);
     try {
       // Sauvegarder dans Supabase
@@ -159,7 +159,7 @@ export function TrainingReportScreen(): React.ReactElement {
       const historyKey = `@training_history_${user.id}`;
       const existingHistory = await AsyncStorage.getItem(historyKey);
       const history = existingHistory ? JSON.parse(existingHistory) : [];
-      
+
       history.unshift({
         id: Date.now().toString(),
         date: new Date().toISOString(),
@@ -182,12 +182,12 @@ export function TrainingReportScreen(): React.ReactElement {
 
   const shareResults = async () => {
     try {
-      const message = `🎯 Résultats de ma session d'entraînement CasqueEnMains:\n\n` +
+      const message = '🎯 Résultats de ma session d\'entraînement CasqueEnMains:\n\n' +
         `📊 Score: ${stats.totalScore.toFixed(1)} points\n` +
         `✅ Réussite: ${stats.successRate.toFixed(1)}%\n` +
         `📝 Questions: ${stats.correctAnswers}/${stats.totalQuestions} correctes\n` +
         `⏱️ Temps moyen: ${stats.averageTime.toFixed(1)}s par question\n\n` +
-        `#CasqueEnMains #Pompiers #Formation`;
+        '#CasqueEnMains #Pompiers #Formation';
 
       await Share.share({ message });
     } catch (error) {
@@ -201,7 +201,7 @@ export function TrainingReportScreen(): React.ReactElement {
       const answer = sessionAnswers[index];
       return (answer && !answer.isCorrect) || questionsToReview.includes(q.id);
     });
-    
+
     // Créer une configuration spéciale pour le Mode Rattrapage
     const reviewConfig = {
       ...config,
@@ -209,7 +209,7 @@ export function TrainingReportScreen(): React.ReactElement {
       allowNavigation: true, // Permet de naviguer entre les questions
       showCorrectAnswers: true, // Montre les bonnes réponses après validation
     };
-    
+
     router.push({
       pathname: '/training/rattrapage',
       params: {
@@ -253,7 +253,7 @@ export function TrainingReportScreen(): React.ReactElement {
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
@@ -346,10 +346,10 @@ export function TrainingReportScreen(): React.ReactElement {
                   return (
                     <View key={question.id} style={styles.questionDetail}>
                       <View style={styles.questionHeader}>
-                        <Ionicons 
-                          name={answer.isCorrect ? 'checkmark-circle' : 'close-circle'} 
-                          size={20} 
-                          color={answer.isCorrect ? '#10B981' : '#EF4444'} 
+                        <Ionicons
+                          name={answer.isCorrect ? 'checkmark-circle' : 'close-circle'}
+                          size={20}
+                          color={answer.isCorrect ? '#10B981' : '#EF4444'}
                         />
                         <Text style={styles.questionNumber}>Question {index + 1}</Text>
                         <Text style={styles.questionTime}>{answer.timeSpent.toFixed(1)}s</Text>
@@ -383,10 +383,10 @@ export function TrainingReportScreen(): React.ReactElement {
                 style={[styles.actionButton, styles.detailsButton]}
                 onPress={() => setShowDetails(!showDetails)}
               >
-                <Ionicons 
-                  name={showDetails ? 'chevron-up' : 'chevron-down'} 
-                  size={20} 
-                  color="#8B5CF6" 
+                <Ionicons
+                  name={showDetails ? 'chevron-up' : 'chevron-down'}
+                  size={20}
+                  color="#8B5CF6"
                 />
                 <Text style={[styles.actionButtonText, { color: '#8B5CF6' }]}>
                   {showDetails ? 'Masquer' : 'Voir'} les détails

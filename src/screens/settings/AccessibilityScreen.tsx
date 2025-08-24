@@ -41,7 +41,7 @@ const DEFAULT_SETTINGS: AccessibilitySettings = {
 export function AccessibilityScreen(): React.ReactElement {
   const router = useRouter();
   const [settings, setSettings] = useState<AccessibilitySettings>(DEFAULT_SETTINGS);
-  const [previewText, setPreviewText] = useState('Aperçu du texte avec vos paramètres');
+  const [previewText] = useState('Aperçu du texte avec vos paramètres');
 
   useEffect(() => {
     loadSettings();
@@ -70,7 +70,7 @@ export function AccessibilityScreen(): React.ReactElement {
 
   const updateSetting = <K extends keyof AccessibilitySettings>(
     key: K,
-    value: AccessibilitySettings[K]
+    value: AccessibilitySettings[K],
   ) => {
     const newSettings = { ...settings, [key]: value };
     saveSettings(newSettings);
@@ -122,13 +122,13 @@ export function AccessibilityScreen(): React.ReactElement {
               <Text style={styles.sectionTitle}>Aperçu</Text>
               <View style={[
                 styles.previewBox,
-                settings.highContrast && styles.highContrastBox
+                settings.highContrast && styles.highContrastBox,
               ]}>
                 <Text style={[
                   styles.previewText,
                   getFontSizeStyle(),
                   getColorblindStyle(),
-                  settings.highContrast && styles.highContrastText
+                  settings.highContrast && styles.highContrastText,
                 ]}>
                   {previewText}
                 </Text>
@@ -153,18 +153,18 @@ export function AccessibilityScreen(): React.ReactElement {
                     key={mode.value}
                     style={[
                       styles.optionCard,
-                      settings.colorblindMode === mode.value && styles.optionCardActive
+                      settings.colorblindMode === mode.value && styles.optionCardActive,
                     ]}
                     onPress={() => updateSetting('colorblindMode', mode.value as any)}
                   >
-                    <Ionicons 
-                      name={mode.icon as any} 
-                      size={24} 
-                      color={settings.colorblindMode === mode.value ? '#8B5CF6' : 'rgba(255,255,255,0.6)'} 
+                    <Ionicons
+                      name={mode.icon as any}
+                      size={24}
+                      color={settings.colorblindMode === mode.value ? '#8B5CF6' : 'rgba(255,255,255,0.6)'}
                     />
                     <Text style={[
                       styles.optionText,
-                      settings.colorblindMode === mode.value && styles.optionTextActive
+                      settings.colorblindMode === mode.value && styles.optionTextActive,
                     ]}>
                       {mode.label}
                     </Text>
@@ -206,7 +206,7 @@ export function AccessibilityScreen(): React.ReactElement {
               <Text style={styles.sectionTitle}>
                 <Ionicons name="contrast" size={20} color={theme.colors.white} /> Options Visuelles
               </Text>
-              
+
               <View style={styles.switchRow}>
                 <View style={styles.switchInfo}>
                   <Text style={styles.switchLabel}>Contraste Élevé</Text>
@@ -245,7 +245,7 @@ export function AccessibilityScreen(): React.ReactElement {
               <Text style={styles.sectionTitle}>
                 <Ionicons name="volume-high" size={20} color={theme.colors.white} /> Retour Sensoriel
               </Text>
-              
+
               <View style={styles.switchRow}>
                 <View style={styles.switchInfo}>
                   <Text style={styles.switchLabel}>Sons</Text>
@@ -284,7 +284,7 @@ export function AccessibilityScreen(): React.ReactElement {
               <Text style={styles.sectionTitle}>
                 <Ionicons name="accessibility" size={20} color={theme.colors.white} /> Lecteur d'Écran
               </Text>
-              
+
               <View style={styles.switchRow}>
                 <View style={styles.switchInfo}>
                   <Text style={styles.switchLabel}>Optimisation Lecteur d'Écran</Text>

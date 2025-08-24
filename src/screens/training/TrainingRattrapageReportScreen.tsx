@@ -17,13 +17,13 @@ import { theme } from '../../styles/theme';
 export function TrainingRattrapageReportScreen(): React.ReactElement {
   const router = useRouter();
   const params = useLocalSearchParams();
-  
+
   const totalQuestions = parseInt(params.totalQuestions as string) || 0;
   const correctCount = parseInt(params.correctCount as string) || 0;
-  
+
   const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
   const incorrectCount = totalQuestions - correctCount;
-  
+
   // Déterminer le message et la couleur selon le score
   const getResultMessage = () => {
     if (percentage >= 80) {
@@ -49,22 +49,22 @@ export function TrainingRattrapageReportScreen(): React.ReactElement {
       };
     }
   };
-  
+
   const result = getResultMessage();
-  
+
   const handleRetryRattrapage = () => {
     // Retourner à l'écran précédent pour relancer le rattrapage
     router.back();
   };
-  
+
   const handleBackToHome = () => {
     router.replace('/training');
   };
-  
+
   const handleNewSession = () => {
     router.replace('/training/config');
   };
-  
+
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
@@ -77,7 +77,7 @@ export function TrainingRattrapageReportScreen(): React.ReactElement {
             <Text style={styles.headerTitle}>Résultats du Rattrapage</Text>
             <View style={{ width: 24 }} />
           </View>
-          
+
           {/* Score Circle */}
           <FadeInView duration={500}>
             <View style={styles.scoreContainer}>
@@ -87,15 +87,15 @@ export function TrainingRattrapageReportScreen(): React.ReactElement {
                 </Text>
                 <Text style={styles.scoreLabel}>de réussite</Text>
               </View>
-              <Ionicons 
-                name={result.icon} 
-                size={40} 
-                color={result.color} 
+              <Ionicons
+                name={result.icon}
+                size={40}
+                color={result.color}
                 style={styles.resultIcon}
               />
             </View>
           </FadeInView>
-          
+
           {/* Result Message */}
           <FadeInView duration={600} delay={100}>
             <View style={styles.messageContainer}>
@@ -107,7 +107,7 @@ export function TrainingRattrapageReportScreen(): React.ReactElement {
               </Text>
             </View>
           </FadeInView>
-          
+
           {/* Statistics */}
           <FadeInView duration={700} delay={200}>
             <View style={styles.statsContainer}>
@@ -126,7 +126,7 @@ export function TrainingRattrapageReportScreen(): React.ReactElement {
               </View>
             </View>
           </FadeInView>
-          
+
           {/* Progress Indicator */}
           <FadeInView duration={800} delay={300}>
             <View style={styles.progressContainer}>
@@ -142,7 +142,7 @@ export function TrainingRattrapageReportScreen(): React.ReactElement {
               </Text>
             </View>
           </FadeInView>
-          
+
           {/* Tips Section */}
           {incorrectCount > 0 && (
             <FadeInView duration={900} delay={400}>
@@ -157,7 +157,7 @@ export function TrainingRattrapageReportScreen(): React.ReactElement {
               </View>
             </FadeInView>
           )}
-          
+
           {/* Action Buttons */}
           <FadeInView duration={1000} delay={500}>
             <View style={styles.actionButtons}>
@@ -177,7 +177,7 @@ export function TrainingRattrapageReportScreen(): React.ReactElement {
                   </LinearGradient>
                 </TouchableOpacity>
               )}
-              
+
               <TouchableOpacity
                 style={styles.secondaryButton}
                 onPress={handleNewSession}
@@ -192,7 +192,7 @@ export function TrainingRattrapageReportScreen(): React.ReactElement {
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={styles.tertiaryButton}
                 onPress={handleBackToHome}

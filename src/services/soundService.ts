@@ -22,7 +22,7 @@ class SoundService {
 
       // Charger les paramètres
       await this.loadSettings();
-      
+
       console.log('Sound service initialized with haptic feedback');
     } catch (error) {
       console.error('Error initializing sound service:', error);
@@ -45,12 +45,12 @@ class SoundService {
   // Générer un son synthétique avec expo-av
   private async playTone(frequency: number, duration: number = 200) {
     if (!this.soundEnabled) return;
-    
+
     try {
       // Créer un son synthétique basique
       // Note: Expo AV ne supporte pas directement la génération de tons
       // On utilisera une approche différente avec des sons pré-enregistrés
-      
+
       // Pour l'instant, on utilise uniquement le feedback haptique
       console.log(`Would play tone: ${frequency}Hz for ${duration}ms`);
     } catch (error) {
@@ -65,7 +65,7 @@ class SoundService {
       setTimeout(() => this.playTone(659), 100); // Mi
       setTimeout(() => this.playTone(784), 200); // Sol
     }
-    
+
     if (this.vibrationEnabled) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
@@ -77,7 +77,7 @@ class SoundService {
       await this.playTone(392); // Sol
       setTimeout(() => this.playTone(311), 150); // Mi bémol
     }
-    
+
     if (this.vibrationEnabled) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
@@ -88,7 +88,7 @@ class SoundService {
       // Jouer une note neutre (La)
       await this.playTone(440, 100);
     }
-    
+
     if (this.vibrationEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
@@ -102,7 +102,7 @@ class SoundService {
       setTimeout(() => this.playTone(784), 200); // Sol
       setTimeout(() => this.playTone(1047), 300); // Do octave
     }
-    
+
     if (this.vibrationEnabled) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setTimeout(() => {
@@ -119,7 +119,7 @@ class SoundService {
         setTimeout(() => this.playTone(freq, 150), index * 150);
       });
     }
-    
+
     if (this.vibrationEnabled) {
       // Pattern de vibration de victoire
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -176,7 +176,7 @@ class SoundService {
         () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium),
         () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy),
       ];
-      
+
       pattern.forEach((vibrate, index) => {
         setTimeout(vibrate, index * 150);
       });

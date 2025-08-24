@@ -404,10 +404,10 @@ export function TrainingConfigScreen(): React.ReactElement {
                   style={styles.quickActionChip}
                   onPress={() => {
                     // Toggle entre tout sélectionner et tout désélectionner
-                    const hasAnySelection = themes.some(theme => 
-                      theme.subThemes.some(st => st.selected)
+                    const hasAnySelection = themes.some(theme =>
+                      theme.subThemes.some(st => st.selected),
                     );
-                    
+
                     if (hasAnySelection) {
                       // Tout désélectionner
                       setThemes(prevThemes => prevThemes.map(theme => ({
@@ -425,13 +425,13 @@ export function TrainingConfigScreen(): React.ReactElement {
                     }
                   }}
                 >
-                  <Ionicons 
-                    name={themes.some(theme => theme.subThemes.some(st => st.selected)) ? "close-circle" : "checkmark-done"} 
-                    size={16} 
-                    color={themes.some(theme => theme.subThemes.some(st => st.selected)) ? "#EF4444" : "#10B981"} 
+                  <Ionicons
+                    name={themes.some(theme => theme.subThemes.some(st => st.selected)) ? 'close-circle' : 'checkmark-done'}
+                    size={16}
+                    color={themes.some(theme => theme.subThemes.some(st => st.selected)) ? '#EF4444' : '#10B981'}
                   />
                   <Text style={styles.quickActionText}>
-                    {themes.some(theme => theme.subThemes.some(st => st.selected)) ? "Tout désélectionner" : "Tout sélectionner"}
+                    {themes.some(theme => theme.subThemes.some(st => st.selected)) ? 'Tout désélectionner' : 'Tout sélectionner'}
                   </Text>
                 </TouchableOpacity>
               </View>

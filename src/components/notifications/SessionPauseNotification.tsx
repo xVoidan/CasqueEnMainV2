@@ -25,7 +25,7 @@ interface SessionPauseNotificationProps {
   onClose: () => void;
 }
 
-const { width, height } = Dimensions.get('window');
+const { width: _width, height } = Dimensions.get('window');
 
 export function SessionPauseNotification({
   visible,
@@ -97,16 +97,16 @@ export function SessionPauseNotification({
   return (
     <>
       {/* Overlay sombre */}
-      <Animated.View 
+      <Animated.View
         style={[
           styles.overlay,
           {
             opacity: fadeAnim,
-          }
+          },
         ]}
       >
-        <TouchableOpacity 
-          style={StyleSheet.absoluteFillObject} 
+        <TouchableOpacity
+          style={StyleSheet.absoluteFillObject}
           onPress={onClose}
           activeOpacity={1}
         />
@@ -120,7 +120,7 @@ export function SessionPauseNotification({
             top: insets.top + 20,
             transform: [
               { translateY: slideAnim },
-              { scale: scaleAnim }
+              { scale: scaleAnim },
             ],
             opacity: fadeAnim,
           },
@@ -140,8 +140,8 @@ export function SessionPauseNotification({
                       rotate: fadeAnim.interpolate({
                         inputRange: [0, 1],
                         outputRange: ['0deg', '360deg'],
-                      })
-                    }]
+                      }),
+                    }],
                   }}
                 >
                   <LinearGradient
@@ -152,7 +152,7 @@ export function SessionPauseNotification({
                   </LinearGradient>
                 </Animated.View>
               </View>
-              
+
               <View style={styles.headerText}>
                 <Text style={styles.title}>Session sauvegardée</Text>
                 <View style={styles.successBadge}>
@@ -175,15 +175,15 @@ export function SessionPauseNotification({
                 </Text>
               </View>
               <View style={styles.progressBarContainer}>
-                <Animated.View 
+                <Animated.View
                   style={[
                     styles.progressBar,
                     {
                       width: progressAnim.interpolate({
                         inputRange: [0, 1],
                         outputRange: ['0%', `${progressPercentage}%`],
-                      })
-                    }
+                      }),
+                    },
                   ]}
                 >
                   <LinearGradient
@@ -198,7 +198,7 @@ export function SessionPauseNotification({
 
             {/* Stats avec icônes animées */}
             <View style={styles.statsGrid}>
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.statCard,
                   {
@@ -206,9 +206,9 @@ export function SessionPauseNotification({
                       translateY: fadeAnim.interpolate({
                         inputRange: [0, 1],
                         outputRange: [20, 0],
-                      })
-                    }]
-                  }
+                      }),
+                    }],
+                  },
                 ]}
               >
                 <View style={styles.statIconContainer}>
@@ -223,7 +223,7 @@ export function SessionPauseNotification({
                 <Text style={styles.statLabel}>Points</Text>
               </Animated.View>
 
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.statCard,
                   {
@@ -231,9 +231,9 @@ export function SessionPauseNotification({
                       translateY: fadeAnim.interpolate({
                         inputRange: [0, 1],
                         outputRange: [20, 0],
-                      })
-                    }]
-                  }
+                      }),
+                    }],
+                  },
                 ]}
               >
                 <View style={styles.statIconContainer}>
@@ -248,7 +248,7 @@ export function SessionPauseNotification({
                 <Text style={styles.statLabel}>Série</Text>
               </Animated.View>
 
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.statCard,
                   {
@@ -256,9 +256,9 @@ export function SessionPauseNotification({
                       translateY: fadeAnim.interpolate({
                         inputRange: [0, 1],
                         outputRange: [20, 0],
-                      })
-                    }]
-                  }
+                      }),
+                    }],
+                  },
                 ]}
               >
                 <View style={styles.statIconContainer}>

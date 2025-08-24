@@ -42,7 +42,7 @@ export function PauseModal({
     >
       <View style={styles.overlay}>
         <BlurView intensity={80} style={StyleSheet.absoluteFillObject} />
-        
+
         <View style={styles.modalContainer}>
           <LinearGradient
             colors={['rgba(139, 92, 246, 0.1)', 'rgba(124, 58, 237, 0.05)']}
@@ -60,7 +60,7 @@ export function PauseModal({
 
             {/* Titre */}
             <Text style={styles.title}>Session mise en pause</Text>
-            
+
             {/* Message de succès */}
             <View style={styles.successMessage}>
               <Ionicons name="checkmark-circle" size={20} color="#10B981" />
@@ -78,17 +78,17 @@ export function PauseModal({
                   {currentQuestion}/{totalQuestions}
                 </Text>
               </View>
-              
+
               <View style={styles.statDivider} />
-              
+
               <View style={styles.statItem}>
                 <Ionicons name="trophy-outline" size={20} color="#F59E0B" />
                 <Text style={styles.statLabel}>Points</Text>
                 <Text style={styles.statValue}>{points}</Text>
               </View>
-              
+
               <View style={styles.statDivider} />
-              
+
               <View style={styles.statItem}>
                 <Ionicons name="flame-outline" size={20} color="#EF4444" />
                 <Text style={styles.statLabel}>Série</Text>

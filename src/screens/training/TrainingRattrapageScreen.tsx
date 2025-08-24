@@ -19,36 +19,36 @@ import { theme } from '../../styles/theme';
 interface IQuestion {
   id: string;
   question: string;
-  answers: Array<{
+  answers: {
     id: string;
     text: string;
     isCorrect: boolean;
-  }>;
+  }[];
   explanation?: string;
 }
 
 export function TrainingRattrapageScreen(): React.ReactElement {
   const router = useRouter();
   const params = useLocalSearchParams();
-  
-  const questions: IQuestion[] = params.questions 
-    ? JSON.parse(params.questions as string) 
+
+  const questions: IQuestion[] = params.questions
+    ? JSON.parse(params.questions as string)
     : [];
-  const config = params.config 
-    ? JSON.parse(params.config as string) 
+  const _config = params.config
+    ? JSON.parse(params.config as string)
     : {};
-    
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [isValidated, setIsValidated] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
-  
+
   // Animation pour le swipe
   const swipeAnim = useRef(new Animated.Value(0)).current;
-  
+
   const currentQuestion = questions[currentQuestionIndex];
   const progress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
-  
+
   // Gestionnaire de swipe
   const panResponder = useRef(
     PanResponder.create({
@@ -71,28 +71,28 @@ export function TrainingRattrapageScreen(): React.ReactElement {
           useNativeDriver: true,
         }).start();
       },
-    })
+    }),
   ).current;
-  
+
   const toggleAnswer = (answerId: string) => {
     if (isValidated) return;
     setSelectedAnswers([answerId]);
   };
-  
+
   const handleValidate = () => {
     if (selectedAnswers.length === 0) return;
-    
+
     const isCorrect = currentQuestion.answers
       .filter(a => a.isCorrect)
       .some(a => selectedAnswers.includes(a.id));
-      
+
     if (isCorrect) {
       setCorrectCount(prev => prev + 1);
     }
-    
+
     setIsValidated(true);
   };
-  
+
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
@@ -102,7 +102,7 @@ export function TrainingRattrapageScreen(): React.ReactElement {
       handleFinish();
     }
   };
-  
+
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
@@ -110,7 +110,7 @@ export function TrainingRattrapageScreen(): React.ReactElement {
       setIsValidated(false);
     }
   };
-  
+
   const handleFinish = () => {
     router.replace({
       pathname: '/training/rattrapage-report',
@@ -120,7 +120,7 @@ export function TrainingRattrapageScreen(): React.ReactElement {
       },
     });
   };
-  
+
   if (!currentQuestion) {
     return (
       <GradientBackground>
@@ -130,7 +130,7 @@ export function TrainingRattrapageScreen(): React.ReactElement {
       </GradientBackground>
     );
   }
-  
+
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
@@ -144,15 +144,15 @@ export function TrainingRattrapageScreen(): React.ReactElement {
             {currentQuestionIndex + 1}/{questions.length}
           </Text>
         </View>
-        
+
         {/* Barre de progression */}
         <View style={styles.progressBarContainer}>
           <View style={[styles.progressBar, { width: `${progress}%` }]} />
         </View>
-        
+
         {/* Navigation par points */}
-        <ScrollView 
-          horizontal 
+        <ScrollView
+          horizontal
           style={styles.dotsContainer}
           showsHorizontalScrollIndicator={false}
         >
@@ -173,7 +173,7 @@ export function TrainingRattrapageScreen(): React.ReactElement {
             ))}
           </View>
         </ScrollView>
-        
+
         {/* Contenu de la question avec swipe */}
         <Animated.View
           style={[
@@ -186,7 +186,7 @@ export function TrainingRattrapageScreen(): React.ReactElement {
         >
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <Text style={styles.questionText}>{currentQuestion.question}</Text>
-            
+
             {/* Réponses */}
             <View style={styles.answersContainer}>
               {currentQuestion.answers.map((answer) => (
@@ -216,7 +216,7 @@ export function TrainingRattrapageScreen(): React.ReactElement {
                 </TouchableOpacity>
               ))}
             </View>
-            
+
             {/* Explication */}
             {isValidated && currentQuestion.explanation && (
               <FadeInView duration={300}>
@@ -230,7 +230,7 @@ export function TrainingRattrapageScreen(): React.ReactElement {
             )}
           </ScrollView>
         </Animated.View>
-        
+
         {/* Boutons d'action */}
         <View style={styles.actionButtons}>
           {currentQuestionIndex > 0 && (
@@ -241,7 +241,7 @@ export function TrainingRattrapageScreen(): React.ReactElement {
               <Ionicons name="arrow-back" size={24} color={theme.colors.white} />
             </TouchableOpacity>
           )}
-          
+
           {!isValidated ? (
             <TouchableOpacity
               style={[
@@ -252,8 +252,8 @@ export function TrainingRattrapageScreen(): React.ReactElement {
               disabled={selectedAnswers.length === 0}
             >
               <LinearGradient
-                colors={selectedAnswers.length > 0 
-                  ? ['#8B5CF6', '#7C3AED'] 
+                colors={selectedAnswers.length > 0
+                  ? ['#8B5CF6', '#7C3AED']
                   : ['#6B7280', '#4B5563']}
                 style={styles.gradientButton}
               >
@@ -275,7 +275,7 @@ export function TrainingRattrapageScreen(): React.ReactElement {
               </LinearGradient>
             </TouchableOpacity>
           )}
-          
+
           {currentQuestionIndex < questions.length - 1 && (
             <TouchableOpacity
               style={styles.navButton}
@@ -285,7 +285,7 @@ export function TrainingRattrapageScreen(): React.ReactElement {
             </TouchableOpacity>
           )}
         </View>
-        
+
         {/* Indicateur de swipe */}
         <Text style={styles.swipeHint}>
           ← Glissez pour naviguer →
