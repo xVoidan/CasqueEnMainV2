@@ -1,4 +1,4 @@
-import { supabase } from '@/src/config/supabase';
+import { supabase } from '@/src/lib/supabase';
 
 /**
  * Service de vérification des droits admin

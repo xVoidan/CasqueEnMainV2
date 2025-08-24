@@ -15,7 +15,7 @@ import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { supabase } from '@/src/config/supabase';
+import { supabase } from '@/src/lib/supabase';
 import { GradientBackground } from '@/src/components/common/GradientBackground';
 import { theme } from '@/src/styles/theme';
 

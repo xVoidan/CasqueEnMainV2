@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { supabase } from '@/src/config/supabase';
+import { supabase } from '@/src/lib/supabase';
 import { GradientBackground } from '@/src/components/common/GradientBackground';
 import { theme } from '@/src/styles/theme';
 

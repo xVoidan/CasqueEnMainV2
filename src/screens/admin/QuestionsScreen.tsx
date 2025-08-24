@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
-import { supabase } from '@/src/config/supabase';
+import { supabase } from '@/src/lib/supabase';
 import { GradientBackground } from '@/src/components/common/GradientBackground';
 import { theme } from '@/src/styles/theme';
 
