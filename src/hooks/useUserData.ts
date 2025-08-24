@@ -1,24 +1,25 @@
 import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/src/store/AuthContext';
 import { userService, IUserProfile, IUserStats } from '@/src/services/userService';
 
-// Grades pompier avec les bons niveaux
+// Grades pompier avec les bons niveaux correspondant aux images
 export const GRADES = [
   { id: 1, name: 'Aspirant', minPoints: 0, color: '#9CA3AF', icon: '🎓' },
-  { id: 2, name: 'Sapeur 2e classe', minPoints: 100, color: '#6B7280', icon: '⭐' },
-  { id: 3, name: 'Sapeur 1re classe', minPoints: 250, color: '#4B5563', icon: '⭐⭐' },
-  { id: 4, name: 'Caporal', minPoints: 500, color: '#EF4444', icon: '🔸' },
-  { id: 5, name: 'Caporal-chef', minPoints: 1000, color: '#DC2626', icon: '🔸🔸' },
-  { id: 6, name: 'Sergent', minPoints: 2000, color: '#B91C1C', icon: '🔹' },
-  { id: 7, name: 'Sergent-chef', minPoints: 3500, color: '#991B1B', icon: '🔹🔹' },
-  { id: 8, name: 'Adjudant', minPoints: 5000, color: '#7C2D12', icon: '🔶' },
-  { id: 9, name: 'Adjudant-chef', minPoints: 7500, color: '#F59E0B', icon: '🔶🔶' },
-  { id: 10, name: 'Major', minPoints: 10000, color: '#D97706', icon: '⚜️' },
-  { id: 11, name: 'Lieutenant 2e classe', minPoints: 15000, color: '#B45309', icon: '🏅' },
-  { id: 12, name: 'Lieutenant 1re classe', minPoints: 20000, color: '#92400E', icon: '🏅🏅' },
-  { id: 13, name: 'Lieutenant hors classe', minPoints: 30000, color: '#78350F', icon: '🎖️' },
-  { id: 14, name: 'Capitaine', minPoints: 40000, color: '#451A03', icon: '🎖️🎖️' },
-  { id: 15, name: 'Commandant', minPoints: 50000, color: '#1C1917', icon: '🌟🌟' },
+  { id: 2, name: 'Sapeur', minPoints: 100, color: '#6B7280', icon: '⭐' },
+  { id: 3, name: 'Caporal', minPoints: 250, color: '#EF4444', icon: '🔸' },
+  { id: 4, name: 'Caporal-Chef', minPoints: 500, color: '#DC2626', icon: '🔸🔸' },
+  { id: 5, name: 'Sergent', minPoints: 1000, color: '#B91C1C', icon: '🔹' },
+  { id: 6, name: 'Sergent-Chef', minPoints: 2000, color: '#991B1B', icon: '🔹🔹' },
+  { id: 7, name: 'Adjudant', minPoints: 3500, color: '#7C2D12', icon: '🔶' },
+  { id: 8, name: 'Adjudant-Chef', minPoints: 5000, color: '#F59E0B', icon: '🔶🔶' },
+  { id: 9, name: 'Lieutenant', minPoints: 7500, color: '#D97706', icon: '⚜️' },
+  { id: 10, name: 'Capitaine', minPoints: 10000, color: '#B45309', icon: '🏅' },
+  { id: 11, name: 'Commandant', minPoints: 15000, color: '#92400E', icon: '🏅🏅' },
+  { id: 12, name: 'Lieutenant-Colonel', minPoints: 20000, color: '#78350F', icon: '🎖️' },
+  { id: 13, name: 'Colonel', minPoints: 30000, color: '#451A03', icon: '🎖️🎖️' },
+  { id: 14, name: 'Contrôleur Général', minPoints: 40000, color: '#1C1917', icon: '🌟' },
+  { id: 15, name: "Contrôleur Général d'État", minPoints: 50000, color: '#000000', icon: '🌟🌟' },
 ];
 
 interface IUserData {
@@ -97,6 +98,14 @@ export function useUserData(): IUserData & { refreshData: () => Promise<void> } 
           userService.getTodayChallenge(),
         ]);
 
+        // Vérifier si l'avatar est stocké localement
+        if (profile) {
+          const localAvatar = await AsyncStorage.getItem(`avatar_${user.id}`);
+          if (localAvatar) {
+            profile.avatar_url = localAvatar;
+          }
+        }
+
         // Vérifier si le défi du jour est complété
         let dailyChallengeCompleted = false;
         if (todayChallenge) {
@@ -144,6 +153,12 @@ export function useUserData(): IUserData & { refreshData: () => Promise<void> } 
     try {
       const profile = await userService.getUserProfile(user.id);
       if (profile) {
+        // Vérifier si l'avatar est stocké localement
+        const localAvatar = await AsyncStorage.getItem(`avatar_${user.id}`);
+        if (localAvatar) {
+          profile.avatar_url = localAvatar;
+        }
+
         const gradeInfo = getGradeInfo(profile.current_grade, profile.total_points);
         setUserData(prev => ({
           ...prev,

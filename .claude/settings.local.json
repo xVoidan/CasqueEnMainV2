@@ -37,7 +37,10 @@
       "Bash(npx prettier:*)",
       "Bash(npx kill-port:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx expo:*)"
+      "Bash(npx expo:*)",
+      "Bash(cat:*)",
+      "WebFetch(domain:casque-admin.vercel.app)",
+      "Bash(npm init:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

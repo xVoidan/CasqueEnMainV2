@@ -19,9 +19,9 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/src/store/AuthContext';
 import { useUserData } from '@/src/hooks/useUserData';
-import { GradeBadge } from '@/src/components/profile/GradeBadge';
 import { FadeInView } from '@/src/components/animations/FadeInView';
 import { theme } from '@/src/styles/theme';
 import { supabase } from '@/src/lib/supabase';
@@ -37,10 +37,32 @@ interface ISessionHistory {
   correct_answers: number;
 }
 
+// Fonction pour obtenir l'image du grade
+const getGradeImage = (gradeId: number) => {
+  const gradeImages: Record<number, any> = {
+    1: require('@/assets/images/1Aspirant.png'),
+    2: require('@/assets/images/2Sapeur.png'),
+    3: require('@/assets/images/3Caporal.png'),
+    4: require('@/assets/images/4CaporalChef.png'),
+    5: require('@/assets/images/5Sergent.png'),
+    6: require('@/assets/images/6SergentChef.png'),
+    7: require('@/assets/images/7Adjudant.png'),
+    8: require('@/assets/images/8AdjudantChef.png'),
+    9: require('@/assets/images/9Lieutenant.png'),
+    10: require('@/assets/images/10Commandant.png'),
+    11: require('@/assets/images/11Capitaine.png'),
+    12: require('@/assets/images/12LieutenantColonel.png'),
+    13: require('@/assets/images/13Colonel.png'),
+    14: require('@/assets/images/14ControleurGeneral.png'),
+    15: require('@/assets/images/15ControleurGeneralEtat.png'),
+  };
+  return gradeImages[gradeId] || gradeImages[1];
+};
+
 export const ProfileScreen: React.FC = React.memo(() => {
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const { profile, currentGrade, badges, refreshData } = useUserData();
+  const { profile, currentGrade, nextGrade, progressToNextGrade, badges, refreshData } = useUserData();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -97,52 +119,59 @@ export const ProfileScreen: React.FC = React.memo(() => {
   }, [refreshData]);
 
   const pickImage = async (): Promise<void> => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
+    try {
+      // Demander la permission d'accès à la galerie
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-    if (!result.canceled && user) {
-      setLoading(true);
-      try {
-        // Upload de l'image vers Supabase Storage
-        const fileName = `${user.id}-${Date.now()}.jpg`;
-        const formData = new FormData();
-        formData.append('file', {
-          uri: result.assets[0].uri,
-          type: 'image/jpeg',
-          name: fileName,
-        } as any);
-
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(fileName, formData);
-
-        if (uploadError) {throw uploadError;}
-
-        // Obtenir l'URL publique
-        const { data: urlData } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(fileName);
-
-        // Mettre à jour le profil
-        const { error: updateError } = await supabase
-          .from('user_profiles')
-          .update({ avatar_url: urlData.publicUrl })
-          .eq('user_id', user.id);
-
-        if (updateError) {throw updateError;}
-
-        await refreshData();
-        Alert.alert('Succès', 'Photo de profil mise à jour !');
-      } catch (_error) {
-
-        Alert.alert('Erreur', 'Impossible de mettre à jour la photo');
-      } finally {
-        setLoading(false);
+      if (permissionResult.status !== 'granted') {
+        Alert.alert(
+          'Permission refusée',
+          'Vous devez autoriser l\'accès à vos photos pour changer votre avatar.',
+        );
+        return;
       }
+
+      // Lancer le sélecteur d'image
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+        base64: false,
+      });
+
+      if (!result.canceled && result.assets && result.assets[0] && user) {
+        setLoading(true);
+        try {
+          // Stockage local de l'URI de l'image
+          const localImageUri = result.assets[0].uri;
+
+          // Sauvegarder l'URI locale dans AsyncStorage
+          await AsyncStorage.setItem(`avatar_${user.id}`, localImageUri);
+
+          // Mettre à jour le profil avec l'URI locale
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ avatar_url: localImageUri })
+            .eq('user_id', user.id);
+
+          if (updateError) {
+            console.error('Erreur Supabase:', updateError);
+            throw updateError;
+          }
+
+          await refreshData();
+          Alert.alert('Succès', 'Photo de profil mise à jour !');
+        } catch (error) {
+          console.error('Erreur lors de la mise à jour:', error);
+          Alert.alert('Erreur', 'Impossible de mettre à jour la photo');
+        } finally {
+          setLoading(false);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sélection:', error);
+      Alert.alert('Erreur', 'Impossible d\'ouvrir la galerie');
     }
   };
 
@@ -275,7 +304,12 @@ export const ProfileScreen: React.FC = React.memo(() => {
           {/* Section Avatar */}
           <FadeInView duration={600} delay={0}>
             <View style={styles.avatarSection}>
-              <TouchableOpacity onPress={pickImage} disabled={loading}>
+              <TouchableOpacity
+                onPress={pickImage}
+                disabled={loading}
+                activeOpacity={0.7}
+                style={styles.avatarTouchable}
+              >
                 <View style={styles.avatarContainer}>
                   {profile.avatar_url ? (
                     <Image source={{ uri: profile.avatar_url }} style={styles.avatar} />
@@ -284,9 +318,15 @@ export const ProfileScreen: React.FC = React.memo(() => {
                       <Ionicons name="person" size={40} color={theme.colors.white} />
                     </View>
                   )}
-                  <View style={styles.editAvatarButton}>
-                    <Ionicons name="camera" size={16} color={theme.colors.white} />
-                  </View>
+                  {loading ? (
+                    <View style={[styles.editAvatarButton, { backgroundColor: theme.colors.gray[600] }]}>
+                      <ActivityIndicator size="small" color={theme.colors.white} />
+                    </View>
+                  ) : (
+                    <View style={styles.editAvatarButton}>
+                      <Ionicons name="camera" size={18} color={theme.colors.white} />
+                    </View>
+                  )}
                 </View>
               </TouchableOpacity>
 
@@ -312,8 +352,59 @@ export const ProfileScreen: React.FC = React.memo(() => {
                 <Text style={styles.department}>{profile.department || 'Non renseigné'}</Text>
               )}
 
+              {/* Badge de grade avec points */}
               <View style={styles.gradeContainer}>
-                <GradeBadge grade={currentGrade} size="large" showPoints points={profile.total_points} />
+                <LinearGradient
+                  colors={[currentGrade.color, `${currentGrade.color}CC`]}
+                  style={styles.gradeCard}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <View style={styles.gradeContent}>
+                    {/* Image du grade */}
+                    <Image
+                      source={getGradeImage(currentGrade.id)}
+                      style={styles.gradeImage}
+                      resizeMode="contain"
+                    />
+
+                    {/* Informations du grade */}
+                    <View style={styles.gradeInfo}>
+                      <Text style={styles.gradeName}>{currentGrade.name}</Text>
+                      <View style={styles.pointsContainer}>
+                        <Ionicons name="star" size={16} color="#FFD700" />
+                        <Text style={styles.pointsText}>
+                          {profile.total_points.toLocaleString()} points
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Barre de progression vers le prochain grade */}
+                  {nextGrade && (
+                    <View style={styles.progressSection}>
+                      <Text style={styles.progressLabel}>
+                        Prochain grade: {nextGrade.name}
+                      </Text>
+                      <View style={styles.progressBarContainer}>
+                        <View style={styles.progressBarBg}>
+                          <View
+                            style={[
+                              styles.progressBarFill,
+                              { width: `${progressToNextGrade}%` },
+                            ]}
+                          />
+                        </View>
+                        <Text style={styles.progressPercentage}>
+                          {Math.round(progressToNextGrade)}%
+                        </Text>
+                      </View>
+                      <Text style={styles.pointsToNext}>
+                        {(nextGrade.minPoints - profile.total_points).toLocaleString()} points restants
+                      </Text>
+                    </View>
+                  )}
+                </LinearGradient>
               </View>
             </View>
           </FadeInView>

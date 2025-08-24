@@ -10,7 +10,18 @@ const prettierPlugin = require('eslint-plugin-prettier');
 module.exports = defineConfig([
   ...expoConfig,
   {
-    ignores: ['eslint.config.js', 'eslint.config.strict.js', 'jest.config.js', 'babel.config.js'],
+    ignores: [
+      'eslint.config.js', 
+      'eslint.config.strict.js', 
+      'jest.config.js', 
+      'babel.config.js',
+      'admin-web/.next/**',
+      'admin-web/node_modules/**',
+      'admin-web/next.config.js',
+      'admin-web/**/*.js',
+      'admin-web/**/*.tsx',
+      'admin-web/**/*.ts',
+    ],
   },
   {
     files: ['**/*.{js,jsx,ts,tsx}'],

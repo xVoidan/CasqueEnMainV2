@@ -33,6 +33,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: theme.spacing.xl,
   },
+  avatarTouchable: {
+    borderRadius: 60,
+  },
   avatarContainer: {
     position: 'relative',
     marginBottom: theme.spacing.md,
@@ -97,7 +100,88 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   gradeContainer: {
-    marginTop: theme.spacing.sm,
+    marginTop: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.md,
+  },
+  gradeCard: {
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  gradeContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  gradeImage: {
+    width: 80,
+    height: 80,
+    marginRight: theme.spacing.md,
+  },
+  gradeInfo: {
+    flex: 1,
+  },
+  gradeIcon: {
+    fontSize: 24,
+    marginBottom: 4,
+  },
+  gradeName: {
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+    marginBottom: 8,
+  },
+  pointsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  pointsText: {
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: '600',
+    color: theme.colors.white,
+    marginLeft: theme.spacing.xs,
+  },
+  progressSection: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.2)',
+    paddingTop: theme.spacing.md,
+  },
+  progressLabel: {
+    fontSize: theme.typography.fontSize.sm,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: theme.spacing.xs,
+  },
+  progressBarContainer: {
+    position: 'relative',
+    marginBottom: theme.spacing.xs,
+  },
+  progressBarBg: {
+    height: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#FFD700',
+    borderRadius: 4,
+  },
+  progressPercentage: {
+    position: 'absolute',
+    right: 0,
+    top: -18,
+    fontSize: theme.typography.fontSize.xs,
+    color: theme.colors.white,
+    fontWeight: 'bold',
+  },
+  pointsToNext: {
+    fontSize: theme.typography.fontSize.xs,
+    color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
   },
   section: {
     paddingHorizontal: theme.spacing.lg,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Image,
   ActivityIndicator,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -18,6 +19,7 @@ import { useUserData } from '@/src/hooks/useUserData';
 import { GradientBackground } from '@/src/components/common/GradientBackground';
 import { FadeInView } from '@/src/components/animations/FadeInView';
 import { theme } from '@/src/styles/theme';
+import { supabase } from '@/src/lib/supabase';
 
 const styles = StyleSheet.create({
   container: {
@@ -97,8 +99,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: theme.colors.white,
   },
-  settingsButton: {
+  notificationButton: {
     padding: theme.spacing.sm,
+    position: 'relative',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: theme.colors.error,
   },
   progressCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -272,31 +284,74 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.7)',
     marginTop: 2,
   },
-  quickActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: theme.spacing.sm,
-  },
-  actionButton: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  errorContainer: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
+    marginBottom: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
   },
-  actionButtonText: {
+  errorText: {
+    color: theme.colors.error,
     fontSize: theme.typography.fontSize.sm,
+    textAlign: 'center',
+  },
+  revisionCard: {
+    marginBottom: theme.spacing.lg,
+    borderRadius: theme.borderRadius.lg,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.2)',
+  },
+  revisionGradient: {
+    padding: theme.spacing.md,
+  },
+  newsSection: {
+    marginBottom: theme.spacing.lg,
+  },
+  newsSectionTitle: {
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: 'bold',
     color: theme.colors.white,
-    marginLeft: theme.spacing.xs,
+    marginBottom: theme.spacing.md,
+  },
+  newsCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.primary,
+  },
+  newsTitle: {
+    fontSize: theme.typography.fontSize.sm,
     fontWeight: '600',
+    color: theme.colors.white,
+    marginBottom: 4,
+  },
+  newsDescription: {
+    fontSize: theme.typography.fontSize.xs,
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  newsDate: {
+    fontSize: theme.typography.fontSize.xs,
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginTop: 4,
   },
 });
 
+interface DailyChallenge {
+  id: string;
+  theme: string;
+  questions_count: number;
+  reward_points: number;
+}
+
 export default function HomeScreen(): React.ReactElement {
   const router = useRouter();
-  const { signOut: _signOut } = useAuth();
+  const { user } = useAuth();
   const {
     profile,
     currentGrade,
@@ -304,23 +359,137 @@ export default function HomeScreen(): React.ReactElement {
     progressToNextGrade,
     dailyChallengeCompleted,
     isLoading,
+    error,
+    stats,
     refreshData,
   } = useUserData();
-  const [refreshing, setRefreshing] = React.useState(false);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const [networkError, setNetworkError] = useState<string | null>(null);
+  const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null);
+  const [hasNewBadges, setHasNewBadges] = useState(false);
+  const [questionsWithErrors, setQuestionsWithErrors] = useState(0);
+
+  // Charger les données supplémentaires
+  useEffect(() => {
+    loadDailyChallenge();
+    checkForNewBadges();
+    loadErrorQuestions();
+  }, [user]);
+
+  const loadDailyChallenge = async () => {
+    try {
+      const { data } = await supabase
+        .from('daily_challenges')
+        .select('*')
+        .eq('date', new Date().toISOString().split('T')[0])
+        .single();
+
+      if (data) {
+        setDailyChallenge({
+          id: data.id,
+          theme: data.theme,
+          questions_count: data.questions_ids?.length || 20,
+          reward_points: data.reward_points || 50,
+        });
+      }
+    } catch (err) {
+      console.error('Erreur chargement défi:', err);
+    }
+  };
+
+  const checkForNewBadges = async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from('user_badges')
+      .select('earned_at')
+      .eq('user_id', user.id)
+      .order('earned_at', { ascending: false })
+      .limit(1);
+
+    if (data?.[0]) {
+      const lastBadgeTime = new Date(data[0].earned_at);
+      const hourAgo = new Date(Date.now() - 3600000);
+      setHasNewBadges(lastBadgeTime > hourAgo);
+    }
+  };
+
+  const loadErrorQuestions = async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from('user_question_stats')
+      .select('id')
+      .eq('user_id', user.id)
+      .gt('error_count', 0)
+      .eq('is_mastered', false);
+
+    setQuestionsWithErrors(data?.length || 0);
+  };
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    await refreshData();
-    setRefreshing(false);
+    setNetworkError(null);
+
+    try {
+      await Promise.all([
+        refreshData(),
+        loadDailyChallenge(),
+        checkForNewBadges(),
+        loadErrorQuestions(),
+      ]);
+    } catch (_err) {
+      setNetworkError('Erreur de connexion. Vérifiez votre réseau.');
+    } finally {
+      setRefreshing(false);
+    }
   }, [refreshData]);
 
   const handleStartTraining = (): void => {
-    router.push('/training/config');
+    router.push('/training/free');
   };
 
   const handleDailyChallenge = (): void => {
     router.push('/training/daily-challenge');
   };
+
+  const handleRevision = (): void => {
+    router.push('/training/revision');
+  };
+
+  const handleNavigation = (route: string): void => {
+    const validRoutes = ['/profile', '/training/config', '/training/daily-challenge', '/training/revision'];
+
+    if (validRoutes.includes(route)) {
+      router.push(route as any);
+    } else {
+      Alert.alert(
+        'Bientôt disponible',
+        'Cette fonctionnalité sera disponible dans une prochaine mise à jour !',
+        [{ text: 'OK' }],
+      );
+    }
+  };
+
+  // Calculer les vraies statistiques
+  const calculateStats = () => {
+    const totalQuestions = stats.reduce((acc, s) => acc + s.total_questions, 0);
+    const correctAnswers = stats.reduce((acc, s) => acc + s.correct_answers, 0);
+    const successRate = totalQuestions > 0
+      ? Math.round((correctAnswers / totalQuestions) * 100)
+      : 0;
+
+    const avgTime = stats.reduce((acc, s) => acc + Number(s.avg_time_per_question || 0), 0) / Math.max(stats.length, 1);
+
+    return {
+      successRate,
+      avgTime: avgTime > 0 ? `${avgTime.toFixed(1)}s` : '0s',
+      totalQuestions,
+    };
+  };
+
+  const userStats = calculateStats();
 
   const handleProfile = (): void => {
     router.push('/profile');
@@ -329,7 +498,7 @@ export default function HomeScreen(): React.ReactElement {
   if (isLoading && !profile) {
     return (
       <GradientBackground>
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container} edges={['top']}>
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={theme.colors.primary} />
             <Text style={styles.loadingText}>Chargement...</Text>
@@ -341,7 +510,7 @@ export default function HomeScreen(): React.ReactElement {
 
   return (
     <GradientBackground>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top']}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -353,6 +522,15 @@ export default function HomeScreen(): React.ReactElement {
             />
           }
         >
+          {/* Affichage des erreurs réseau */}
+          {(networkError || error) && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>
+                {networkError || error}
+              </Text>
+            </View>
+          )}
+
           {/* Header avec profil */}
           <FadeInView duration={600} delay={0}>
             <View style={styles.header}>
@@ -396,10 +574,11 @@ export default function HomeScreen(): React.ReactElement {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.settingsButton}
-                onPress={() => router.push('/settings')}
+                style={styles.notificationButton}
+                onPress={() => handleNavigation('/notifications')}
               >
-                <Ionicons name="settings-outline" size={24} color={theme.colors.white} />
+                <Ionicons name="notifications-outline" size={24} color={theme.colors.white} />
+                {hasNewBadges && <View style={styles.notificationBadge} />}
               </TouchableOpacity>
             </View>
           </FadeInView>
@@ -433,6 +612,33 @@ export default function HomeScreen(): React.ReactElement {
             </FadeInView>
           )}
 
+          {/* Section Actualités */}
+          <FadeInView duration={600} delay={150}>
+            <View style={styles.newsSection}>
+              <Text style={styles.newsSectionTitle}>📰 Actualités</Text>
+              <TouchableOpacity style={styles.newsCard}>
+                <Text style={styles.newsTitle}>🎯 Nouveau défi hebdomadaire</Text>
+                <Text style={styles.newsDescription}>
+                  Complétez 50 questions cette semaine pour gagner un badge exclusif !
+                </Text>
+                <Text style={styles.newsDate}>Il y a 2 heures</Text>
+              </TouchableOpacity>
+
+              {hasNewBadges && (
+                <TouchableOpacity
+                  style={styles.newsCard}
+                  onPress={() => router.push('/profile')}
+                >
+                  <Text style={styles.newsTitle}>🏆 Nouveau badge débloqué !</Text>
+                  <Text style={styles.newsDescription}>
+                    Consultez votre profil pour voir vos nouveaux badges
+                  </Text>
+                  <Text style={styles.newsDate}>Récemment</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </FadeInView>
+
           {/* Card Entraînement Libre */}
           <FadeInView duration={600} delay={200}>
             <TouchableOpacity
@@ -460,6 +666,37 @@ export default function HomeScreen(): React.ReactElement {
               </LinearGradient>
             </TouchableOpacity>
           </FadeInView>
+
+          {/* Card Mode Révision */}
+          {questionsWithErrors > 0 && (
+            <FadeInView duration={600} delay={250}>
+              <TouchableOpacity
+                style={styles.revisionCard}
+                onPress={handleRevision}
+                activeOpacity={0.9}
+              >
+                <LinearGradient
+                  colors={['#EF4444', '#DC2626']}
+                  style={styles.revisionGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <View style={styles.challengeContent}>
+                    <View style={styles.challengeLeft}>
+                      <Text style={styles.challengeIcon}>📚</Text>
+                      <View>
+                        <Text style={styles.challengeTitle}>Mode Révision</Text>
+                        <Text style={styles.challengeSubtitle}>
+                          {questionsWithErrors} questions à revoir
+                        </Text>
+                      </View>
+                    </View>
+                    <Ionicons name="arrow-forward" size={20} color={theme.colors.white} />
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            </FadeInView>
+          )}
 
           {/* Card Défi Quotidien */}
           <FadeInView duration={600} delay={300}>
@@ -491,14 +728,18 @@ export default function HomeScreen(): React.ReactElement {
                       <Text style={styles.challengeSubtitle}>
                         {dailyChallengeCompleted
                           ? 'Complété ! Revenez demain'
-                          : '20 questions mixtes - Sans limite de temps'
+                          : dailyChallenge
+                            ? `${dailyChallenge.questions_count} questions - ${dailyChallenge.theme}`
+                            : '20 questions mixtes'
                         }
                       </Text>
                     </View>
                   </View>
                   {!dailyChallengeCompleted && (
                     <View style={styles.challengeReward}>
-                      <Text style={styles.rewardText}>+50</Text>
+                      <Text style={styles.rewardText}>
+                        +{dailyChallenge?.reward_points || 50}
+                      </Text>
                       <Text style={styles.rewardLabel}>points</Text>
                     </View>
                   )}
@@ -507,53 +748,27 @@ export default function HomeScreen(): React.ReactElement {
             </TouchableOpacity>
           </FadeInView>
 
-          {/* Stats rapides */}
+          {/* Stats réelles */}
           <FadeInView duration={600} delay={400}>
             <View style={styles.statsGrid}>
               <View style={styles.statCard}>
                 <Ionicons name="trophy" size={24} color="#F59E0B" />
-                <Text style={styles.statValue}>85%</Text>
+                <Text style={styles.statValue}>{userStats.successRate}%</Text>
                 <Text style={styles.statLabel}>Taux de réussite</Text>
               </View>
               <View style={styles.statCard}>
                 <Ionicons name="time" size={24} color="#3B82F6" />
-                <Text style={styles.statValue}>4.2s</Text>
+                <Text style={styles.statValue}>{userStats.avgTime}</Text>
                 <Text style={styles.statLabel}>Temps moyen</Text>
               </View>
               <View style={styles.statCard}>
                 <Ionicons name="checkmark-circle" size={24} color="#10B981" />
-                <Text style={styles.statValue}>342</Text>
+                <Text style={styles.statValue}>{userStats.totalQuestions}</Text>
                 <Text style={styles.statLabel}>Questions</Text>
               </View>
             </View>
           </FadeInView>
 
-          {/* Actions rapides */}
-          <FadeInView duration={600} delay={500}>
-            <View style={styles.quickActions}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => router.push('/leaderboard')}
-              >
-                <Ionicons name="podium" size={20} color={theme.colors.primary} />
-                <Text style={styles.actionButtonText}>Classement</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => router.push('/stats')}
-              >
-                <Ionicons name="stats-chart" size={20} color={theme.colors.primary} />
-                <Text style={styles.actionButtonText}>Statistiques</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => router.push('/achievements')}
-              >
-                <Ionicons name="medal" size={20} color={theme.colors.primary} />
-                <Text style={styles.actionButtonText}>Succès</Text>
-              </TouchableOpacity>
-            </View>
-          </FadeInView>
         </ScrollView>
       </SafeAreaView>
     </GradientBackground>
