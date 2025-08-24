@@ -31,20 +31,29 @@ class QuestionService {
   async getQuestions(
     themes: IThemeFilter[],
     count: number = -1,
+    _questionTypeFilter: 'all' | 'single' | 'multiple' = 'all',
   ): Promise<IQuestion[]> {
     try {
-      // Construction de la requête
+      console.log('Getting questions with themes:', themes);
+      
+      // Extraire tous les IDs de sous-thèmes
+      const subThemeIds: string[] = [];
+      themes.forEach(theme => {
+        theme.subThemes.forEach(subTheme => {
+          subThemeIds.push(subTheme);
+        });
+      });
+      
+      console.log('Sub-theme IDs:', subThemeIds);
+
+      // Si aucun sous-thème sélectionné, récupérer toutes les questions
       let query = supabase
         .from('questions')
         .select('*');
 
-      // Filtrage par thèmes
-      if (themes.length > 0) {
-        const conditions = themes.map(t => {
-          const subThemeConditions = t.subThemes.map(st => `sub_theme.eq.${st}`).join(',');
-          return `and(theme.eq.${t.theme},or(${subThemeConditions}))`;
-        });
-        query = query.or(conditions.join(','));
+      // Filtrage par sous-thèmes si spécifiés
+      if (subThemeIds.length > 0) {
+        query = query.in('sub_theme_id', subThemeIds);
       }
 
       // Limite du nombre de questions
@@ -52,20 +61,48 @@ class QuestionService {
         query = query.limit(count);
       }
 
-      // Ordre aléatoire
-      query = query.order('random()');
+      const { data, error } = await query;
 
-      const { data, error: _error } = await query;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
-      if (_error) {
+      console.log('Questions loaded:', data?.length || 0);
 
-        throw _error;
+      if (!data || data.length === 0) {
+        console.log('No questions found, using sample questions');
+        return this.getSampleQuestions(count);
+      }
+
+      // Charger les informations des thèmes et sous-thèmes séparément
+      const subThemeIdsFromQuestions = [...new Set(data.map(q => q.sub_theme_id))];
+      
+      const { data: subThemesData } = await supabase
+        .from('sub_themes')
+        .select(`
+          id,
+          name,
+          themes (
+            id,
+            name,
+            icon
+          )
+        `)
+        .in('id', subThemeIdsFromQuestions);
+
+      // Créer une map pour accès rapide
+      const subThemesMap = new Map();
+      if (subThemesData) {
+        subThemesData.forEach(st => {
+          subThemesMap.set(st.id, st);
+        });
       }
 
       // Transformer les données pour correspondre à notre interface
-      return (data || []).map(this.transformQuestion);
-    } catch (_error) {
-
+      return data.map(q => this.transformQuestion(q, subThemesMap.get(q.sub_theme_id)));
+    } catch (error) {
+      console.error('Error loading questions:', error);
       // Retourner des questions d'exemple en cas d'erreur
       return this.getSampleQuestions(count);
     }
@@ -125,19 +162,46 @@ class QuestionService {
   /**
    * Transforme une question de la BDD vers notre format
    */
-  private transformQuestion(dbQuestion: any): IQuestion {
+  private transformQuestion(dbQuestion: any, subThemeData?: any): IQuestion {
+    // Extraire les informations du thème et sous-thème si disponibles
+    const themeName = subThemeData?.themes?.name || dbQuestion.sub_themes?.themes?.name || 'Métier';
+    const subThemeName = subThemeData?.name || dbQuestion.sub_themes?.name || 'Général';
+    
+    // Créer les réponses à partir des données de la BDD
+    const answers: IAnswer[] = [
+      { id: 'a', text: dbQuestion.correct_answer, isCorrect: true },
+      { id: 'b', text: dbQuestion.wrong_answer_1, isCorrect: false },
+      { id: 'c', text: dbQuestion.wrong_answer_2, isCorrect: false },
+      { id: 'd', text: dbQuestion.wrong_answer_3, isCorrect: false },
+    ];
+    
+    // Mélanger les réponses pour éviter que la bonne soit toujours en premier
+    const shuffled = this.shuffleArray(answers);
+    
     return {
       id: dbQuestion.id,
-      theme: dbQuestion.theme,
-      subTheme: dbQuestion.sub_theme,
+      theme: themeName,
+      subTheme: subThemeName,
       question: dbQuestion.question,
       image: dbQuestion.image_url,
-      type: dbQuestion.type || 'single',
+      type: 'single', // Par défaut, toutes les questions sont à choix unique
       explanation: dbQuestion.explanation,
-      difficulty: dbQuestion.difficulty,
-      points: dbQuestion.points,
-      answers: dbQuestion.answers || [],
+      difficulty: dbQuestion.difficulty || 'medium',
+      points: dbQuestion.points || 1,
+      answers: shuffled,
     };
+  }
+  
+  /**
+   * Mélange un tableau de manière aléatoire
+   */
+  private shuffleArray<T>(array: T[]): T[] {
+    const result = [...array];
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
   }
 
   /**

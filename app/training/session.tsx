@@ -1,2 +1,3 @@
-export { TrainingSessionScreen as default } from '@/src/screens/training/TrainingSessionScreen';
+import { TrainingSessionScreenV2 } from '@/src/screens/training/TrainingSessionScreenV2';
+export default TrainingSessionScreenV2;
 

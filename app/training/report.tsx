@@ -1,2 +1,2 @@
-export { SessionReportScreen as default } from '@/src/screens/training/SessionReportScreen';
+export { TrainingReportScreen as default } from '@/src/screens/training/TrainingReportScreen';
 

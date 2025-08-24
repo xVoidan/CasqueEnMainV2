@@ -68,10 +68,10 @@ const INITIAL_THEMES: ITheme[] = [
     color: '#3B82F6',
     selected: false,
     subThemes: [
-      { id: 'calcul-mental', name: 'Calcul mental', selected: false, questionCount: 2 },
-      { id: 'fractions', name: 'Fractions', selected: false, questionCount: 2 },
-      { id: 'geometrie', name: 'Géométrie', selected: false, questionCount: 3 },
-      { id: 'pourcentages', name: 'Pourcentages', selected: false, questionCount: 3 },
+      { id: 'd4a03d08-270b-4fb0-87f6-c74a27a51038', name: 'Calcul mental', selected: false, questionCount: 2 },
+      { id: '7d8844bb-4057-4039-b3eb-9c74b73491ba', name: 'Fractions', selected: false, questionCount: 0 },
+      { id: '1c28ffa6-bc5d-43ff-8ca2-28385e2c5943', name: 'Géométrie', selected: false, questionCount: 0 },
+      { id: '79877c2d-072d-4594-9866-9bc24cc22b08', name: 'Pourcentages', selected: false, questionCount: 0 },
     ],
   },
   {
@@ -81,10 +81,10 @@ const INITIAL_THEMES: ITheme[] = [
     color: '#10B981',
     selected: false,
     subThemes: [
-      { id: 'conjugaison', name: 'Conjugaison', selected: false, questionCount: 1 },
-      { id: 'culture-generale', name: 'Culture générale', selected: false, questionCount: 1 },
-      { id: 'grammaire', name: 'Grammaire', selected: false, questionCount: 2 },
-      { id: 'orthographe', name: 'Orthographe', selected: false, questionCount: 2 },
+      { id: '3a7327be-388b-41b5-8af6-0d07c4f0a89b', name: 'Conjugaison', selected: false, questionCount: 1 },
+      { id: '13faaf34-44c9-4350-b3e2-dce408766c6e', name: 'Culture générale', selected: false, questionCount: 0 },
+      { id: 'f5155b31-bac1-4595-b9c3-deecc5734287', name: 'Grammaire', selected: false, questionCount: 0 },
+      { id: '7f176c72-d1ae-4fb4-8bff-2cf5668742ad', name: 'Orthographe', selected: false, questionCount: 0 },
     ],
   },
   {
@@ -94,16 +94,16 @@ const INITIAL_THEMES: ITheme[] = [
     color: '#DC2626',
     selected: false,
     subThemes: [
-      { id: 'culture-administrative', name: 'Culture administrative', selected: false, questionCount: 2 },
-      { id: 'diverse', name: 'Diverse', selected: false, questionCount: 5 },
-      { id: 'grades-et-hierarchie', name: 'Grades et hiérarchie', selected: false, questionCount: 2 },
-      { id: 'hydraulique', name: 'Hydraulique', selected: false, questionCount: 1 },
-      { id: 'incendie', name: 'Incendie', selected: false, questionCount: 5 },
-      { id: 'materiel-et-equipements', name: 'Matériel et équipements', selected: false, questionCount: 2 },
-      { id: 'risques-chimiques', name: 'Risques chimiques', selected: false, questionCount: 1 },
-      { id: 'secourisme', name: 'Secourisme', selected: false, questionCount: 5 },
-      { id: 'secours-a-personne', name: 'Secours à personne', selected: false, questionCount: 2 },
-      { id: 'techniques-operationnelles', name: 'Techniques opérationnelles', selected: false, questionCount: 1 },
+      { id: '821cefde-543c-4a4d-8928-926141a688f2', name: 'Culture administrative', selected: false, questionCount: 0 },
+      { id: 'cc102430-cf74-421c-9c28-df0328ac8c65', name: 'Diverse', selected: false, questionCount: 0 },
+      { id: '28d0af23-108b-4eef-92bd-d558399ea5ec', name: 'Grades et hiérarchie', selected: false, questionCount: 0 },
+      { id: '372a5137-dd88-4436-91ec-3982b4a52e18', name: 'Hydraulique', selected: false, questionCount: 0 },
+      { id: '79023fd2-ce03-4416-bbaf-723625d4ff91', name: 'Incendie', selected: false, questionCount: 5 },
+      { id: '9019b400-139e-4064-b615-9e27e09c0f4a', name: 'Matériel et équipements', selected: false, questionCount: 0 },
+      { id: '41b12d64-a393-4d4f-ac9e-8fade4ed809c', name: 'Risques chimiques', selected: false, questionCount: 0 },
+      { id: '626c87a6-10ac-4156-bdfe-1678babb9a99', name: 'Secourisme', selected: false, questionCount: 5 },
+      { id: '8ef3c089-74ca-4504-9820-caf10c573ac9', name: 'Secours à personne', selected: false, questionCount: 0 },
+      { id: 'aa965186-a4af-4040-b29e-5ad9fccdf8f1', name: 'Techniques opérationnelles', selected: false, questionCount: 0 },
     ],
   },
 ];
@@ -349,7 +349,7 @@ export function TrainingConfigScreen(): React.ReactElement {
           </Text>
           {!isQuickMode ? (
             <TouchableOpacity
-              style={styles.saveButton}
+              style={styles.headerSaveButton}
               onPress={() => hasSelectedThemes() && setShowSaveModal(true)}
               disabled={!hasSelectedThemes()}
             >
@@ -396,16 +396,6 @@ export function TrainingConfigScreen(): React.ReactElement {
                     : `✅ ${selectionStats.selectedSubThemesCount} spécialités sélectionnées`
                   }
                 </Text>
-                {selectionStats.selectedSubThemesCount > 0 && (
-                  <TouchableOpacity
-                    style={styles.clearButton}
-                    onPress={() => setThemes(INITIAL_THEMES)}
-                    activeOpacity={0.7}
-                  >
-                    <Ionicons name="trash-outline" size={18} color="#FFFFFF" />
-                    <Text style={styles.clearButtonText}>Effacer tout</Text>
-                  </TouchableOpacity>
-                )}
               </View>
 
               {/* Actions rapides */}
@@ -413,38 +403,36 @@ export function TrainingConfigScreen(): React.ReactElement {
                 <TouchableOpacity
                   style={styles.quickActionChip}
                   onPress={() => {
-                    // Sélectionner les essentiels
-                    setThemes(prevThemes => prevThemes.map(theme => {
-                      if (theme.id === 'metier') {
-                        return {
-                          ...theme,
-                          selected: true,
-                          subThemes: theme.subThemes.map(st => ({
-                            ...st,
-                            selected: ['incendie', 'secourisme', 'hydraulique'].includes(st.id),
-                          })),
-                        };
-                      }
-                      return { ...theme, selected: false, subThemes: theme.subThemes.map(st => ({ ...st, selected: false })) };
-                    }));
+                    // Toggle entre tout sélectionner et tout désélectionner
+                    const hasAnySelection = themes.some(theme => 
+                      theme.subThemes.some(st => st.selected)
+                    );
+                    
+                    if (hasAnySelection) {
+                      // Tout désélectionner
+                      setThemes(prevThemes => prevThemes.map(theme => ({
+                        ...theme,
+                        selected: false,
+                        subThemes: theme.subThemes.map(st => ({ ...st, selected: false })),
+                      })));
+                    } else {
+                      // Tout sélectionner
+                      setThemes(prevThemes => prevThemes.map(theme => ({
+                        ...theme,
+                        selected: true,
+                        subThemes: theme.subThemes.map(st => ({ ...st, selected: true })),
+                      })));
+                    }
                   }}
                 >
-                  <Ionicons name="flash" size={16} color="#F59E0B" />
-                  <Text style={styles.quickActionText}>Essentiels</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.quickActionChip}
-                  onPress={() => {
-                    // Sélectionner tout
-                    setThemes(prevThemes => prevThemes.map(theme => ({
-                      ...theme,
-                      selected: true,
-                      subThemes: theme.subThemes.map(st => ({ ...st, selected: true })),
-                    })));
-                  }}
-                >
-                  <Ionicons name="checkmark-done" size={16} color="#10B981" />
-                  <Text style={styles.quickActionText}>Tout sélectionner</Text>
+                  <Ionicons 
+                    name={themes.some(theme => theme.subThemes.some(st => st.selected)) ? "close-circle" : "checkmark-done"} 
+                    size={16} 
+                    color={themes.some(theme => theme.subThemes.some(st => st.selected)) ? "#EF4444" : "#10B981"} 
+                  />
+                  <Text style={styles.quickActionText}>
+                    {themes.some(theme => theme.subThemes.some(st => st.selected)) ? "Tout désélectionner" : "Tout sélectionner"}
+                  </Text>
                 </TouchableOpacity>
               </View>
 
@@ -1026,6 +1014,9 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.md,
   },
   backButton: {
+    padding: theme.spacing.sm,
+  },
+  headerSaveButton: {
     padding: theme.spacing.sm,
   },
   headerTitle: {
