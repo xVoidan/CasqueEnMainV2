@@ -34,7 +34,7 @@ class QuestionService {
     _questionTypeFilter: 'all' | 'single' | 'multiple' = 'all',
   ): Promise<IQuestion[]> {
     try {
-      console.log('Getting questions with themes:', themes);
+      console.info('Getting questions with themes:', themes);
 
       // Extraire tous les IDs de sous-thèmes
       const subThemeIds: string[] = [];
@@ -44,7 +44,7 @@ class QuestionService {
         });
       });
 
-      console.log('Sub-theme IDs:', subThemeIds);
+      console.info('Sub-theme IDs:', subThemeIds);
 
       // Si aucun sous-thème sélectionné, récupérer toutes les questions
       let query = supabase
@@ -68,10 +68,10 @@ class QuestionService {
         throw error;
       }
 
-      console.log('Questions loaded:', data?.length || 0);
+      console.info('Questions loaded:', data?.length || 0);
 
       if (!data || data.length === 0) {
-        console.log('No questions found, using sample questions');
+        console.info('No questions found, using sample questions');
         return this.getSampleQuestions(count);
       }
 

@@ -23,7 +23,7 @@ class SoundService {
       // Charger les paramètres
       await this.loadSettings();
 
-      console.log('Sound service initialized with haptic feedback');
+      console.info('Sound service initialized with haptic feedback');
     } catch (error) {
       console.error('Error initializing sound service:', error);
     }
@@ -52,7 +52,7 @@ class SoundService {
       // On utilisera une approche différente avec des sons pré-enregistrés
 
       // Pour l'instant, on utilise uniquement le feedback haptique
-      console.log(`Would play tone: ${frequency}Hz for ${duration}ms`);
+      console.info(`Would play tone: ${frequency}Hz for ${duration}ms`);
     } catch (error) {
       console.error('Error playing tone:', error);
     }
@@ -138,7 +138,7 @@ class SoundService {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
     // Log pour debug
-    console.log('✅ Son: Bonne réponse');
+    console.info('✅ Son: Bonne réponse');
   }
 
   async playSimpleIncorrect() {
@@ -146,7 +146,7 @@ class SoundService {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     }
     // Log pour debug
-    console.log('❌ Son: Mauvaise réponse');
+    console.info('❌ Son: Mauvaise réponse');
   }
 
   async playSimpleSkip() {
@@ -154,7 +154,7 @@ class SoundService {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     // Log pour debug
-    console.log('⏭️ Son: Passer');
+    console.info('⏭️ Son: Passer');
   }
 
   async playSimpleStreak() {
@@ -165,7 +165,7 @@ class SoundService {
       }, 200);
     }
     // Log pour debug
-    console.log('🔥 Son: Streak!');
+    console.info('🔥 Son: Streak!');
   }
 
   async playSimpleComplete() {
@@ -182,17 +182,17 @@ class SoundService {
       });
     }
     // Log pour debug
-    console.log('🎉 Son: Session terminée!');
+    console.info('🎉 Son: Session terminée!');
   }
 
   setSoundEnabled(enabled: boolean) {
     this.soundEnabled = enabled;
-    console.log(`Sons ${enabled ? 'activés' : 'désactivés'}`);
+    console.info(`Sons ${enabled ? 'activés' : 'désactivés'}`);
   }
 
   setVibrationEnabled(enabled: boolean) {
     this.vibrationEnabled = enabled;
-    console.log(`Vibrations ${enabled ? 'activées' : 'désactivées'}`);
+    console.info(`Vibrations ${enabled ? 'activées' : 'désactivées'}`);
   }
 
   async cleanup() {

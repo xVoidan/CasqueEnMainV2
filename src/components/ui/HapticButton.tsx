@@ -227,38 +227,6 @@ const styles = StyleSheet.create({
   gradient: {
     overflow: 'hidden',
   },
-  button_small: {
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.md,
-    minHeight: 32,
-  },
-  button_medium: {
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    minHeight: 44,
-  },
-  button_large: {
-    paddingVertical: theme.spacing.lg,
-    paddingHorizontal: theme.spacing.xl,
-    minHeight: 56,
-  },
-  button_primary: {
-    backgroundColor: theme.colors.primary,
-  },
-  button_secondary: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: theme.colors.primary,
-  },
-  button_danger: {
-    backgroundColor: theme.colors.error,
-  },
-  button_success: {
-    backgroundColor: theme.colors.success,
-  },
-  button_ghost: {
-    backgroundColor: 'transparent',
-  },
   fullWidth: {
     width: '100%',
   },
@@ -271,30 +239,6 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: 'bold',
     textAlign: 'center',
-  },
-  text_small: {
-    fontSize: theme.typography.fontSize.sm,
-  },
-  text_medium: {
-    fontSize: theme.typography.fontSize.base,
-  },
-  text_large: {
-    fontSize: theme.typography.fontSize.lg,
-  },
-  text_primary: {
-    color: theme.colors.white,
-  },
-  text_secondary: {
-    color: theme.colors.primary,
-  },
-  text_danger: {
-    color: theme.colors.white,
-  },
-  text_success: {
-    color: theme.colors.white,
-  },
-  text_ghost: {
-    color: theme.colors.primary,
   },
   textDisabled: {
     opacity: 0.7,

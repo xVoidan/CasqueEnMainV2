@@ -6,13 +6,12 @@ import {
   Text,
   StyleSheet,
   ScrollViewProps,
+  FlatList,
+  FlatListProps,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useHaptics } from '@/src/hooks/useHaptics';
 import { theme } from '@/src/styles/theme';
-
-// Version pour FlatList
-import { FlatList, FlatListProps } from 'react-native';
 
 interface IPullToRefreshProps extends ScrollViewProps {
   onRefresh: () => Promise<void> | void;

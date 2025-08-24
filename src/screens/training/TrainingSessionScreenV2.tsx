@@ -24,29 +24,7 @@ import { useAuth } from '@/src/store/AuthContext';
 import { soundService } from '@/src/services/soundService';
 import { supabase } from '@/src/lib/supabase';
 
-// Types
-interface ISessionConfig {
-  themes: any[];
-  questionCount: number;
-  timerEnabled: boolean;
-  timerDuration: number | null;
-  scoring: {
-    correct: number;
-    incorrect: number;
-    skipped: number;
-    partial: number;
-  };
-  questionTypeFilter?: 'all' | 'single' | 'multiple';
-}
-
-interface ISessionAnswer {
-  questionId: string;
-  selectedAnswers: string[];
-  timeSpent: number;
-  isCorrect: boolean;
-  isPartial?: boolean;
-  isSkipped: boolean;
-}
+import { ISessionConfig, ISessionAnswer } from '@/src/types/training';
 
 const SESSION_STORAGE_KEY = '@training_session_progress';
 
@@ -1234,63 +1212,5 @@ const styles = StyleSheet.create({
   },
   reviewButtonTextActive: {
     color: '#F59E0B',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pauseModal: {
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.xl,
-    width: '85%',
-    alignItems: 'center',
-  },
-  pauseTitle: {
-    fontSize: theme.typography.fontSize.xl,
-    fontWeight: 'bold',
-    color: theme.colors.white,
-    marginBottom: theme.spacing.md,
-  },
-  pauseStats: {
-    fontSize: theme.typography.fontSize.base,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginBottom: theme.spacing.xl,
-  },
-  pauseActions: {
-    flexDirection: 'row',
-    gap: theme.spacing.md,
-  },
-  resumeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.primary,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.xl,
-    borderRadius: theme.borderRadius.lg,
-    gap: theme.spacing.sm,
-  },
-  resumeText: {
-    fontSize: theme.typography.fontSize.base,
-    fontWeight: '600',
-    color: theme.colors.white,
-  },
-  abandonButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(239, 68, 68, 0.2)',
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.xl,
-    borderRadius: theme.borderRadius.lg,
-    gap: theme.spacing.sm,
-    borderWidth: 1,
-    borderColor: '#EF4444',
-  },
-  abandonText: {
-    fontSize: theme.typography.fontSize.base,
-    fontWeight: '600',
-    color: '#EF4444',
   },
 });
