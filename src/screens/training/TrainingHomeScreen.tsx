@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { FadeInView } from '../../components/animations/FadeInView';
 import { theme } from '../../styles/theme';
+import { useAuth } from '@/src/store/AuthContext';
 
 interface SavedPreset {
   id: string;
@@ -24,20 +25,25 @@ interface SavedPreset {
 }
 
 const PRESETS_STORAGE_KEY = '@training_presets';
+const SESSION_STORAGE_KEY = '@training_session_progress';
 
 export function TrainingHomeScreen(): React.ReactElement {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { user } = useAuth();
   const [savedPresets, setSavedPresets] = useState<SavedPreset[]>([]);
+  const [pausedSession, setPausedSession] = useState<any>(null);
 
   useEffect(() => {
     loadPresets();
+    checkPausedSession();
   }, []);
 
-  // Recharger les presets quand on revient avec le paramètre refresh
+  // Recharger les presets et la session en pause quand on revient
   useEffect(() => {
     if (params.refresh) {
       loadPresets();
+      checkPausedSession();
     }
   }, [params.refresh]);
 
@@ -50,6 +56,63 @@ export function TrainingHomeScreen(): React.ReactElement {
     } catch (error) {
       console.error('Erreur lors du chargement des presets:', error);
     }
+  };
+
+  const checkPausedSession = async () => {
+    if (!user) return;
+    
+    try {
+      const savedProgress = await AsyncStorage.getItem(`${SESSION_STORAGE_KEY}_${user.id}`);
+      if (savedProgress) {
+        const parsed = JSON.parse(savedProgress);
+        
+        // Vérifier si c'est une session récente et non terminée
+        const hoursSinceLastSave = (Date.now() - parsed.timestamp) / (1000 * 60 * 60);
+        const isSessionIncomplete = parsed.currentQuestionIndex < (parsed.totalQuestions || 0) - 1;
+        
+        if (hoursSinceLastSave < 24 && isSessionIncomplete) {
+          setPausedSession(parsed);
+        } else {
+          // Session trop ancienne ou terminée, la supprimer
+          await AsyncStorage.removeItem(`${SESSION_STORAGE_KEY}_${user.id}`);
+          setPausedSession(null);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur vérification session en pause:', error);
+    }
+  };
+
+  const handleResumePausedSession = () => {
+    if (pausedSession) {
+      router.push({
+        pathname: '/training/session',
+        params: { 
+          config: JSON.stringify(pausedSession.config),
+          resumeSession: 'true'
+        },
+      });
+    }
+  };
+
+  const handleDeletePausedSession = () => {
+    Alert.alert(
+      'Supprimer la session',
+      'Attention : En supprimant cette session, vous perdrez tous les points et statistiques associés. Êtes-vous sûr ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: async () => {
+            if (user) {
+              await AsyncStorage.removeItem(`${SESSION_STORAGE_KEY}_${user.id}`);
+              setPausedSession(null);
+            }
+          },
+        },
+      ],
+    );
   };
 
   const handleQuickStart = () => {
@@ -112,11 +175,48 @@ export function TrainingHomeScreen(): React.ReactElement {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
+          {/* Session en pause */}
+          {pausedSession && (
+            <FadeInView duration={400}>
+              <View style={styles.pausedSessionCard}>
+                <View style={styles.pausedSessionHeader}>
+                  <View style={styles.pausedSessionIcon}>
+                    <Ionicons name="pause-circle" size={32} color="#F59E0B" />
+                  </View>
+                  <View style={styles.pausedSessionInfo}>
+                    <Text style={styles.pausedSessionTitle}>Session en pause</Text>
+                    <Text style={styles.pausedSessionProgress}>
+                      Question {pausedSession.currentQuestionIndex + 1}/{pausedSession.totalQuestions}
+                    </Text>
+                    <Text style={styles.pausedSessionStats}>
+                      {pausedSession.totalPoints || 0} points • Série: {pausedSession.streak || 0}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.pausedSessionActions}>
+                  <TouchableOpacity
+                    style={styles.resumeButton}
+                    onPress={handleResumePausedSession}
+                  >
+                    <Ionicons name="play" size={20} color="#FFFFFF" />
+                    <Text style={styles.resumeButtonText}>Reprendre</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.deleteSessionButton}
+                    onPress={handleDeletePausedSession}
+                  >
+                    <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </FadeInView>
+          )}
+
           {/* Section principale */}
-          <FadeInView duration={600} delay={0}>
+          <FadeInView duration={600} delay={pausedSession ? 200 : 0}>
             <View style={styles.mainSection}>
               <Text style={styles.welcomeText}>
-                Choisissez votre mode d'entraînement
+                {pausedSession ? 'Ou commencez une nouvelle session' : 'Choisissez votre mode d\'entraînement'}
               </Text>
 
               {/* Bouton Lancement Rapide */}
@@ -395,5 +495,70 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.sm,
     color: 'rgba(255, 255, 255, 0.6)',
     lineHeight: 20,
+  },
+  pausedSessionCard: {
+    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
+    marginBottom: theme.spacing.xl,
+    borderWidth: 2,
+    borderColor: 'rgba(245, 158, 11, 0.3)',
+  },
+  pausedSessionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  pausedSessionIcon: {
+    marginRight: theme.spacing.md,
+  },
+  pausedSessionInfo: {
+    flex: 1,
+  },
+  pausedSessionTitle: {
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: 'bold',
+    color: '#F59E0B',
+    marginBottom: 4,
+  },
+  pausedSessionProgress: {
+    fontSize: theme.typography.fontSize.base,
+    color: theme.colors.white,
+    marginBottom: 2,
+  },
+  pausedSessionStats: {
+    fontSize: theme.typography.fontSize.sm,
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  pausedSessionActions: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+    alignItems: 'center',
+  },
+  resumeButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F59E0B',
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    borderRadius: theme.borderRadius.lg,
+    gap: theme.spacing.sm,
+  },
+  resumeButtonText: {
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  deleteSessionButton: {
+    width: 48,
+    height: 48,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

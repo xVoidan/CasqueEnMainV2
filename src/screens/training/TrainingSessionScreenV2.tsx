@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Modal,
   ActivityIndicator,
   Animated,
   Alert,
@@ -18,9 +17,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { FadeInView } from '../../components/animations/FadeInView';
+import { SessionPauseNotification } from '../../components/notifications/SessionPauseNotification';
 import { theme } from '../../styles/theme';
 import { questionService, IQuestion } from '@/src/services/questionService';
 import { useAuth } from '@/src/store/AuthContext';
+import { soundService } from '@/src/services/soundService';
+import { supabase } from '@/src/lib/supabase';
 
 // Types
 interface ISessionConfig {
@@ -61,17 +63,26 @@ export function TrainingSessionScreenV2(): React.ReactElement {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [sessionAnswers, setSessionAnswers] = useState<ISessionAnswer[]>([]);
-  const [isPaused, setIsPaused] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(
     sessionConfig?.timerEnabled ? sessionConfig.timerDuration : null
   );
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const [sessionId] = useState(Date.now().toString());
+  const [showPauseNotification, setShowPauseNotification] = useState(false);
+  
+  // États pour les performances
+  const [streak, setStreak] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [questionsToReview, setQuestionsToReview] = useState<string[]>([]);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Refs
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const progressAnim = useRef(new Animated.Value(0)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const pointsAnim = useRef(new Animated.Value(0)).current;
 
   // Calculs
   const currentQuestion = questions[currentQuestionIndex];
@@ -142,16 +153,35 @@ export function TrainingSessionScreenV2(): React.ReactElement {
       if (savedProgress) {
         const parsed = JSON.parse(savedProgress);
         
-        // Vérifier si c'est une session récente (moins de 24h)
+        // Vérifier si c'est une session récente (moins de 24h) ET non terminée
         const hoursSinceLastSave = (Date.now() - parsed.timestamp) / (1000 * 60 * 60);
+        const isSessionIncomplete = parsed.currentQuestionIndex < (parsed.totalQuestions || questions.length) - 1;
         
-        if (hoursSinceLastSave < 24) {
+        if (hoursSinceLastSave < 24 && isSessionIncomplete) {
           Alert.alert(
             'Session en cours',
-            `Voulez-vous reprendre votre session précédente ? (Question ${parsed.currentQuestionIndex + 1}/${questions.length})`,
+            `Voulez-vous reprendre votre session précédente ? (Question ${parsed.currentQuestionIndex + 1}/${parsed.totalQuestions || questions.length})`,
             [
               { 
-                text: 'Non, nouvelle session', 
+                text: 'Supprimer', 
+                onPress: () => {
+                  Alert.alert(
+                    'Supprimer la session',
+                    'Attention : En supprimant cette session, vous perdrez tous les points et statistiques associés. Êtes-vous sûr ?',
+                    [
+                      { text: 'Annuler', style: 'cancel' },
+                      { 
+                        text: 'Supprimer', 
+                        style: 'destructive',
+                        onPress: () => clearSavedProgress()
+                      }
+                    ]
+                  );
+                },
+                style: 'destructive'
+              },
+              { 
+                text: 'Nouvelle session', 
                 onPress: () => clearSavedProgress(),
                 style: 'cancel'
               },
@@ -159,13 +189,16 @@ export function TrainingSessionScreenV2(): React.ReactElement {
                 text: 'Reprendre', 
                 onPress: () => {
                   setCurrentQuestionIndex(parsed.currentQuestionIndex);
-                  setSessionAnswers(parsed.sessionAnswers);
+                  setSessionAnswers(parsed.sessionAnswers || []);
+                  setQuestionsToReview(parsed.questionsToReview || []);
+                  setTotalPoints(parsed.totalPoints || 0);
+                  setStreak(parsed.streak || 0);
                 }
               },
             ],
           );
         } else {
-          // Session trop ancienne, la supprimer
+          // Session trop ancienne ou terminée, la supprimer
           clearSavedProgress();
         }
       }
@@ -177,13 +210,23 @@ export function TrainingSessionScreenV2(): React.ReactElement {
   const saveProgress = async () => {
     if (!user || questions.length === 0) return;
     
+    // Ne pas sauvegarder si la session est terminée
+    if (currentQuestionIndex >= questions.length - 1 && isValidated) {
+      return;
+    }
+    
     try {
       const progressData = {
         sessionId,
         currentQuestionIndex,
         sessionAnswers,
+        questionsToReview,
+        totalPoints,
+        streak,
         timestamp: Date.now(),
+        totalQuestions: questions.length,
         config: sessionConfig,
+        questions: questions, // Sauvegarder les questions pour pouvoir reprendre
       };
       
       await AsyncStorage.setItem(
@@ -216,7 +259,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
 
   // Gestion du timer
   useEffect(() => {
-    if (sessionConfig?.timerEnabled && timeRemaining !== null && !isPaused && !isValidated) {
+    if (sessionConfig?.timerEnabled && timeRemaining !== null && !isValidated) {
       timerRef.current = setInterval(() => {
         setTimeRemaining(prev => {
           if (prev === null || prev <= 0) {
@@ -233,7 +276,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
         }
       };
     }
-  }, [timeRemaining, isPaused, isValidated, sessionConfig?.timerEnabled]);
+  }, [timeRemaining, isValidated, sessionConfig?.timerEnabled]);
 
   const toggleAnswer = (answerId: string) => {
     if (isValidated) return;
@@ -283,6 +326,73 @@ export function TrainingSessionScreenV2(): React.ReactElement {
 
     setSessionAnswers(prev => [...prev, answer]);
     setIsValidated(true);
+    
+    // Calculer les points et jouer les sons
+    let pointsEarned = 0;
+    if (isCorrect) {
+      pointsEarned = sessionConfig?.scoring?.correct || 1;
+      setStreak(prev => prev + 1);
+      
+      // Jouer le son de bonne réponse (utilise le feedback haptique pour l'instant)
+      soundService.playSimpleCorrect();
+      
+      // Animation de confettis pour 3+ bonnes réponses consécutives
+      if (streak >= 2) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+        // Jouer le son de streak (utilise le feedback haptique pour l'instant)
+        soundService.playSimpleStreak();
+      }
+      
+      // Animation de pulse pour bonne réponse
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else if (isPartial) {
+      pointsEarned = sessionConfig?.scoring?.partial || 0.5;
+      setStreak(0);
+      // Son neutre pour réponse partielle (utilise le feedback haptique pour l'instant)
+      soundService.playSimpleSkip();
+    } else if (isSkipped) {
+      pointsEarned = sessionConfig?.scoring?.skipped || 0;
+      setStreak(0);
+      // Son de skip (utilise le feedback haptique pour l'instant)
+      soundService.playSimpleSkip();
+    } else {
+      pointsEarned = sessionConfig?.scoring?.incorrect || 0;
+      setStreak(0);
+      
+      // Jouer le son d'erreur (utilise le feedback haptique pour l'instant)
+      soundService.playSimpleIncorrect();
+      
+      // Animation de shake pour mauvaise réponse
+      Animated.sequence([
+        Animated.timing(shakeAnim, { toValue: 10, duration: 100, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: -10, duration: 100, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 10, duration: 100, useNativeDriver: true }),
+        Animated.timing(shakeAnim, { toValue: 0, duration: 100, useNativeDriver: true }),
+      ]).start();
+    }
+    
+    // Animer les points
+    setTotalPoints(prev => {
+      const newTotal = prev + pointsEarned;
+      Animated.timing(pointsAnim, {
+        toValue: newTotal,
+        duration: 500,
+        useNativeDriver: false,
+      }).start();
+      return newTotal;
+    });
 
     // Sauvegarder la progression après chaque réponse
     saveProgress();
@@ -316,9 +426,12 @@ export function TrainingSessionScreenV2(): React.ReactElement {
     }
   };
 
-  const handleEndSession = () => {
-    // Supprimer la progression sauvegardée
-    clearSavedProgress();
+  const handleEndSession = async () => {
+    // Jouer le son de fin de session (utilise le feedback haptique pour l'instant)
+    soundService.playSimpleComplete();
+    
+    // IMPORTANT: Supprimer immédiatement la progression sauvegardée
+    await clearSavedProgress();
     
     // Navigation vers le rapport
     router.replace({
@@ -327,30 +440,59 @@ export function TrainingSessionScreenV2(): React.ReactElement {
         sessionAnswers: JSON.stringify(sessionAnswers),
         config: JSON.stringify(sessionConfig),
         questions: JSON.stringify(questions),
+        questionsToReview: JSON.stringify(questionsToReview),
+        totalPoints: totalPoints.toString(),
       },
     });
   };
 
-  const handlePause = () => {
-    setIsPaused(true);
-    saveProgress(); // Sauvegarder en pausant
+  const handlePause = async () => {
+    // Sauvegarder la progression
+    await saveProgress();
+    
+    // Afficher la notification élégante
+    setShowPauseNotification(true);
+  };
+  
+  const handleContinueFromPause = () => {
+    setShowPauseNotification(false);
+  };
+  
+  const handleQuitFromPause = () => {
+    setShowPauseNotification(false);
+    router.back();
   };
 
-  const handleResume = () => {
-    setIsPaused(false);
-  };
 
   const handleAbandon = () => {
     Alert.alert(
       'Abandonner la session',
-      'Êtes-vous sûr de vouloir abandonner ? Votre progression sera perdue.',
+      'Attention : En abandonnant cette session, vous perdrez tous les points et statistiques associés. Voulez-vous continuer ?',
       [
         { text: 'Annuler', style: 'cancel' },
         { 
           text: 'Abandonner', 
           style: 'destructive',
-          onPress: () => {
-            clearSavedProgress();
+          onPress: async () => {
+            // Supprimer la progression locale
+            await clearSavedProgress();
+            
+            // Si une session était en cours dans Supabase, la marquer comme abandonnée
+            if (sessionId && user) {
+              try {
+                await supabase
+                  .from('sessions')
+                  .update({ 
+                    status: 'abandoned',
+                    ended_at: new Date().toISOString()
+                  })
+                  .eq('id', sessionId)
+                  .eq('user_id', user.id);
+              } catch (error) {
+                console.error('Erreur mise à jour session abandonnée:', error);
+              }
+            }
+            
             router.back();
           }
         },
@@ -447,6 +589,38 @@ export function TrainingSessionScreenV2(): React.ReactElement {
           </TouchableOpacity>
         </View>
 
+        {/* Indicateurs de performance */}
+        <View style={styles.performanceContainer}>
+          <View style={styles.performanceItem}>
+            <Ionicons name="flame" size={20} color={streak > 0 ? '#F59E0B' : '#6B7280'} />
+            <Text style={[styles.performanceText, streak > 0 && styles.performanceTextActive]}>
+              {streak}
+            </Text>
+          </View>
+          <View style={styles.performanceItem}>
+            <Ionicons name="star" size={20} color="#FFD700" />
+            <Animated.Text style={styles.performanceText}>
+              {totalPoints.toFixed(1)} pts
+            </Animated.Text>
+          </View>
+          <View style={styles.performanceItem}>
+            <Ionicons 
+              name="speedometer" 
+              size={20} 
+              color={
+                questionStartTime && (Date.now() - questionStartTime) / 1000 < 10 
+                  ? '#10B981' 
+                  : (Date.now() - questionStartTime) / 1000 < 20 
+                  ? '#F59E0B' 
+                  : '#EF4444'
+              } 
+            />
+            <Text style={styles.performanceText}>
+              {questionStartTime && `${Math.floor((Date.now() - questionStartTime) / 1000)}s`}
+            </Text>
+          </View>
+        </View>
+
         {/* Barre de progression */}
         <View style={styles.progressBarContainer}>
           <Animated.View
@@ -461,6 +635,32 @@ export function TrainingSessionScreenV2(): React.ReactElement {
             ]}
           />
         </View>
+        
+        {/* Mini-carte de progression */}
+        <ScrollView 
+          horizontal 
+          style={styles.miniMapContainer}
+          showsHorizontalScrollIndicator={false}
+        >
+          <View style={styles.miniMap}>
+            {questions.map((_, index) => {
+              const answer = sessionAnswers[index];
+              return (
+                <View
+                  key={index}
+                  style={[
+                    styles.miniMapDot,
+                    index === currentQuestionIndex && styles.miniMapDotCurrent,
+                    answer?.isCorrect && styles.miniMapDotCorrect,
+                    answer && !answer.isCorrect && !answer.isSkipped && styles.miniMapDotIncorrect,
+                    answer?.isSkipped && styles.miniMapDotSkipped,
+                    questionsToReview.includes(questions[index]?.id) && styles.miniMapDotToReview,
+                  ]}
+                />
+              );
+            })}
+          </View>
+        </ScrollView>
 
         {/* Contenu de la question */}
         <ScrollView 
@@ -490,7 +690,17 @@ export function TrainingSessionScreenV2(): React.ReactElement {
               </View>
 
               {/* Réponses */}
-              <View style={styles.answersContainer}>
+              <Animated.View 
+                style={[
+                  styles.answersContainer,
+                  {
+                    transform: [
+                      { translateX: shakeAnim },
+                      { scale: pulseAnim }
+                    ]
+                  }
+                ]}
+              >
                 {currentQuestion.answers.map((answer) => (
                   <TouchableOpacity
                     key={answer.id}
@@ -528,7 +738,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
                     </View>
                   </TouchableOpacity>
                 ))}
-              </View>
+              </Animated.View>
 
               {/* Explication (après validation) */}
               {isValidated && currentQuestion.explanation && (
@@ -577,66 +787,73 @@ export function TrainingSessionScreenV2(): React.ReactElement {
             </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity
-                style={styles.nextButton}
-                onPress={handleNextQuestion}
-              >
-                <LinearGradient
-                  colors={['#10B981', '#059669']}
-                  style={styles.nextGradient}
+              <View style={styles.validatedActionsContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.reviewButton,
+                    questionsToReview.includes(currentQuestion.id) && styles.reviewButtonActive
+                  ]}
+                  onPress={() => {
+                    if (questionsToReview.includes(currentQuestion.id)) {
+                      setQuestionsToReview(prev => prev.filter(id => id !== currentQuestion.id));
+                    } else {
+                      setQuestionsToReview(prev => [...prev, currentQuestion.id]);
+                    }
+                  }}
                 >
-                  <Text style={styles.nextText}>
-                    {currentQuestionIndex < questions.length - 1 
-                      ? 'QUESTION SUIVANTE' 
-                      : 'TERMINER'}
-                  </Text>
                   <Ionicons 
-                    name={currentQuestionIndex < questions.length - 1 
-                      ? "arrow-forward" 
-                      : "checkmark-done"} 
+                    name={questionsToReview.includes(currentQuestion.id) ? "bookmark" : "bookmark-outline"} 
                     size={20} 
-                    color="#FFFFFF" 
+                    color={questionsToReview.includes(currentQuestion.id) ? "#F59E0B" : "#FFFFFF"} 
                   />
-                </LinearGradient>
-              </TouchableOpacity>
+                  <Text style={[
+                    styles.reviewButtonText,
+                    questionsToReview.includes(currentQuestion.id) && styles.reviewButtonTextActive
+                  ]}>
+                    {questionsToReview.includes(currentQuestion.id) ? "Marquée" : "À revoir"}
+                  </Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={styles.nextButton}
+                  onPress={handleNextQuestion}
+                >
+                  <LinearGradient
+                    colors={['#10B981', '#059669']}
+                    style={styles.nextGradient}
+                  >
+                    <Text style={styles.nextText}>
+                      {currentQuestionIndex < questions.length - 1 
+                        ? 'SUIVANTE' 
+                        : 'TERMINER'}
+                    </Text>
+                    <Ionicons 
+                      name={currentQuestionIndex < questions.length - 1 
+                        ? "arrow-forward" 
+                        : "checkmark-done"} 
+                      size={20} 
+                      color="#FFFFFF" 
+                    />
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
             )}
           </View>
         )}
 
-        {/* Modal de pause */}
-        <Modal
-          visible={isPaused}
-          transparent
-          animationType="fade"
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.pauseModal}>
-              <Text style={styles.pauseTitle}>Session en pause</Text>
-              <Text style={styles.pauseStats}>
-                Question {currentQuestionIndex + 1} sur {questions.length}
-              </Text>
-              
-              <View style={styles.pauseActions}>
-                <TouchableOpacity
-                  style={styles.resumeButton}
-                  onPress={handleResume}
-                >
-                  <Ionicons name="play" size={24} color="#FFFFFF" />
-                  <Text style={styles.resumeText}>Reprendre</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.abandonButton}
-                  onPress={handleAbandon}
-                >
-                  <Ionicons name="close" size={24} color="#EF4444" />
-                  <Text style={styles.abandonText}>Abandonner</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
       </SafeAreaView>
+      
+      {/* Notification de pause élégante */}
+      <SessionPauseNotification
+        visible={showPauseNotification}
+        currentQuestion={currentQuestionIndex + 1}
+        totalQuestions={questions.length}
+        points={totalPoints}
+        streak={streak}
+        onContinue={handleContinueFromPause}
+        onQuit={handleQuitFromPause}
+        onClose={handleContinueFromPause}
+      />
     </GradientBackground>
   );
 }
@@ -919,6 +1136,7 @@ const styles = StyleSheet.create({
   nextButton: {
     overflow: 'hidden',
     borderRadius: theme.borderRadius.lg,
+    flex: 1,
   },
   nextGradient: {
     paddingVertical: theme.spacing.lg,
@@ -932,6 +1150,90 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: theme.colors.white,
     letterSpacing: 1,
+  },
+  performanceContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  },
+  performanceItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
+  performanceText: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: theme.typography.fontSize.sm,
+    fontWeight: '600',
+  },
+  performanceTextActive: {
+    color: '#F59E0B',
+  },
+  miniMapContainer: {
+    maxHeight: 40,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.sm,
+  },
+  miniMap: {
+    flexDirection: 'row',
+    gap: 6,
+    alignItems: 'center',
+  },
+  miniMapDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  miniMapDotCurrent: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: '#8B5CF6',
+  },
+  miniMapDotCorrect: {
+    backgroundColor: '#10B981',
+  },
+  miniMapDotIncorrect: {
+    backgroundColor: '#EF4444',
+  },
+  miniMapDotSkipped: {
+    backgroundColor: '#6B7280',
+  },
+  miniMapDotToReview: {
+    borderWidth: 2,
+    borderColor: '#F59E0B',
+  },
+  validatedActionsContainer: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+  reviewButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: theme.borderRadius.lg,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  reviewButtonActive: {
+    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+    borderColor: '#F59E0B',
+  },
+  reviewButtonText: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: theme.typography.fontSize.base,
+    fontWeight: '600',
+  },
+  reviewButtonTextActive: {
+    color: '#F59E0B',
   },
   modalOverlay: {
     flex: 1,

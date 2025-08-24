@@ -120,24 +120,23 @@ export default function TabLayout(): React.ReactElement {
         }}
       />
 
-      {/* Onglet Admin - Visible uniquement pour l'administrateur */}
-      {isAdmin && (
-        <Tabs.Screen
-          name="admin"
-          options={{
-            title: 'Admin',
-            tabBarIcon: ({ color, focused }) => (
-              <View style={{ alignItems: 'center' }}>
-                <Ionicons
-                  name={focused ? 'settings' : 'settings-outline'}
-                  size={24}
-                  color={color}
-                />
-              </View>
-            ),
-          }}
-        />
-      )}
+      {/* Onglet Admin - Caché si l'utilisateur n'est pas admin */}
+      <Tabs.Screen
+        name="admin"
+        options={{
+          title: 'Admin',
+          href: isAdmin ? undefined : null, // Cache l'onglet si pas admin
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ alignItems: 'center' }}>
+              <Ionicons
+                name={focused ? 'settings' : 'settings-outline'}
+                size={24}
+                color={color}
+              />
+            </View>
+          ),
+        }}
+      />
 
       {/* Cache l'ancienne page explore */}
       <Tabs.Screen

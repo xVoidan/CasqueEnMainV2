@@ -75,6 +75,12 @@ export function TrainingReportScreen(): React.ReactElement {
   const config: ISessionConfig = params.config 
     ? JSON.parse(params.config as string) 
     : { scoring: { correct: 1, incorrect: 0, skipped: 0, partial: 0.5 } };
+  const questionsToReview: string[] = params.questionsToReview 
+    ? JSON.parse(params.questionsToReview as string) 
+    : [];
+  const totalPoints: number = params.totalPoints 
+    ? parseInt(params.totalPoints as string) 
+    : 0;
 
   const [stats, setStats] = useState<IStats>({
     totalQuestions: 0,
@@ -96,12 +102,16 @@ export function TrainingReportScreen(): React.ReactElement {
   }, []);
 
   const calculateStats = () => {
-    const correct = sessionAnswers.filter(a => a.isCorrect).length;
-    const incorrect = sessionAnswers.filter(a => !a.isCorrect && !a.isPartial && !a.isSkipped).length;
-    const partial = sessionAnswers.filter(a => a.isPartial).length;
-    const skipped = sessionAnswers.filter(a => a.isSkipped).length;
-    const totalTime = sessionAnswers.reduce((sum, a) => sum + a.timeSpent, 0);
-    const avgTime = totalTime / sessionAnswers.length;
+    if (!sessionAnswers || sessionAnswers.length === 0) {
+      return;
+    }
+    
+    const correct = sessionAnswers.filter(a => a && a.isCorrect === true).length;
+    const incorrect = sessionAnswers.filter(a => a && !a.isCorrect && !a.isPartial && !a.isSkipped).length;
+    const partial = sessionAnswers.filter(a => a && a.isPartial === true).length;
+    const skipped = sessionAnswers.filter(a => a && a.isSkipped === true).length;
+    const totalTime = sessionAnswers.reduce((sum, a) => sum + (a?.timeSpent || 0), 0);
+    const avgTime = sessionAnswers.length > 0 ? totalTime / sessionAnswers.length : 0;
 
     const score = 
       correct * config.scoring.correct +
@@ -109,7 +119,7 @@ export function TrainingReportScreen(): React.ReactElement {
       partial * (config.scoring.partial || 0.5) +
       skipped * config.scoring.skipped;
 
-    const successRate = (correct / sessionAnswers.length) * 100;
+    const successRate = sessionAnswers.length > 0 ? (correct / sessionAnswers.length) * 100 : 0;
 
     setStats({
       totalQuestions: sessionAnswers.length,
@@ -125,20 +135,20 @@ export function TrainingReportScreen(): React.ReactElement {
   };
 
   const saveSessionToHistory = async () => {
-    if (!user) return;
+    if (!user || !sessionAnswers || sessionAnswers.length === 0) return;
     
     setSaving(true);
     try {
       // Sauvegarder dans Supabase
       const { error } = await supabase
-        .from('training_sessions')
+        .from('sessions')
         .insert({
           user_id: user.id,
-          total_questions: sessionAnswers.length,
-          correct_answers: sessionAnswers.filter(a => a.isCorrect).length,
+          config: config,
           score: stats.totalScore,
-          average_time: stats.averageTime,
-          created_at: new Date().toISOString(),
+          total_points_earned: totalPoints || 0,
+          status: 'completed',
+          ended_at: new Date().toISOString(),
         });
 
       if (error) {
@@ -186,16 +196,26 @@ export function TrainingReportScreen(): React.ReactElement {
   };
 
   const handleReviewErrors = () => {
-    // Naviguer vers un écran de révision des erreurs
-    const incorrectQuestions = questions.filter((q, index) => 
-      !sessionAnswers[index]?.isCorrect
-    );
+    // Récupérer les questions à revoir (incorrectes + marquées)
+    const questionsForReview = questions.filter((q, index) => {
+      const answer = sessionAnswers[index];
+      return (answer && !answer.isCorrect) || questionsToReview.includes(q.id);
+    });
+    
+    // Créer une configuration spéciale pour le Mode Rattrapage
+    const reviewConfig = {
+      ...config,
+      isReviewMode: true,
+      allowNavigation: true, // Permet de naviguer entre les questions
+      showCorrectAnswers: true, // Montre les bonnes réponses après validation
+    };
     
     router.push({
-      pathname: '/training/review',
+      pathname: '/training/rattrapage',
       params: {
-        questions: JSON.stringify(incorrectQuestions),
-        answers: JSON.stringify(sessionAnswers.filter(a => !a.isCorrect)),
+        questions: JSON.stringify(questionsForReview),
+        config: JSON.stringify(reviewConfig),
+        originalAnswers: JSON.stringify(sessionAnswers),
       },
     });
   };
@@ -347,13 +367,15 @@ export function TrainingReportScreen(): React.ReactElement {
           {/* Boutons d'action */}
           <FadeInView duration={600} delay={600}>
             <View style={styles.actionButtons}>
-              {stats.incorrectAnswers > 0 && (
+              {(stats.incorrectAnswers > 0 || questionsToReview.length > 0) && (
                 <TouchableOpacity
                   style={[styles.actionButton, styles.reviewButton]}
                   onPress={handleReviewErrors}
                 >
-                  <Ionicons name="book" size={20} color="#FFFFFF" />
-                  <Text style={styles.actionButtonText}>Réviser les erreurs</Text>
+                  <Ionicons name="school" size={20} color="#FFFFFF" />
+                  <Text style={styles.actionButtonText}>
+                    Mode Rattrapage ({stats.incorrectAnswers + questionsToReview.length})
+                  </Text>
                 </TouchableOpacity>
               )}
 
