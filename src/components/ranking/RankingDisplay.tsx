@@ -40,7 +40,7 @@ export function RankingDisplay({
       <Text style={styles.title}>Classement & Comparaison</Text>
 
       <LinearGradient
-        colors={userRank <= 3 ? modalTheme.gradients.gold : ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.02)']}
+        colors={userRank <= 3 ? ['#FFD700', '#FFA500'] : ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.02)']}
         style={styles.rankCard}
       >
         <View style={styles.rankHeader}>
