@@ -127,7 +127,7 @@ export function PersonalizedFeedback({ data }: PersonalizedFeedbackProps): React
 
       <View style={styles.statsGrid}>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>{data.score}%</Text>
+          <Text style={styles.statValue}>{Math.round(data.score)}%</Text>
           <Text style={styles.statLabel}>Score</Text>
         </View>
         <View style={styles.statCard}>

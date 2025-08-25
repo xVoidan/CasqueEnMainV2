@@ -40,7 +40,7 @@ export function RankingDisplay({
       <Text style={styles.title}>Classement & Comparaison</Text>
 
       <LinearGradient
-        colors={userRank <= 3 ? ['#FFD700', '#FFA500'] : ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.02)']}
+        colors={userRank <= 3 ? ['rgba(255, 215, 0, 0.15)', 'rgba(255, 165, 0, 0.08)'] : ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']}
         style={styles.rankCard}
       >
         <View style={styles.rankHeader}>
@@ -73,7 +73,7 @@ export function RankingDisplay({
               color={weeklyProgress >= 0 ? '#10B981' : '#EF4444'}
             />
             <Text style={[styles.progressValue, { color: weeklyProgress >= 0 ? '#10B981' : '#EF4444' }]}>
-              {Math.abs(weeklyProgress)} places
+              {weeklyProgress > 0 ? '+' : ''}{Math.round(weeklyProgress)} pts
             </Text>
           </View>
         </View>
@@ -90,7 +90,7 @@ export function RankingDisplay({
               color={monthlyProgress >= 0 ? '#10B981' : '#EF4444'}
             />
             <Text style={[styles.progressValue, { color: monthlyProgress >= 0 ? '#10B981' : '#EF4444' }]}>
-              {Math.abs(monthlyProgress)} places
+              {monthlyProgress > 0 ? '+' : ''}{Math.round(monthlyProgress)} pts
             </Text>
           </View>
         </View>

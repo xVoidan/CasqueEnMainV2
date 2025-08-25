@@ -787,18 +787,24 @@ export function TrainingReportScreen(): React.ReactElement {
                   {gradeProgress.nextGrade && (
                     <>
                       <View style={styles.progressContainer}>
-                        <View style={styles.progressBar}>
-                          <View
-                            style={[
-                              styles.progressFill,
-                              {
-                                width: `${gradeProgress.progress}%`,
-                                backgroundColor: gradeProgress.currentGrade.color,
-                              },
-                            ]}
-                          />
+                        <View style={styles.progressBarWrapper}>
+                          <View style={styles.progressBar}>
+                            <LinearGradient
+                              colors={[gradeProgress.currentGrade.color || '#DC2626', gradeProgress.currentGrade.color ? `${gradeProgress.currentGrade.color}88` : '#DC262688']}
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 1, y: 0 }}
+                              style={[
+                                styles.progressFill,
+                                { width: `${Math.round(gradeProgress.progress)}%` },
+                              ]}
+                            />
+                          </View>
+                          <View style={[styles.progressDot, { left: `${Math.round(gradeProgress.progress)}%` }]} />
                         </View>
-                        <Text style={styles.progressText}>{gradeProgress.progress.toFixed(0)}%</Text>
+                        <View style={styles.progressTextContainer}>
+                          <Text style={styles.progressText}>{Math.round(gradeProgress.progress)}%</Text>
+                          <Text style={styles.progressSubtext}>vers le prochain grade</Text>
+                        </View>
                       </View>
 
                       {/* Prochain grade */}
@@ -888,10 +894,10 @@ export function TrainingReportScreen(): React.ReactElement {
                 if (!b.earned) {
                   if (b.id === 'first-perfect') {
                     progress = stats.successRate;
-                    requirement = `Score de 100% requis (actuel: ${stats.successRate.toFixed(0)}%)`;
+                    requirement = `Score de 100% requis (actuel: ${Math.round(stats.successRate)}%)`;
                   } else if (b.id === 'speed-demon') {
                     progress = stats.averageTime < 5 ? 100 : (5 / stats.averageTime) * 100;
-                    requirement = `Temps moyen < 5s (actuel: ${stats.averageTime.toFixed(1)}s)`;
+                    requirement = `Temps moyen < 5s (actuel: ${Math.round(stats.averageTime * 10) / 10}s)`;
                   } else if (b.id === 'streak-master') {
                     progress = (progressData.streak / 10) * 100;
                     requirement = `10 bonnes réponses d'affilée (actuel: ${progressData.streak})`;
@@ -1246,21 +1252,52 @@ const styles = StyleSheet.create({
   progressContainer: {
     marginBottom: 16,
   },
+  progressBarWrapper: {
+    position: 'relative',
+  },
   progressBar: {
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 4,
+    height: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 6,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   progressFill: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 6,
+  },
+  progressDot: {
+    position: 'absolute',
+    top: -2,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 3,
+    borderColor: '#DC2626',
+    marginLeft: -8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  progressTextContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 4,
   },
   progressText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  progressSubtext: {
     fontSize: 11,
     color: 'rgba(255, 255, 255, 0.5)',
-    textAlign: 'center',
-    marginTop: 4,
   },
   nextGrade: {
     flexDirection: 'row',
