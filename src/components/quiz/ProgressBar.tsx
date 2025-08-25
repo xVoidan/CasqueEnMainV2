@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, StyleProp, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '../../styles/theme';
 
@@ -10,7 +10,7 @@ interface IProgressBarProps {
   height?: number;
   animated?: boolean;
   colors?: string[];
-  style?: any;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function ProgressBar({

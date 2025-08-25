@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet, Animated } from 'react-native';
+import { TouchableOpacity, Text, View, StyleSheet, Animated, StyleProp, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../styles/theme';
 
@@ -11,7 +11,7 @@ interface IAnswerButtonProps {
   isValidated: boolean;
   onPress: () => void;
   disabled?: boolean;
-  style?: any;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function AnswerButton({
@@ -73,7 +73,7 @@ export function AnswerButton({
     }).start();
   };
 
-  const getButtonStyle = (): any => {
+  const getButtonStyle = (): StyleProp<ViewStyle> => {
     if (!isValidated) {
       return isSelected ? styles.selected : styles.default;
     }

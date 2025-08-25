@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -375,9 +375,9 @@ export default function HomeScreen(): React.ReactElement {
     loadDailyChallenge();
     checkForNewBadges();
     loadErrorQuestions();
-  }, [user]);
+  }, [user, loadDailyChallenge, checkForNewBadges, loadErrorQuestions]);
 
-  const loadDailyChallenge = async () => {
+  const loadDailyChallenge = useCallback(async () => {
     try {
       const { data } = await supabase
         .from('daily_challenges')
@@ -396,9 +396,9 @@ export default function HomeScreen(): React.ReactElement {
     } catch (err) {
       console.error('Erreur chargement défi:', err);
     }
-  };
+  }, []);
 
-  const checkForNewBadges = async () => {
+  const checkForNewBadges = useCallback(async () => {
     if (!user) return;
 
     const { data } = await supabase
@@ -413,9 +413,9 @@ export default function HomeScreen(): React.ReactElement {
       const hourAgo = new Date(Date.now() - 3600000);
       setHasNewBadges(lastBadgeTime > hourAgo);
     }
-  };
+  }, [user]);
 
-  const loadErrorQuestions = async () => {
+  const loadErrorQuestions = useCallback(async () => {
     if (!user) return;
 
     const { data } = await supabase
@@ -426,7 +426,7 @@ export default function HomeScreen(): React.ReactElement {
       .eq('is_mastered', false);
 
     setQuestionsWithErrors(data?.length || 0);
-  };
+  }, [user]);
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -444,7 +444,7 @@ export default function HomeScreen(): React.ReactElement {
     } finally {
       setRefreshing(false);
     }
-  }, [refreshData]);
+  }, [refreshData, checkForNewBadges, loadErrorQuestions]);
 
   const handleStartTraining = (): void => {
     router.push('/training/free');
@@ -462,7 +462,7 @@ export default function HomeScreen(): React.ReactElement {
     const validRoutes = ['/profile', '/training/config', '/training/daily-challenge', '/training/revision'];
 
     if (validRoutes.includes(route)) {
-      router.push(route as any);
+      router.push(route as `/${string}`);
     } else {
       Alert.alert(
         'Bientôt disponible',

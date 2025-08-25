@@ -56,7 +56,7 @@ export function SlideTransition({
     ]).start();
   }, [visible, direction, duration, delay, translateAnim, opacityAnim]);
 
-  const getTransformStyle = (): any => {
+  const getTransformStyle = (): { translateX?: Animated.Value; translateY?: Animated.Value } => {
     switch (direction) {
       case 'left':
       case 'right':

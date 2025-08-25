@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Text, StyleSheet, Animated } from 'react-native';
+import { Text, StyleSheet, Animated, StyleProp, TextStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../styles/theme';
 
@@ -9,7 +9,7 @@ interface ITimerProps {
   isPaused?: boolean;
   showIcon?: boolean;
   warningThreshold?: number; // seuil d'alerte en secondes
-  style?: any;
+  style?: StyleProp<TextStyle>;
 }
 
 export function Timer({

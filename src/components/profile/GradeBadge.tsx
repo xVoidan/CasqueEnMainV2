@@ -29,7 +29,7 @@ const SIZES = {
   xlarge: { badge: 120, font: 16 },
 };
 
-const GRADE_IMAGES: Record<string, any> = {
+const GRADE_IMAGES: Record<string, number> = {
   '1Aspirant.png': require('@/assets/images/1Aspirant.png'),
   '2Sapeur.png': require('@/assets/images/2Sapeur.png'),
   '3Caporal.png': require('@/assets/images/3Caporal.png'),

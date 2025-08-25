@@ -132,9 +132,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: theme.colors.white,
   },
-  medalIcon: {
-    fontSize: 20,
-  },
   userInfo: {
     flex: 1,
     flexDirection: 'row',

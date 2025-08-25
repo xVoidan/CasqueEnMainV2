@@ -167,7 +167,7 @@ export default function TrainingScreen(): React.ReactElement {
             <FadeInView key={mode.id} duration={600} delay={index * 100}>
               <TouchableOpacity
                 style={styles.trainingCard}
-                onPress={() => router.push(mode.route as any)}
+                onPress={() => router.push(mode.route as `/${string}`)}
                 activeOpacity={0.9}
               >
                 <LinearGradient
@@ -185,7 +185,7 @@ export default function TrainingScreen(): React.ReactElement {
                         {mode.stats.map((stat, idx) => (
                           <View key={idx} style={styles.statItem}>
                             <Ionicons
-                              name={stat.icon as any}
+                              name={stat.icon as keyof typeof Ionicons.glyphMap}
                               size={14}
                               color="rgba(255, 255, 255, 0.8)"
                             />

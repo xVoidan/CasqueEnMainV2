@@ -27,7 +27,7 @@ interface OnboardingStep {
   subtitle: string;
   icon?: keyof typeof Ionicons.glyphMap;
   emoji?: string;
-  image?: any;
+  image?: number;
   interactive?: React.ReactNode;
   backgroundColor: string;
   textColor?: string;

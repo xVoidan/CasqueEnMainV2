@@ -196,7 +196,7 @@ export default function AdminScreen(): React.ReactElement {
         { icon: 'folder-outline', value: '3 thèmes' },
         { icon: 'list-outline', value: '20 sous-thèmes' },
       ],
-      route: '/(admin)/themes' as any,
+      route: '/(admin)/themes',
     },
     {
       id: 'questions',
@@ -208,7 +208,7 @@ export default function AdminScreen(): React.ReactElement {
         { icon: 'help-circle-outline', value: '42 questions' },
         { icon: 'create-outline', value: 'Éditeur' },
       ],
-      route: '/(admin)/questions' as any,
+      route: '/(admin)/questions',
     },
     {
       id: 'import',
@@ -220,7 +220,7 @@ export default function AdminScreen(): React.ReactElement {
         { icon: 'cloud-upload-outline', value: 'CSV/JSON' },
         { icon: 'download-outline', value: 'Backup' },
       ],
-      route: '/(admin)/import-export' as any,
+      route: '/(admin)/import-export',
     },
     {
       id: 'stats',
@@ -232,7 +232,7 @@ export default function AdminScreen(): React.ReactElement {
         { icon: 'analytics-outline', value: 'Temps réel' },
         { icon: 'trending-up-outline', value: 'Rapports' },
       ],
-      route: '/(admin)/stats' as any,
+      route: '/(admin)/stats',
     },
   ];
 
@@ -288,7 +288,7 @@ export default function AdminScreen(): React.ReactElement {
             <FadeInView key={feature.id} duration={600} delay={(index + 1) * 100}>
               <TouchableOpacity
                 style={styles.adminCard}
-                onPress={() => router.push(feature.route)}
+                onPress={() => router.push(feature.route as `/${string}`)}
                 activeOpacity={0.9}
               >
                 <LinearGradient
@@ -306,7 +306,7 @@ export default function AdminScreen(): React.ReactElement {
                         {feature.stats.map((stat, idx) => (
                           <View key={idx} style={styles.statItem}>
                             <Ionicons
-                              name={stat.icon as any}
+                              name={stat.icon as keyof typeof Ionicons.glyphMap}
                               size={14}
                               color="rgba(255, 255, 255, 0.8)"
                             />

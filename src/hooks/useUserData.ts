@@ -22,6 +22,29 @@ export const GRADES = [
   { id: 15, name: "Contrôleur Général d'État", minPoints: 50000, color: '#000000', icon: '🌟🌟' },
 ];
 
+interface IBadge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  earnedAt: Date;
+}
+
+interface IRanking {
+  position: number;
+  score: number;
+  totalPlayers: number;
+}
+
+interface IRecentSession {
+  id: string;
+  date: Date;
+  score: number;
+  questionCount: number;
+  duration: number;
+  themes: string[];
+}
+
 interface IUserData {
   profile: IUserProfile | null;
   stats: IUserStats[];
@@ -30,12 +53,12 @@ interface IUserData {
   progressToNextGrade: number;
   isLoading: boolean;
   error: string | null;
-  badges: any[];
+  badges: IBadge[];
   ranking: {
-    global: any | null;
-    weekly: any | null;
+    global: IRanking | null;
+    weekly: IRanking | null;
   };
-  recentSessions: any[];
+  recentSessions: IRecentSession[];
   dailyChallengeCompleted: boolean;
 }
 
