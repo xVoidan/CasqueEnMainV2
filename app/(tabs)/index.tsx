@@ -748,6 +748,34 @@ export default function HomeScreen(): React.ReactElement {
             </TouchableOpacity>
           </FadeInView>
 
+          {/* Card Mode Examen */}
+          <FadeInView duration={600} delay={350}>
+            <TouchableOpacity
+              style={styles.mainCard}
+              onPress={() => router.push('/exam/selection')}
+              activeOpacity={0.9}
+            >
+              <LinearGradient
+                colors={['#7C3AED', '#6D28D9']}
+                style={styles.mainCardGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <View style={styles.mainCardContent}>
+                  <Text style={styles.mainCardIcon}>🎓</Text>
+                  <Text style={styles.mainCardTitle}>Mode Examen</Text>
+                  <Text style={styles.mainCardSubtitle}>
+                    Conditions réelles du concours - 1h non-stop
+                  </Text>
+                  <View style={styles.startButton}>
+                    <Text style={styles.startButtonText}>ACCÉDER</Text>
+                    <Ionicons name="arrow-forward" size={20} color={theme.colors.white} />
+                  </View>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          </FadeInView>
+
           {/* Stats réelles */}
           <FadeInView duration={600} delay={400}>
             <View style={styles.statsGrid}>
