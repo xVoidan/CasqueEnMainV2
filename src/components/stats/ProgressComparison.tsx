@@ -94,7 +94,7 @@ export function ProgressComparison({
         <View style={styles.timeInfo}>
           <Text style={styles.timeLabel}>Durée totale de la session</Text>
           <Text style={styles.timeValue}>
-            {Math.floor(totalTime / 60) > 0 
+            {Math.floor(totalTime / 60) > 0
               ? `${Math.floor(totalTime / 60)} min ${Math.floor(totalTime % 60)} sec`
               : `${Math.floor(totalTime)} secondes`
             }

@@ -188,7 +188,7 @@ export function TrainingSessionScreen(): React.ReactElement {
     };
 
     setSessionAnswers(prev => [...prev, answer]);
-    
+
     // Calculer le score
     let pointsEarned = 0;
     if (isCorrect) {
@@ -200,7 +200,7 @@ export function TrainingSessionScreen(): React.ReactElement {
     } else {
       pointsEarned = sessionConfig?.scoring?.incorrect || -0.5;
     }
-    
+
     setCurrentScore(prev => prev + pointsEarned);
     setIsValidated(true);
 

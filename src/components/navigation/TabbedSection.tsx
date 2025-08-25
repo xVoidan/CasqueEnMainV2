@@ -30,7 +30,7 @@ export function TabbedSection({ tabs }: TabbedSectionProps): React.ReactElement 
   const handleTabPress = (index: number) => {
     setActiveTab(index);
     scrollViewRef.current?.scrollTo({ x: index * width, animated: true });
-    
+
     // Animer l'indicateur
     Animated.spring(indicatorPosition, {
       toValue: index * (width / tabs.length),
@@ -43,10 +43,10 @@ export function TabbedSection({ tabs }: TabbedSectionProps): React.ReactElement 
   const handleScroll = (event: any) => {
     const scrollX = event.nativeEvent.contentOffset.x;
     const currentIndex = Math.round(scrollX / width);
-    
+
     if (currentIndex !== activeTab && currentIndex >= 0 && currentIndex < tabs.length) {
       setActiveTab(currentIndex);
-      
+
       // Animer l'indicateur
       Animated.timing(indicatorPosition, {
         toValue: currentIndex * (width / tabs.length),
@@ -87,7 +87,7 @@ export function TabbedSection({ tabs }: TabbedSectionProps): React.ReactElement 
             </TouchableOpacity>
           ))}
         </View>
-        
+
         {/* Indicateur animé */}
         <Animated.View
           style={[

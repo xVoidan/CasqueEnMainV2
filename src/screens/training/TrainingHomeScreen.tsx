@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
@@ -54,12 +53,12 @@ export function TrainingHomeScreen(): React.ReactElement {
       checkPausedSession();
     }
   }, [params.refresh]);
-  
+
   // Recharger la session en pause quand l'écran reprend le focus
   useFocusEffect(
     React.useCallback(() => {
       checkPausedSession();
-    }, [user])
+    }, [user]),
   );
 
   const loadPresets = async () => {
@@ -150,11 +149,11 @@ export function TrainingHomeScreen(): React.ReactElement {
 
   const confirmDeletePreset = async () => {
     if (!presetToDelete) return;
-    
+
     const updatedPresets = savedPresets.filter(p => p.id !== presetToDelete.id);
     setSavedPresets(updatedPresets);
     await AsyncStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(updatedPresets));
-    
+
     setShowDeletePresetModal(false);
     setPresetToDelete(null);
   };

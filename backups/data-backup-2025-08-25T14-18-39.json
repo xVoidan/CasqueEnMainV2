@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-08-25T14:18:39.834Z",
+  "project_ref": "ucwgtiaebljfbvhokicf",
+  "tables": [
+    "users",
+    "profiles",
+    "themes",
+    "sub_themes",
+    "questions",
+    "answers",
+    "sessions",
+    "session_answers",
+    "badges",
+    "user_badges",
+    "user_grades",
+    "user_stats",
+    "user_challenges",
+    "user_question_stats",
+    "daily_challenges",
+    "rankings",
+    "admins"
+  ],
+  "data": {},
+  "metadata": {
+    "tables_count": 17,
+    "total_records": 0
+  }
+}

@@ -89,37 +89,37 @@ export function TrainingReportScreen(): React.ReactElement {
   // Initialiser les données depuis les params (une seule fois)
   useEffect(() => {
     if (dataInitialized) return; // Éviter les ré-initialisations
-    
+
     try {
       let hasData = false;
-      
+
       if (params.sessionAnswers) {
         const parsedAnswers = JSON.parse(params.sessionAnswers as string);
         setSessionAnswers(parsedAnswers);
         hasData = true;
       }
-      
+
       if (params.questions) {
         const parsedQuestions = JSON.parse(params.questions as string);
         setQuestions(parsedQuestions);
         hasData = true;
       }
-      
+
       if (params.config) {
         const parsedConfig = JSON.parse(params.config as string);
         setConfig(parsedConfig);
       }
-      
+
       if (params.questionsToReview) {
         const parsedReview = JSON.parse(params.questionsToReview as string);
         setQuestionsToReview(parsedReview);
       }
-      
+
       if (hasData) {
         setDataInitialized(true);
       }
-    } catch (error) {
-      // console.error('[TrainingReportScreen] Erreur parsing params:', error);
+    } catch (_error) {
+      // console.error('[TrainingReportScreen] Erreur parsing params:', _error);
     }
   }, [params, dataInitialized]);
 
@@ -149,7 +149,7 @@ export function TrainingReportScreen(): React.ReactElement {
   const [sessionAnswers, setSessionAnswers] = useState<ISessionAnswer[]>([]);
   const [questionsToReview, setQuestionsToReview] = useState<string[]>([]);
   const [config, setConfig] = useState<ISessionConfig>({
-    scoring: { correct: 1, incorrect: -0.5, skipped: 0, partial: 0.5 }
+    scoring: { correct: 1, incorrect: -0.5, skipped: 0, partial: 0.5 },
   });
   const [badges, setBadges] = useState<any[]>([]);
   const [userTotalPoints, setUserTotalPoints] = useState(0);
@@ -184,7 +184,7 @@ export function TrainingReportScreen(): React.ReactElement {
       // Calculer d'abord les stats de base
       calculateStats(0);
       calculateThemePerformance();
-      
+
       // Puis lancer les opérations async
       const initializeAsync = async () => {
         await fetchProgressData();
@@ -209,7 +209,7 @@ export function TrainingReportScreen(): React.ReactElement {
 
     return () => clearTimeout(timer);
   }, [stats]);
-  
+
   // Mettre à jour les points utilisateur quand les stats changent
   useEffect(() => {
     if (stats.totalXP !== undefined && stats.totalXP !== null) {
@@ -329,10 +329,10 @@ export function TrainingReportScreen(): React.ReactElement {
         bestScore: scores.length > 0 ? Math.max(...scores, stats.successRate) : stats.successRate,
         streak,
       });
-      
+
       // Recalculer les stats avec le streak maintenant disponible
       calculateStats(streak);
-    } catch (error) {
+    } catch (_error) {
       // console.error('Erreur récupération progression:', error);
     }
   };
@@ -408,7 +408,7 @@ export function TrainingReportScreen(): React.ReactElement {
           topPlayers,
         });
       }
-    } catch (error) {
+    } catch (_error) {
       // console.error('Erreur récupération classement:', error);
     }
   };
@@ -427,18 +427,18 @@ export function TrainingReportScreen(): React.ReactElement {
         // Récupérer les points actuels
         const currentPoints = profile.total_points || 0;
         setUserTotalPoints(currentPoints);
-        
+
         // Mettre à jour avec l'XP gagné dans cette session (une seule fois)
         if (stats.totalXP && stats.totalXP > 0 && !xpUpdated) {
           const newTotalPoints = currentPoints + stats.totalXP;
-          
+
           const { error: updateError } = await supabase
             .from('profiles')
-            .update({ 
-              total_points: newTotalPoints
+            .update({
+              total_points: newTotalPoints,
             })
             .eq('user_id', user.id);
-            
+
           if (!updateError) {
             setUserTotalPoints(newTotalPoints);
             setXpUpdated(true);  // Marquer comme mis à jour
@@ -447,7 +447,7 @@ export function TrainingReportScreen(): React.ReactElement {
           }
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // console.error('Erreur récupération points:', error);
     }
   };
@@ -456,7 +456,7 @@ export function TrainingReportScreen(): React.ReactElement {
     if (!sessionAnswers || sessionAnswers.length === 0) {
       return;
     }
-    
+
     if (!config) {
       // console.error('[calculateStats] Config manquante');
       return;
@@ -470,41 +470,41 @@ export function TrainingReportScreen(): React.ReactElement {
     const avgTime = sessionAnswers.length > 0 ? totalTime / sessionAnswers.length : 0;
 
     // Calcul du score sur le barème (notation) - utiliser le barème de config
-    const baremScore = 
+    const baremScore =
       correct * (config?.scoring?.correct || 1) +
       incorrect * (config?.scoring?.incorrect || -0.5) +
       partial * (config?.scoring?.partial || 0.5) +
-      skipped * (config?.scoring?.skipped || 0)
+      skipped * (config?.scoring?.skipped || 0);
 
     // Calcul de l'XP (progression) - système différent du barème!
     const baseXP =
       correct * 10 +  // +10 XP par bonne réponse
-      incorrect * (-2) +  // -2 XP par mauvaise réponse  
+      incorrect * (-2) +  // -2 XP par mauvaise réponse
       partial * 5 +  // +5 XP par réponse partielle
       skipped * 0;  // 0 XP par question passée
 
     const successRate = sessionAnswers.length > 0 ? (correct / sessionAnswers.length) * 100 : 0;
-    
+
     // Calcul des bonus XP
     let bonusXP = 0;
-    
+
     // Bonus d'excellence
     if (successRate >= 90) bonusXP += 50;
     else if (successRate >= 80) bonusXP += 30;
     else if (successRate >= 60) bonusXP += 15;
-    
+
     // Bonus de rapidité
     if (avgTime < 5) bonusXP += 20;
     else if (avgTime < 10) bonusXP += 10;
-    
+
     // Bonus sans faute
     if (incorrect === 0 && sessionAnswers.length > 0) bonusXP += 25;
-    
+
     // Bonus combo (streak)
     if (streak >= 3) {
       bonusXP += streak * 2;
     }
-    
+
     const totalXP = Math.max(0, baseXP + bonusXP);
 
     setStats({
@@ -531,7 +531,7 @@ export function TrainingReportScreen(): React.ReactElement {
       // Calculer started_at en fonction de la durée totale
       const endTime = new Date();
       const startTime = new Date(endTime.getTime() - (stats.totalTime * 1000)); // totalTime est en secondes
-      
+
       const { error } = await supabase
         .from('sessions')
         .insert({
@@ -564,7 +564,7 @@ export function TrainingReportScreen(): React.ReactElement {
       }
 
       await AsyncStorage.setItem(historyKey, JSON.stringify(history));
-    } catch (error) {
+    } catch (_error) {
       // console.error('Erreur sauvegarde historique:', error);
     } finally {
       setSaving(false);
@@ -586,7 +586,7 @@ export function TrainingReportScreen(): React.ReactElement {
         date: new Date(),
       };
       await exportToPDF(sessionData);
-    } catch (error) {
+    } catch (_error) {
       // console.error('Erreur export PDF:', error);
     }
   };
@@ -605,7 +605,7 @@ export function TrainingReportScreen(): React.ReactElement {
         date: new Date(),
       };
       await shareResultsExport(sessionData);
-    } catch (error) {
+    } catch (_error) {
       // console.error('Erreur partage:', error);
     }
   };
@@ -767,11 +767,11 @@ export function TrainingReportScreen(): React.ReactElement {
           <FadeInView duration={600} delay={300}>
             <View style={styles.detailSection}>
               <Text style={styles.sectionTitle}>Détail des calculs</Text>
-              
+
               {/* Calcul du SCORE (note sur barème) */}
               <View style={[styles.detailCard, { marginBottom: 16 }]}>
                 <Text style={styles.detailSubtitle}>📊 Score (Note sur barème)</Text>
-                
+
                 {/* Résumé du barème */}
                 <View style={styles.baremInfo}>
                   <Text style={styles.baremText}>
@@ -779,7 +779,7 @@ export function TrainingReportScreen(): React.ReactElement {
                     {(config?.scoring?.partial && config.scoring.partial !== 0) ? `, +${config.scoring.partial} par partielle` : ''}
                   </Text>
                 </View>
-                
+
                 <View style={styles.detailRow}>
                   <View style={styles.detailLeft}>
                     <View style={[styles.detailIcon, { backgroundColor: 'rgba(16, 185, 129, 0.35)' }]}>
@@ -830,7 +830,7 @@ export function TrainingReportScreen(): React.ReactElement {
                 )}
 
                 <View style={styles.detailSeparator} />
-                
+
                 <View style={styles.detailTotal}>
                   <Text style={styles.detailTotalLabel}>SCORE FINAL</Text>
                   <Text style={styles.detailTotalValue}>
@@ -842,7 +842,7 @@ export function TrainingReportScreen(): React.ReactElement {
               {/* Calcul de l'XP (expérience) */}
               <View style={styles.detailCard}>
                 <Text style={styles.detailSubtitle}>⚡ Expérience (XP)</Text>
-                
+
                 {/* Barème XP */}
                 <View style={styles.xpBaremRow}>
                   <View style={styles.xpBaremItem}>
@@ -863,7 +863,7 @@ export function TrainingReportScreen(): React.ReactElement {
 
                 {/* Calcul XP de base */}
                 <Text style={styles.xpSectionTitle}>XP de base</Text>
-                
+
                 <View style={styles.detailRow}>
                   <View style={styles.detailLeft}>
                     <View style={[styles.detailIcon, { backgroundColor: 'rgba(16, 185, 129, 0.35)' }]}>
@@ -924,7 +924,7 @@ export function TrainingReportScreen(): React.ReactElement {
 
                 {/* Bonus XP */}
                 <Text style={styles.xpSectionTitle}>Bonus XP</Text>
-                
+
                 {/* Bonus de performance */}
                 {stats.successRate >= 60 && (
                   <View style={styles.detailRow}>
@@ -1006,7 +1006,7 @@ export function TrainingReportScreen(): React.ReactElement {
                     </Text>
                   </View>
                 )}
-                
+
                 <View style={styles.detailSeparator} />
 
                 <View style={styles.detailTotal}>
