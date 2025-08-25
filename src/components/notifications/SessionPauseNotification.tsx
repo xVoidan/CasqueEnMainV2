@@ -10,9 +10,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../../styles/theme';
+import { modalTheme } from '../../styles/modalTheme';
 
 interface SessionPauseNotificationProps {
   visible: boolean;
@@ -20,8 +20,10 @@ interface SessionPauseNotificationProps {
   totalQuestions: number;
   points: number;
   streak: number;
+  correctAnswers?: number;
   onContinue: () => void;
   onQuit: () => void;
+  onFinish?: () => void;
   onClose: () => void;
 }
 
@@ -33,8 +35,10 @@ export function SessionPauseNotification({
   totalQuestions,
   points,
   streak,
+  correctAnswers,
   onContinue,
   onQuit,
+  onFinish,
   onClose,
 }: SessionPauseNotificationProps): React.ReactElement | null {
   const insets = useSafeAreaInsets();
@@ -126,39 +130,24 @@ export function SessionPauseNotification({
           },
         ]}
       >
-        <BlurView intensity={95} tint="dark" style={styles.blurContainer}>
-          <LinearGradient
-            colors={['rgba(139, 92, 246, 0.15)', 'rgba(124, 58, 237, 0.08)']}
-            style={styles.gradientContainer}
-          >
+        <View style={styles.blurContainer}>
+          <View style={styles.gradientContainer}>
             {/* Header avec animation */}
             <View style={styles.header}>
               <View style={styles.iconWrapper}>
-                <Animated.View
-                  style={{
-                    transform: [{
-                      rotate: fadeAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ['0deg', '360deg'],
-                      }),
-                    }],
-                  }}
+                <LinearGradient
+                  colors={modalTheme.gradients.primary}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.iconGradient}
                 >
-                  <LinearGradient
-                    colors={['#8B5CF6', '#7C3AED']}
-                    style={styles.iconGradient}
-                  >
-                    <Ionicons name="pause" size={24} color="#FFFFFF" />
-                  </LinearGradient>
-                </Animated.View>
+                  <Ionicons name="pause-circle" size={32} color="#FFFFFF" />
+                </LinearGradient>
               </View>
 
               <View style={styles.headerText}>
-                <Text style={styles.title}>Session sauvegardée</Text>
-                <View style={styles.successBadge}>
-                  <Ionicons name="checkmark-circle" size={14} color="#10B981" />
-                  <Text style={styles.successText}>Progression enregistrée</Text>
-                </View>
+                <Text style={styles.title}>🚒 Session en pause</Text>
+                <Text style={styles.subtitle}>Votre progression est sauvegardée</Text>
               </View>
 
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -187,7 +176,7 @@ export function SessionPauseNotification({
                   ]}
                 >
                   <LinearGradient
-                    colors={['#8B5CF6', '#A78BFA']}
+                    colors={modalTheme.gradients.primary}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={styles.progressGradient}
@@ -198,6 +187,33 @@ export function SessionPauseNotification({
 
             {/* Stats avec icônes animées */}
             <View style={styles.statsGrid}>
+              {correctAnswers !== undefined && (
+                <Animated.View
+                  style={[
+                    styles.statCard,
+                    {
+                      transform: [{
+                        translateY: fadeAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [20, 0],
+                        }),
+                      }],
+                    },
+                  ]}
+                >
+                  <View style={styles.statIconContainer}>
+                    <LinearGradient
+                      colors={['rgba(16, 185, 129, 0.15)', 'rgba(16, 185, 129, 0.05)']}
+                      style={styles.statIconBg}
+                    >
+                      <Ionicons name="checkmark-circle" size={20} color={modalTheme.colors.success} />
+                    </LinearGradient>
+                  </View>
+                  <Text style={styles.statValue}>{correctAnswers}</Text>
+                  <Text style={styles.statLabel}>Correctes</Text>
+                </Animated.View>
+              )}
+
               <Animated.View
                 style={[
                   styles.statCard,
@@ -213,10 +229,10 @@ export function SessionPauseNotification({
               >
                 <View style={styles.statIconContainer}>
                   <LinearGradient
-                    colors={['rgba(245, 158, 11, 0.2)', 'rgba(245, 158, 11, 0.1)']}
+                    colors={['rgba(245, 158, 11, 0.15)', 'rgba(245, 158, 11, 0.05)']}
                     style={styles.statIconBg}
                   >
-                    <Ionicons name="trophy" size={20} color="#F59E0B" />
+                    <Ionicons name="trophy" size={20} color={modalTheme.colors.warning} />
                   </LinearGradient>
                 </View>
                 <Text style={styles.statValue}>{points}</Text>
@@ -238,10 +254,10 @@ export function SessionPauseNotification({
               >
                 <View style={styles.statIconContainer}>
                   <LinearGradient
-                    colors={['rgba(239, 68, 68, 0.2)', 'rgba(239, 68, 68, 0.1)']}
+                    colors={['rgba(220, 38, 38, 0.15)', 'rgba(220, 38, 38, 0.05)']}
                     style={styles.statIconBg}
                   >
-                    <Ionicons name="flame" size={20} color="#EF4444" />
+                    <Ionicons name="flame" size={20} color={modalTheme.colors.primary} />
                   </LinearGradient>
                 </View>
                 <Text style={styles.statValue}>{streak}</Text>
@@ -263,10 +279,10 @@ export function SessionPauseNotification({
               >
                 <View style={styles.statIconContainer}>
                   <LinearGradient
-                    colors={['rgba(16, 185, 129, 0.2)', 'rgba(16, 185, 129, 0.1)']}
+                    colors={['rgba(59, 130, 246, 0.15)', 'rgba(59, 130, 246, 0.05)']}
                     style={styles.statIconBg}
                   >
-                    <Ionicons name="time" size={20} color="#10B981" />
+                    <Ionicons name="time" size={20} color={modalTheme.colors.info} />
                   </LinearGradient>
                 </View>
                 <Text style={styles.statValue}>24h</Text>
@@ -276,15 +292,12 @@ export function SessionPauseNotification({
 
             {/* Message d'info élégant */}
             <View style={styles.infoContainer}>
-              <LinearGradient
-                colors={['rgba(59, 130, 246, 0.1)', 'rgba(59, 130, 246, 0.05)']}
-                style={styles.infoBg}
-              >
-                <Ionicons name="information-circle" size={16} color="#60A5FA" />
+              <View style={styles.infoBg}>
+                <Ionicons name="information-circle" size={18} color={modalTheme.colors.info} />
                 <Text style={styles.infoText}>
-                  Reprenez votre session quand vous voulez depuis l'écran d'entraînement
+                  Votre session restera disponible pendant 24h
                 </Text>
-              </LinearGradient>
+              </View>
             </View>
 
             {/* Boutons d'action */}
@@ -295,7 +308,7 @@ export function SessionPauseNotification({
                 activeOpacity={0.8}
               >
                 <LinearGradient
-                  colors={['#8B5CF6', '#7C3AED']}
+                  colors={modalTheme.gradients.primary}
                   style={styles.continueGradient}
                 >
                   <Ionicons name="play-circle" size={20} color="#FFFFFF" />
@@ -303,19 +316,34 @@ export function SessionPauseNotification({
                 </LinearGradient>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.quitButton}
-                onPress={onQuit}
-                activeOpacity={0.8}
-              >
-                <View style={styles.quitInner}>
-                  <Ionicons name="log-out-outline" size={20} color="rgba(255, 255, 255, 0.7)" />
-                  <Text style={styles.quitText}>Quitter pour plus tard</Text>
-                </View>
-              </TouchableOpacity>
+              <View style={styles.secondaryActions}>
+                <TouchableOpacity
+                  style={styles.quitButton}
+                  onPress={onQuit}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.quitInner}>
+                    <Ionicons name="arrow-back-outline" size={20} color={modalTheme.colors.textTertiary} />
+                    <Text style={styles.quitText}>Plus tard</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {onFinish && (
+                  <TouchableOpacity
+                    style={[styles.quitButton, styles.finishButton]}
+                    onPress={onFinish}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[styles.quitInner, styles.finishInner]}>
+                      <Ionicons name="stop-circle-outline" size={20} color={modalTheme.colors.danger} />
+                      <Text style={[styles.quitText, styles.finishText]}>Terminer</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
-          </LinearGradient>
-        </BlurView>
+          </View>
+        </View>
       </Animated.View>
     </>
   );
@@ -329,9 +357,9 @@ const styles = StyleSheet.create({
   },
   container: {
     position: 'absolute',
-    left: 20,
-    right: 20,
-    maxWidth: 440,
+    left: 15,
+    right: 15,
+    maxWidth: 380,
     alignSelf: 'center',
     zIndex: 1000,
     borderRadius: theme.borderRadius.xl + 4,
@@ -351,12 +379,12 @@ const styles = StyleSheet.create({
   blurContainer: {
     borderRadius: theme.borderRadius.xl + 4,
     overflow: 'hidden',
+    backgroundColor: modalTheme.colors.surface,
+    borderWidth: 1,
+    borderColor: modalTheme.colors.border,
   },
   gradientContainer: {
     padding: theme.spacing.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(139, 92, 246, 0.2)',
-    borderRadius: theme.borderRadius.xl + 4,
   },
   header: {
     flexDirection: 'row',
@@ -367,9 +395,9 @@ const styles = StyleSheet.create({
     marginRight: theme.spacing.md,
   },
   iconGradient: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -377,26 +405,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: 'bold',
-    color: theme.colors.white,
+    fontSize: modalTheme.typography.title.fontSize,
+    fontWeight: modalTheme.typography.title.fontWeight,
+    color: modalTheme.typography.title.color,
     marginBottom: 4,
   },
-  successBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  successText: {
-    fontSize: theme.typography.fontSize.xs,
-    color: '#10B981',
-    fontWeight: '600',
+  subtitle: {
+    fontSize: modalTheme.typography.subtitle.fontSize,
+    color: modalTheme.typography.subtitle.color,
   },
   closeButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: modalTheme.colors.surfaceLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -409,19 +431,21 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
   progressLabel: {
-    fontSize: theme.typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: modalTheme.typography.subtitle.fontSize,
+    color: modalTheme.colors.textTertiary,
   },
   progressValue: {
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: '600',
-    color: '#8B5CF6',
+    fontSize: modalTheme.typography.value.fontSize,
+    fontWeight: modalTheme.typography.value.fontWeight,
+    color: modalTheme.colors.primary,
   },
   progressBarContainer: {
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 4,
+    height: 10,
+    backgroundColor: modalTheme.colors.surfaceLight,
+    borderRadius: modalTheme.borderRadius.sm,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: modalTheme.colors.borderLight,
   },
   progressBar: {
     height: '100%',
@@ -437,11 +461,12 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
+    backgroundColor: modalTheme.colors.surfaceLight,
+    padding: 10,
+    borderRadius: modalTheme.borderRadius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: modalTheme.colors.borderLight,
+    minWidth: 70,
   },
   statIconContainer: {
     marginBottom: theme.spacing.sm,
@@ -454,14 +479,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   statValue: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: 'bold',
-    color: theme.colors.white,
+    fontSize: modalTheme.typography.value.fontSize,
+    fontWeight: modalTheme.typography.value.fontWeight,
+    color: modalTheme.typography.value.color,
     marginBottom: 2,
   },
   statLabel: {
-    fontSize: theme.typography.fontSize.xs,
-    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: modalTheme.typography.label.fontSize,
+    color: modalTheme.typography.label.color,
   },
   infoContainer: {
     marginBottom: theme.spacing.xl,
@@ -472,11 +497,12 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
     gap: theme.spacing.sm,
+    backgroundColor: 'rgba(59, 130, 246, 0.08)',
   },
   infoText: {
     flex: 1,
-    fontSize: theme.typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 13,
+    color: modalTheme.colors.textSecondary,
     lineHeight: 18,
   },
   actions: {
@@ -494,11 +520,12 @@ const styles = StyleSheet.create({
     gap: theme.spacing.sm,
   },
   continueText: {
-    fontSize: theme.typography.fontSize.base,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontSize: modalTheme.typography.button.fontSize,
+    fontWeight: modalTheme.typography.button.fontWeight,
+    color: modalTheme.colors.textPrimary,
   },
   quitButton: {
+    flex: 1,
     borderRadius: theme.borderRadius.lg,
     overflow: 'hidden',
   },
@@ -506,16 +533,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    backgroundColor: modalTheme.colors.surfaceLight,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: theme.borderRadius.lg,
-    gap: theme.spacing.sm,
+    borderColor: modalTheme.colors.borderLight,
+    borderRadius: modalTheme.borderRadius.lg,
+    gap: 6,
   },
   quitText: {
-    fontSize: theme.typography.fontSize.base,
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: modalTheme.typography.button.fontSize - 1,
+    fontWeight: modalTheme.typography.button.fontWeight,
+    color: modalTheme.colors.textSecondary,
+  },
+  secondaryActions: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+  finishButton: {
+    flex: 1,
+  },
+  finishInner: {
+    backgroundColor: 'rgba(220, 38, 38, 0.05)',
+    borderColor: 'rgba(220, 38, 38, 0.3)',
+  },
+  finishText: {
+    color: modalTheme.colors.danger,
   },
 });

@@ -6,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Share,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -14,9 +16,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { FadeInView } from '../../components/animations/FadeInView';
+import { CelebrationAnimation } from '../../components/animations/CelebrationAnimation';
+import { CircularProgress } from '../../components/charts/CircularProgress';
+import { BadgeDisplay, calculateBadges } from '../../components/badges/BadgeDisplay';
 import { theme } from '../../styles/theme';
+import { modalTheme } from '../../styles/modalTheme';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/store/AuthContext';
+import { getProgressToNext, formatPoints, FIREFIGHTER_GRADES } from '../../utils/grades';
+
+const { width } = Dimensions.get('window');
 
 interface ISessionAnswer {
   questionId: string;
@@ -95,11 +104,50 @@ export function TrainingReportScreen(): React.ReactElement {
   });
   const [_saving, setSaving] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [badges, setBadges] = useState<any[]>([]);
+  const [userTotalPoints, setUserTotalPoints] = useState(0);
+  const [gradeProgress, setGradeProgress] = useState<any>(null);
 
   useEffect(() => {
     calculateStats();
     saveSessionToHistory();
+    fetchUserPoints();
   }, []);
+
+  useEffect(() => {
+    if (stats.successRate >= 80) {
+      setShowCelebration(true);
+    }
+    const earnedBadges = calculateBadges(stats, []);
+    setBadges(earnedBadges);
+  }, [stats]);
+
+  useEffect(() => {
+    if (userTotalPoints > 0) {
+      const progress = getProgressToNext(userTotalPoints);
+      setGradeProgress(progress);
+    }
+  }, [userTotalPoints]);
+
+  const fetchUserPoints = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('total_points')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (profile) {
+        const newTotalPoints = (profile.total_points || 0) + Math.round(totalPoints || 0);
+        setUserTotalPoints(newTotalPoints);
+      }
+    } catch (error) {
+      console.error('Erreur récupération points:', error);
+    }
+  };
 
   const calculateStats = () => {
     if (!sessionAnswers || sessionAnswers.length === 0) {
@@ -139,14 +187,13 @@ export function TrainingReportScreen(): React.ReactElement {
 
     setSaving(true);
     try {
-      // Sauvegarder dans Supabase
       const { error } = await supabase
         .from('sessions')
         .insert({
           user_id: user.id,
           config: config,
           score: stats.totalScore,
-          total_points_earned: totalPoints || 0,
+          total_points_earned: Math.round(totalPoints || 0),
           status: 'completed',
           ended_at: new Date().toISOString(),
         });
@@ -155,7 +202,6 @@ export function TrainingReportScreen(): React.ReactElement {
         console.error('Erreur sauvegarde session:', error);
       }
 
-      // Sauvegarder localement pour l'historique
       const historyKey = `@training_history_${user.id}`;
       const existingHistory = await AsyncStorage.getItem(historyKey);
       const history = existingHistory ? JSON.parse(existingHistory) : [];
@@ -167,7 +213,6 @@ export function TrainingReportScreen(): React.ReactElement {
         config,
       });
 
-      // Garder seulement les 50 dernières sessions
       if (history.length > 50) {
         history.pop();
       }
@@ -183,10 +228,10 @@ export function TrainingReportScreen(): React.ReactElement {
   const shareResults = async () => {
     try {
       const message = '🎯 Résultats de ma session d\'entraînement CasqueEnMains:\n\n' +
-        `📊 Score: ${stats.totalScore.toFixed(1)} points\n` +
-        `✅ Réussite: ${stats.successRate.toFixed(1)}%\n` +
+        `📊 Score: ${stats.totalScore.toFixed(0)} points\n` +
+        `✅ Réussite: ${stats.successRate.toFixed(0)}%\n` +
         `📝 Questions: ${stats.correctAnswers}/${stats.totalQuestions} correctes\n` +
-        `⏱️ Temps moyen: ${stats.averageTime.toFixed(1)}s par question\n\n` +
+        `⏱️ Temps moyen: ${stats.averageTime.toFixed(0)}s par question\n\n` +
         '#CasqueEnMains #Pompiers #Formation';
 
       await Share.share({ message });
@@ -196,18 +241,16 @@ export function TrainingReportScreen(): React.ReactElement {
   };
 
   const handleReviewErrors = () => {
-    // Récupérer les questions à revoir (incorrectes + marquées)
     const questionsForReview = questions.filter((q, index) => {
       const answer = sessionAnswers[index];
       return (answer && !answer.isCorrect) || questionsToReview.includes(q.id);
     });
 
-    // Créer une configuration spéciale pour le Mode Rattrapage
     const reviewConfig = {
       ...config,
       isReviewMode: true,
-      allowNavigation: true, // Permet de naviguer entre les questions
-      showCorrectAnswers: true, // Montre les bonnes réponses après validation
+      allowNavigation: true,
+      showCorrectAnswers: true,
     };
 
     router.push({
@@ -228,14 +271,6 @@ export function TrainingReportScreen(): React.ReactElement {
     router.replace('/(tabs)');
   };
 
-  const getGradeEmoji = (rate: number): string => {
-    if (rate >= 90) return '🏆';
-    if (rate >= 75) return '⭐';
-    if (rate >= 60) return '✅';
-    if (rate >= 40) return '💪';
-    return '📚';
-  };
-
   const getGradeMessage = (rate: number): string => {
     if (rate >= 90) return 'Excellent travail !';
     if (rate >= 75) return 'Très bien !';
@@ -250,9 +285,36 @@ export function TrainingReportScreen(): React.ReactElement {
     return '#EF4444';
   };
 
+  const getGradeImage = (imageName: string) => {
+    const images: { [key: string]: any } = {
+      '1Aspirant.png': require('@/assets/images/1Aspirant.png'),
+      '2Sapeur.png': require('@/assets/images/2Sapeur.png'),
+      '3Caporal.png': require('@/assets/images/3Caporal.png'),
+      '4CaporalChef.png': require('@/assets/images/4CaporalChef.png'),
+      '5Sergent.png': require('@/assets/images/5Sergent.png'),
+      '6SergentChef.png': require('@/assets/images/6SergentChef.png'),
+      '7Adjudant.png': require('@/assets/images/7Adjudant.png'),
+      '8AdjudantChef.png': require('@/assets/images/8AdjudantChef.png'),
+      '9Lieutenant.png': require('@/assets/images/9Lieutenant.png'),
+      '10Commandant.png': require('@/assets/images/10Commandant.png'),
+      '11Capitaine.png': require('@/assets/images/11Capitaine.png'),
+      '12LieutenantColonel.png': require('@/assets/images/12LieutenantColonel.png'),
+      '13Colonel.png': require('@/assets/images/13Colonel.png'),
+      '14ControleurGeneral.png': require('@/assets/images/14ControleurGeneral.png'),
+      '15ControleurGeneralEtat.png': require('@/assets/images/15ControleurGeneralEtat.png'),
+    };
+    return images[imageName];
+  };
+
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
+        <CelebrationAnimation
+          visible={showCelebration}
+          type="confetti"
+          onComplete={() => setShowCelebration(false)}
+        />
+        
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -260,12 +322,12 @@ export function TrainingReportScreen(): React.ReactElement {
           {/* Header */}
           <FadeInView duration={600} delay={0}>
             <View style={styles.header}>
-              <Text style={styles.headerTitle}>Résultats de la session</Text>
-              <Text style={styles.headerSubtitle}>
+              <Text style={styles.headerTitle}>Session terminée</Text>
+              <Text style={styles.headerDate}>
                 {new Date().toLocaleDateString('fr-FR', {
+                  weekday: 'long',
                   day: 'numeric',
                   month: 'long',
-                  year: 'numeric',
                 })}
               </Text>
             </View>
@@ -273,86 +335,276 @@ export function TrainingReportScreen(): React.ReactElement {
 
           {/* Score principal */}
           <FadeInView duration={600} delay={200}>
-            <View style={styles.mainScoreCard}>
+            <View style={styles.scoreSection}>
               <LinearGradient
-                colors={['rgba(139, 92, 246, 0.2)', 'rgba(139, 92, 246, 0.05)']}
-                style={styles.scoreGradient}
+                colors={['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.02)']}
+                style={styles.scoreCard}
               >
-                <Text style={styles.gradeEmoji}>
-                  {getGradeEmoji(stats.successRate)}
-                </Text>
-                <Text style={styles.scoreValue}>
-                  {stats.totalScore.toFixed(1)}
-                </Text>
-                <Text style={styles.scoreLabel}>POINTS</Text>
-                <View style={styles.successRateContainer}>
-                  <Text style={[styles.successRate, { color: getScoreColor(stats.successRate) }]}>
-                    {stats.successRate.toFixed(1)}% de réussite
-                  </Text>
+                <View style={styles.scoreTop}>
+                  <CircularProgress
+                    percentage={stats.successRate}
+                    size={100}
+                    strokeWidth={8}
+                    color={getScoreColor(stats.successRate)}
+                    showPercentage={true}
+                  />
+                  <View style={styles.scoreInfo}>
+                    <Text style={styles.scorePoints}>{stats.totalScore.toFixed(0)}</Text>
+                    <Text style={styles.scoreLabel}>points gagnés</Text>
+                    <Text style={[styles.scoreMessage, { color: getScoreColor(stats.successRate) }]}>
+                      {getGradeMessage(stats.successRate)}
+                    </Text>
+                  </View>
                 </View>
-                <Text style={styles.gradeMessage}>
-                  {getGradeMessage(stats.successRate)}
-                </Text>
+
+                {/* Stats rapides */}
+                <View style={styles.quickStats}>
+                  <View style={styles.quickStatItem}>
+                    <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+                    <Text style={styles.quickStatValue}>{stats.correctAnswers}</Text>
+                    <Text style={styles.quickStatLabel}>Correctes</Text>
+                  </View>
+                  <View style={styles.quickStatDivider} />
+                  <View style={styles.quickStatItem}>
+                    <Ionicons name="close-circle" size={20} color="#EF4444" />
+                    <Text style={styles.quickStatValue}>{stats.incorrectAnswers}</Text>
+                    <Text style={styles.quickStatLabel}>Incorrectes</Text>
+                  </View>
+                  <View style={styles.quickStatDivider} />
+                  <View style={styles.quickStatItem}>
+                    <Ionicons name="time" size={20} color="#3B82F6" />
+                    <Text style={styles.quickStatValue}>{stats.averageTime.toFixed(0)}s</Text>
+                    <Text style={styles.quickStatLabel}>Temps moy.</Text>
+                  </View>
+                </View>
               </LinearGradient>
             </View>
           </FadeInView>
 
-          {/* Statistiques détaillées */}
-          <FadeInView duration={600} delay={400}>
-            <View style={styles.statsGrid}>
-              <View style={styles.statCard}>
-                <View style={[styles.statIcon, { backgroundColor: 'rgba(16, 185, 129, 0.2)' }]}>
-                  <Ionicons name="checkmark-circle" size={24} color="#10B981" />
-                </View>
-                <Text style={styles.statValue}>{stats.correctAnswers}</Text>
-                <Text style={styles.statLabel}>Correctes</Text>
-              </View>
-
-              <View style={styles.statCard}>
-                <View style={[styles.statIcon, { backgroundColor: 'rgba(239, 68, 68, 0.2)' }]}>
-                  <Ionicons name="close-circle" size={24} color="#EF4444" />
-                </View>
-                <Text style={styles.statValue}>{stats.incorrectAnswers}</Text>
-                <Text style={styles.statLabel}>Incorrectes</Text>
-              </View>
-
-              {stats.partialAnswers > 0 && (
-                <View style={styles.statCard}>
-                  <View style={[styles.statIcon, { backgroundColor: 'rgba(245, 158, 11, 0.2)' }]}>
-                    <Ionicons name="remove-circle" size={24} color="#F59E0B" />
+          {/* Détail du barème */}
+          <FadeInView duration={600} delay={300}>
+            <View style={styles.detailSection}>
+              <Text style={styles.sectionTitle}>Détail du calcul</Text>
+              <View style={styles.detailCard}>
+                <View style={styles.detailRow}>
+                  <View style={styles.detailLeft}>
+                    <View style={[styles.detailIcon, { backgroundColor: 'rgba(16, 185, 129, 0.2)' }]}>
+                      <Ionicons name="checkmark" size={14} color="#10B981" />
+                    </View>
+                    <Text style={styles.detailLabel}>Correctes</Text>
                   </View>
-                  <Text style={styles.statValue}>{stats.partialAnswers}</Text>
-                  <Text style={styles.statLabel}>Partielles</Text>
+                  <Text style={styles.detailCalc}>
+                    {stats.correctAnswers} × {config.scoring.correct} = 
+                  </Text>
+                  <Text style={[styles.detailResult, { color: '#10B981' }]}>
+                    +{(stats.correctAnswers * config.scoring.correct).toFixed(0)}
+                  </Text>
                 </View>
+
+                {stats.incorrectAnswers > 0 && (
+                  <View style={styles.detailRow}>
+                    <View style={styles.detailLeft}>
+                      <View style={[styles.detailIcon, { backgroundColor: 'rgba(239, 68, 68, 0.2)' }]}>
+                        <Ionicons name="close" size={14} color="#EF4444" />
+                      </View>
+                      <Text style={styles.detailLabel}>Incorrectes</Text>
+                    </View>
+                    <Text style={styles.detailCalc}>
+                      {stats.incorrectAnswers} × {config.scoring.incorrect} = 
+                    </Text>
+                    <Text style={[styles.detailResult, { color: '#EF4444' }]}>
+                      {(stats.incorrectAnswers * config.scoring.incorrect).toFixed(0)}
+                    </Text>
+                  </View>
+                )}
+
+                {stats.skippedAnswers > 0 && (
+                  <View style={styles.detailRow}>
+                    <View style={styles.detailLeft}>
+                      <View style={[styles.detailIcon, { backgroundColor: 'rgba(156, 163, 175, 0.2)' }]}>
+                        <Ionicons name="remove" size={14} color="#9CA3AF" />
+                      </View>
+                      <Text style={styles.detailLabel}>Passées</Text>
+                    </View>
+                    <Text style={styles.detailCalc}>
+                      {stats.skippedAnswers} × {config.scoring.skipped} = 
+                    </Text>
+                    <Text style={[styles.detailResult, { color: '#9CA3AF' }]}>
+                      {(stats.skippedAnswers * config.scoring.skipped).toFixed(0)}
+                    </Text>
+                  </View>
+                )}
+
+                <View style={styles.detailSeparator} />
+                
+                <View style={styles.detailTotal}>
+                  <Text style={styles.detailTotalLabel}>SCORE TOTAL</Text>
+                  <Text style={styles.detailTotalValue}>{stats.totalScore.toFixed(0)} pts</Text>
+                </View>
+              </View>
+            </View>
+          </FadeInView>
+
+          {/* Progression des grades */}
+          {gradeProgress && (
+            <FadeInView duration={600} delay={400}>
+              <View style={styles.gradeSection}>
+                <Text style={styles.sectionTitle}>Progression</Text>
+                <View style={styles.gradeCard}>
+                  {/* Points gagnés */}
+                  <View style={styles.pointsEarned}>
+                    <Text style={styles.pointsEarnedLabel}>Points gagnés</Text>
+                    <View style={styles.pointsEarnedBadge}>
+                      <Text style={styles.pointsEarnedValue}>+{Math.round(totalPoints || 0)}</Text>
+                    </View>
+                  </View>
+
+                  {/* Grade actuel */}
+                  <View style={styles.currentGrade}>
+                    <Image 
+                      source={getGradeImage(gradeProgress.currentGrade.imageName)}
+                      style={styles.gradeImage}
+                      resizeMode="contain"
+                    />
+                    <View style={styles.gradeInfo}>
+                      <Text style={styles.gradeName}>{gradeProgress.currentGrade.name}</Text>
+                      <Text style={styles.gradePointsTotal}>{formatPoints(userTotalPoints)} points</Text>
+                    </View>
+                  </View>
+
+                  {/* Barre de progression */}
+                  {gradeProgress.nextGrade && (
+                    <>
+                      <View style={styles.progressContainer}>
+                        <View style={styles.progressBar}>
+                          <View 
+                            style={[
+                              styles.progressFill,
+                              { 
+                                width: `${gradeProgress.progress}%`,
+                                backgroundColor: gradeProgress.currentGrade.color,
+                              }
+                            ]}
+                          />
+                        </View>
+                        <Text style={styles.progressText}>{gradeProgress.progress.toFixed(0)}%</Text>
+                      </View>
+
+                      {/* Prochain grade */}
+                      <View style={styles.nextGrade}>
+                        <Image 
+                          source={getGradeImage(gradeProgress.nextGrade.imageName)}
+                          style={styles.nextGradeImage}
+                          resizeMode="contain"
+                        />
+                        <View style={styles.nextGradeInfo}>
+                          <Text style={styles.nextGradeLabel}>Prochain grade</Text>
+                          <Text style={styles.nextGradeName}>{gradeProgress.nextGrade.name}</Text>
+                          <Text style={styles.nextGradePoints}>
+                            {formatPoints(gradeProgress.pointsNeeded)} points restants
+                          </Text>
+                        </View>
+                      </View>
+                    </>
+                  )}
+
+                  {/* Grade maximum */}
+                  {!gradeProgress.nextGrade && (
+                    <View style={styles.maxGrade}>
+                      <Ionicons name="trophy" size={32} color="#FFD700" />
+                      <Text style={styles.maxGradeText}>Grade maximum atteint !</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </FadeInView>
+          )}
+
+          {/* Badges */}
+          {badges.filter(b => b.earned).length > 0 && (
+            <FadeInView duration={600} delay={500}>
+              <BadgeDisplay badges={badges} />
+            </FadeInView>
+          )}
+
+          {/* Actions */}
+          <FadeInView duration={600} delay={600}>
+            <View style={styles.actions}>
+              {(stats.incorrectAnswers > 0 || questionsToReview.length > 0) && (
+                <TouchableOpacity
+                  style={styles.reviewButton}
+                  onPress={handleReviewErrors}
+                  activeOpacity={0.8}
+                >
+                  <LinearGradient
+                    colors={modalTheme.gradients.secondary}
+                    style={styles.buttonGradient}
+                  >
+                    <Ionicons name="school" size={20} color="#FFFFFF" />
+                    <Text style={styles.buttonText}>
+                      Revoir les erreurs ({stats.incorrectAnswers + questionsToReview.length})
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
               )}
 
-              <View style={styles.statCard}>
-                <View style={[styles.statIcon, { backgroundColor: 'rgba(107, 114, 128, 0.2)' }]}>
-                  <Ionicons name="time" size={24} color="#6B7280" />
-                </View>
-                <Text style={styles.statValue}>{stats.averageTime.toFixed(1)}s</Text>
-                <Text style={styles.statLabel}>Temps moy.</Text>
+              <View style={styles.secondaryActions}>
+                <TouchableOpacity
+                  style={styles.secondaryButton}
+                  onPress={() => setShowDetails(!showDetails)}
+                >
+                  <Ionicons name={showDetails ? 'eye-off' : 'eye'} size={18} color={theme.colors.white} />
+                  <Text style={styles.secondaryButtonText}>Détails</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.secondaryButton}
+                  onPress={shareResults}
+                >
+                  <Ionicons name="share-social" size={18} color={theme.colors.white} />
+                  <Text style={styles.secondaryButtonText}>Partager</Text>
+                </TouchableOpacity>
               </View>
+
+              <TouchableOpacity
+                style={styles.newSessionButton}
+                onPress={handleNewSession}
+              >
+                <LinearGradient
+                  colors={modalTheme.gradients.primary}
+                  style={styles.buttonGradient}
+                >
+                  <Ionicons name="refresh" size={22} color="#FFFFFF" />
+                  <Text style={styles.buttonText}>Nouvelle session</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.homeButton}
+                onPress={handleBackToHome}
+              >
+                <Text style={styles.homeButtonText}>Retour à l'accueil</Text>
+              </TouchableOpacity>
             </View>
           </FadeInView>
 
           {/* Détails des questions */}
           {showDetails && (
-            <FadeInView duration={600} delay={0}>
+            <FadeInView duration={400}>
               <View style={styles.detailsSection}>
-                <Text style={styles.detailsTitle}>Détail des réponses</Text>
+                <Text style={styles.detailsSectionTitle}>Détail des réponses</Text>
                 {questions.map((question, index) => {
                   const answer = sessionAnswers[index];
                   return (
-                    <View key={question.id} style={styles.questionDetail}>
+                    <View key={question.id} style={styles.questionItem}>
                       <View style={styles.questionHeader}>
                         <Ionicons
                           name={answer.isCorrect ? 'checkmark-circle' : 'close-circle'}
-                          size={20}
+                          size={18}
                           color={answer.isCorrect ? '#10B981' : '#EF4444'}
                         />
                         <Text style={styles.questionNumber}>Question {index + 1}</Text>
-                        <Text style={styles.questionTime}>{answer.timeSpent.toFixed(1)}s</Text>
+                        <Text style={styles.questionTime}>{answer.timeSpent.toFixed(0)}s</Text>
                       </View>
                       <Text style={styles.questionText} numberOfLines={2}>
                         {question.question}
@@ -363,71 +615,6 @@ export function TrainingReportScreen(): React.ReactElement {
               </View>
             </FadeInView>
           )}
-
-          {/* Boutons d'action */}
-          <FadeInView duration={600} delay={600}>
-            <View style={styles.actionButtons}>
-              {(stats.incorrectAnswers > 0 || questionsToReview.length > 0) && (
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.reviewButton]}
-                  onPress={handleReviewErrors}
-                >
-                  <Ionicons name="school" size={20} color="#FFFFFF" />
-                  <Text style={styles.actionButtonText}>
-                    Mode Rattrapage ({stats.incorrectAnswers + questionsToReview.length})
-                  </Text>
-                </TouchableOpacity>
-              )}
-
-              <TouchableOpacity
-                style={[styles.actionButton, styles.detailsButton]}
-                onPress={() => setShowDetails(!showDetails)}
-              >
-                <Ionicons
-                  name={showDetails ? 'chevron-up' : 'chevron-down'}
-                  size={20}
-                  color="#8B5CF6"
-                />
-                <Text style={[styles.actionButtonText, { color: '#8B5CF6' }]}>
-                  {showDetails ? 'Masquer' : 'Voir'} les détails
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.actionButton, styles.shareButton]}
-                onPress={shareResults}
-              >
-                <Ionicons name="share-social" size={20} color="#FFFFFF" />
-                <Text style={styles.actionButtonText}>Partager</Text>
-              </TouchableOpacity>
-            </View>
-          </FadeInView>
-
-          {/* Boutons de navigation */}
-          <FadeInView duration={600} delay={800}>
-            <View style={styles.navigationButtons}>
-              <TouchableOpacity
-                style={styles.newSessionButton}
-                onPress={handleNewSession}
-              >
-                <LinearGradient
-                  colors={['#8B5CF6', '#7C3AED']}
-                  style={styles.gradientButton}
-                >
-                  <Ionicons name="refresh" size={24} color="#FFFFFF" />
-                  <Text style={styles.newSessionText}>Nouvelle session</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.homeButton}
-                onPress={handleBackToHome}
-              >
-                <Ionicons name="home" size={20} color="rgba(255, 255, 255, 0.8)" />
-                <Text style={styles.homeButtonText}>Accueil</Text>
-              </TouchableOpacity>
-            </View>
-          </FadeInView>
         </ScrollView>
       </SafeAreaView>
     </GradientBackground>
@@ -439,196 +626,350 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl * 2,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 32,
   },
   header: {
     alignItems: 'center',
-    marginBottom: theme.spacing.xl,
+    marginBottom: 24,
   },
   headerTitle: {
-    fontSize: theme.typography.fontSize.xxl,
-    fontWeight: 'bold',
-    color: theme.colors.white,
-    marginBottom: theme.spacing.xs,
-  },
-  headerSubtitle: {
-    fontSize: theme.typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.6)',
-  },
-  mainScoreCard: {
-    marginBottom: theme.spacing.xl,
-  },
-  scoreGradient: {
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.xl,
-    alignItems: 'center',
-  },
-  gradeEmoji: {
-    fontSize: 48,
-    marginBottom: theme.spacing.md,
-  },
-  scoreValue: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: theme.colors.white,
-  },
-  scoreLabel: {
-    fontSize: theme.typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.6)',
-    letterSpacing: 2,
-    marginTop: theme.spacing.xs,
-  },
-  successRateContainer: {
-    marginTop: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.lg,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: theme.borderRadius.full,
-  },
-  successRate: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: '600',
-  },
-  gradeMessage: {
-    fontSize: theme.typography.fontSize.base,
-    color: theme.colors.white,
-    marginTop: theme.spacing.md,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.xl,
-  },
-  statCard: {
-    width: '48%',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
-  },
-  statIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: theme.spacing.sm,
-  },
-  statValue: {
-    fontSize: theme.typography.fontSize.xl,
+    fontSize: 28,
     fontWeight: 'bold',
     color: theme.colors.white,
     marginBottom: 4,
   },
-  statLabel: {
-    fontSize: theme.typography.fontSize.xs,
+  headerDate: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  scoreSection: {
+    marginBottom: 20,
+  },
+  scoreCard: {
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  scoreTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  scoreInfo: {
+    flex: 1,
+    marginLeft: 20,
+  },
+  scorePoints: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+  },
+  scoreLabel: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: 8,
+  },
+  scoreMessage: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  quickStats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  quickStatItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  quickStatValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+    marginTop: 4,
+  },
+  quickStatLabel: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginTop: 2,
+  },
+  quickStatDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  detailSection: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginBottom: 12,
+  },
+  detailCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  detailLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  detailIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  detailCalc: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginRight: 8,
+  },
+  detailResult: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    minWidth: 40,
+    textAlign: 'right',
+  },
+  detailSeparator: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginVertical: 12,
+  },
+  detailTotal: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  detailTotalLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.white,
+  },
+  detailTotalValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: modalTheme.colors.primary,
+  },
+  gradeSection: {
+    marginBottom: 20,
+  },
+  gradeCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  pointsEarned: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  pointsEarnedLabel: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  pointsEarnedBadge: {
+    backgroundColor: modalTheme.colors.success,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  pointsEarnedValue: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  currentGrade: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  gradeImage: {
+    width: 60,
+    height: 60,
+    marginRight: 12,
+  },
+  gradeInfo: {
+    flex: 1,
+  },
+  gradeName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+  },
+  gradePointsTotal: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  progressContainer: {
+    marginBottom: 16,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  progressText: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.5)',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  nextGrade: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    padding: 12,
+    borderRadius: 8,
+  },
+  nextGradeImage: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
+    opacity: 0.6,
+  },
+  nextGradeInfo: {
+    flex: 1,
+  },
+  nextGradeLabel: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.5)',
+    textTransform: 'uppercase',
+  },
+  nextGradeName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.white,
+  },
+  nextGradePoints: {
+    fontSize: 12,
+    color: modalTheme.colors.warning,
+  },
+  maxGrade: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  maxGradeText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFD700',
+    marginTop: 8,
+  },
+  actions: {
+    marginTop: 20,
+  },
+  reviewButton: {
+    marginBottom: 12,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  buttonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginLeft: 8,
+  },
+  secondaryActions: {
+    flexDirection: 'row',
+    marginBottom: 12,
+  },
+  secondaryButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    paddingVertical: 12,
+    marginHorizontal: 4,
+  },
+  secondaryButtonText: {
+    fontSize: 14,
+    color: theme.colors.white,
+    marginLeft: 6,
+  },
+  newSessionButton: {
+    marginBottom: 12,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  homeButton: {
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  homeButtonText: {
+    fontSize: 14,
     color: 'rgba(255, 255, 255, 0.6)',
   },
   detailsSection: {
+    marginTop: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.lg,
-    marginBottom: theme.spacing.xl,
+    borderRadius: 12,
+    padding: 16,
   },
-  detailsTitle: {
-    fontSize: theme.typography.fontSize.lg,
-    fontWeight: 'bold',
+  detailsSectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
     color: theme.colors.white,
-    marginBottom: theme.spacing.md,
+    marginBottom: 12,
   },
-  questionDetail: {
-    paddingVertical: theme.spacing.md,
+  questionItem: {
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
   },
   questionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: theme.spacing.sm,
+    marginBottom: 6,
   },
   questionNumber: {
     flex: 1,
-    marginLeft: theme.spacing.sm,
-    fontSize: theme.typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '600',
+    marginLeft: 8,
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontWeight: '500',
   },
   questionTime: {
-    fontSize: theme.typography.fontSize.xs,
+    fontSize: 12,
     color: 'rgba(255, 255, 255, 0.5)',
   },
   questionText: {
-    fontSize: theme.typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.7)',
-    lineHeight: 20,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: theme.spacing.xl,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-    marginBottom: theme.spacing.sm,
-    minWidth: '48%',
-    justifyContent: 'center',
-  },
-  reviewButton: {
-    backgroundColor: '#EF4444',
-  },
-  detailsButton: {
-    backgroundColor: 'rgba(139, 92, 246, 0.2)',
-    borderWidth: 1,
-    borderColor: '#8B5CF6',
-  },
-  shareButton: {
-    backgroundColor: '#3B82F6',
-  },
-  actionButtonText: {
-    marginLeft: theme.spacing.sm,
-    fontSize: theme.typography.fontSize.sm,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  navigationButtons: {
-    gap: theme.spacing.md,
-  },
-  newSessionButton: {
-    marginBottom: theme.spacing.md,
-  },
-  gradientButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: theme.spacing.lg,
-    borderRadius: theme.borderRadius.lg,
-  },
-  newSessionText: {
-    marginLeft: theme.spacing.sm,
-    fontSize: theme.typography.fontSize.base,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  homeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: theme.spacing.md,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: theme.borderRadius.lg,
-  },
-  homeButtonText: {
-    marginLeft: theme.spacing.sm,
-    fontSize: theme.typography.fontSize.base,
-    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.6)',
+    lineHeight: 18,
   },
 });

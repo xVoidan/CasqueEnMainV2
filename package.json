@@ -70,7 +70,7 @@
     "react-native-safe-area-context": "latest",
     "react-native-screens": "latest",
     "react-native-skeleton-placeholder": "^5.2.4",
-    "react-native-svg": "^15.11.2",
+    "react-native-svg": "^15.12.1",
     "react-native-tab-view": "^4.1.3",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "latest",

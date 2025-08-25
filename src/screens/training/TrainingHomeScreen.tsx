@@ -12,7 +12,10 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GradientBackground } from '../../components/common/GradientBackground';
+import { sessionServiceV3 as sessionService } from '@/src/services/sessionServiceV3';
 import { FadeInView } from '../../components/animations/FadeInView';
+import { SessionDeleteConfirmation } from '../../components/notifications/SessionDeleteConfirmation';
+import { TrainingLegendModal } from '../../components/training/TrainingLegendModal';
 import { theme } from '../../styles/theme';
 import { useAuth } from '@/src/store/AuthContext';
 
@@ -25,7 +28,6 @@ interface SavedPreset {
 }
 
 const PRESETS_STORAGE_KEY = '@training_presets';
-const SESSION_STORAGE_KEY = '@training_session_progress';
 
 export function TrainingHomeScreen(): React.ReactElement {
   const router = useRouter();
@@ -33,6 +35,9 @@ export function TrainingHomeScreen(): React.ReactElement {
   const { user } = useAuth();
   const [savedPresets, setSavedPresets] = useState<SavedPreset[]>([]);
   const [pausedSession, setPausedSession] = useState<any>(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [pendingDeleteSession, setPendingDeleteSession] = useState<any>(null);
+  const [showLegendModal, setShowLegendModal] = useState(false);
 
   useEffect(() => {
     loadPresets();
@@ -62,21 +67,19 @@ export function TrainingHomeScreen(): React.ReactElement {
     if (!user) return;
 
     try {
-      const savedProgress = await AsyncStorage.getItem(`${SESSION_STORAGE_KEY}_${user.id}`);
+      // Utiliser le nouveau service pour récupérer depuis local + cloud
+      const savedProgress = await sessionService.getPausedSession(user.id);
       if (savedProgress) {
-        const parsed = JSON.parse(savedProgress);
+        const isSessionIncomplete = savedProgress.currentQuestionIndex < savedProgress.totalQuestions - 1;
 
-        // Vérifier si c'est une session récente et non terminée
-        const hoursSinceLastSave = (Date.now() - parsed.timestamp) / (1000 * 60 * 60);
-        const isSessionIncomplete = parsed.currentQuestionIndex < (parsed.totalQuestions || 0) - 1;
-
-        if (hoursSinceLastSave < 24 && isSessionIncomplete) {
-          setPausedSession(parsed);
+        if (isSessionIncomplete) {
+          setPausedSession(savedProgress);
+          console.log('Session en pause récupérée depuis cloud/local');
         } else {
-          // Session trop ancienne ou terminée, la supprimer
-          await AsyncStorage.removeItem(`${SESSION_STORAGE_KEY}_${user.id}`);
           setPausedSession(null);
         }
+      } else {
+        setPausedSession(null);
       }
     } catch (error) {
       console.error('Erreur vérification session en pause:', error);
@@ -96,23 +99,16 @@ export function TrainingHomeScreen(): React.ReactElement {
   };
 
   const handleDeletePausedSession = () => {
-    Alert.alert(
-      'Supprimer la session',
-      'Attention : En supprimant cette session, vous perdrez tous les points et statistiques associés. Êtes-vous sûr ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: async () => {
-            if (user) {
-              await AsyncStorage.removeItem(`${SESSION_STORAGE_KEY}_${user.id}`);
-              setPausedSession(null);
-            }
-          },
-        },
-      ],
-    );
+    if (pausedSession) {
+      const correctAnswers = pausedSession.sessionAnswers?.filter((a: any) => a.isCorrect).length || 0;
+      setPendingDeleteSession({
+        currentQuestion: pausedSession.currentQuestionIndex + 1,
+        totalQuestions: pausedSession.totalQuestions,
+        totalPoints: pausedSession.totalPoints || 0,
+        correctAnswers,
+      });
+      setShowDeleteConfirmation(true);
+    }
   };
 
   const handleQuickStart = () => {
@@ -262,6 +258,24 @@ export function TrainingHomeScreen(): React.ReactElement {
                   <Ionicons name="chevron-forward" size={24} color={theme.colors.primary} />
                 </View>
               </TouchableOpacity>
+
+              {/* Bouton Guide/Légende */}
+              <TouchableOpacity
+                style={styles.helpCard}
+                onPress={() => setShowLegendModal(true)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.helpCardInner}>
+                  <Ionicons name="help-circle-outline" size={28} color="#3B82F6" />
+                  <View style={styles.helpCardContent}>
+                    <Text style={styles.helpCardTitle}>GUIDE D'UTILISATION</Text>
+                    <Text style={styles.helpCardDesc}>
+                      Découvrez les éléments de l'interface
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color="#3B82F6" />
+                </View>
+              </TouchableOpacity>
             </View>
           </FadeInView>
 
@@ -317,6 +331,36 @@ export function TrainingHomeScreen(): React.ReactElement {
           </FadeInView>
         </ScrollView>
       </SafeAreaView>
+
+      {/* Modal de légende/guide */}
+      <TrainingLegendModal
+        visible={showLegendModal}
+        onClose={() => setShowLegendModal(false)}
+      />
+
+      {/* Modal de confirmation de suppression */}
+      <SessionDeleteConfirmation
+        visible={showDeleteConfirmation}
+        sessionInfo={pendingDeleteSession || {
+          currentQuestion: 1,
+          totalQuestions: 0,
+          totalPoints: 0,
+          correctAnswers: 0,
+        }}
+        onConfirm={async () => {
+          if (user) {
+            await sessionService.clearPausedSession(user.id);
+            setPausedSession(null);
+            console.log('Session en pause supprimée');
+          }
+          setShowDeleteConfirmation(false);
+          setPendingDeleteSession(null);
+        }}
+        onCancel={() => {
+          setShowDeleteConfirmation(false);
+          setPendingDeleteSession(null);
+        }}
+      />
     </GradientBackground>
   );
 }
@@ -424,6 +468,32 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   customModeDesc: {
+    fontSize: theme.typography.fontSize.sm,
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  helpCard: {
+    marginBottom: theme.spacing.lg,
+  },
+  helpCardInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xl,
+    borderWidth: 2,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
+  },
+  helpCardContent: {
+    flex: 1,
+    marginLeft: theme.spacing.md,
+  },
+  helpCardTitle: {
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+    marginBottom: 4,
+  },
+  helpCardDesc: {
     fontSize: theme.typography.fontSize.sm,
     color: 'rgba(255, 255, 255, 0.7)',
   },

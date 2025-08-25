@@ -10,28 +10,32 @@ import {
   Animated,
   Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GradientBackground } from '../../components/common/GradientBackground';
 import { FadeInView } from '../../components/animations/FadeInView';
 import { SessionPauseNotification } from '../../components/notifications/SessionPauseNotification';
+import { SessionDeleteConfirmation } from '../../components/notifications/SessionDeleteConfirmation';
+import { SessionResumeModal } from '../../components/notifications/SessionResumeModal';
+import { TrainingLegendModal } from '../../components/training/TrainingLegendModal';
 import { theme } from '../../styles/theme';
 import { questionService, IQuestion } from '@/src/services/questionService';
 import { useAuth } from '@/src/store/AuthContext';
 import { soundService } from '@/src/services/soundService';
 import { supabase } from '@/src/lib/supabase';
+import { sessionServiceV3 as sessionService, IPausedSession } from '@/src/services/sessionServiceV3';
+import { generateUUID } from '@/src/utils/uuid';
 
 import { ISessionConfig, ISessionAnswer } from '@/src/types/training';
-
-const SESSION_STORAGE_KEY = '@training_session_progress';
 
 export function TrainingSessionScreenV2(): React.ReactElement {
   const router = useRouter();
   const { user } = useAuth();
-  const { config } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const { config } = params;
   const sessionConfig: ISessionConfig | null = config ? JSON.parse(config as string) : null;
 
   // États
@@ -46,8 +50,13 @@ export function TrainingSessionScreenV2(): React.ReactElement {
     sessionConfig?.timerEnabled ? sessionConfig.timerDuration : null,
   );
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
-  const [sessionId] = useState(Date.now().toString());
+  const [sessionId, setSessionId] = useState<string>(generateUUID()); // UUID valide pour Supabase
   const [showPauseNotification, setShowPauseNotification] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [pendingDeleteSession, setPendingDeleteSession] = useState<any>(null);
+  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [pendingResumeSession, setPendingResumeSession] = useState<any>(null);
+  const [showLegendModal, setShowLegendModal] = useState(false);
 
   // États pour les performances
   const [streak, setStreak] = useState(0);
@@ -69,6 +78,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
   // Charger les questions au démarrage
   useEffect(() => {
     loadQuestions();
+    checkFirstTime();
     return () => {
       // Sauvegarder la progression en quittant
       if (questions.length > 0 && currentQuestionIndex < questions.length - 1) {
@@ -76,6 +86,20 @@ export function TrainingSessionScreenV2(): React.ReactElement {
       }
     };
   }, []);
+
+  const checkFirstTime = async () => {
+    try {
+      const hasSeenLegend = await AsyncStorage.getItem('hasSeenTrainingLegend');
+      if (!hasSeenLegend) {
+        setTimeout(() => {
+          setShowLegendModal(true);
+          AsyncStorage.setItem('hasSeenTrainingLegend', 'true');
+        }, 1000);
+      }
+    } catch (error) {
+      console.log('Erreur lors de la vérification de première utilisation:', error);
+    }
+  };
 
   const loadQuestions = async () => {
     if (!sessionConfig) {
@@ -106,6 +130,17 @@ export function TrainingSessionScreenV2(): React.ReactElement {
       } else {
         setQuestions(loadedQuestions);
 
+        // Créer une session dans Supabase si l'utilisateur est connecté
+        if (user && !params.resumeSession) {
+          try {
+            const newSession = await sessionService.createOrResumeSession(sessionConfig, user.id);
+            setSessionId(newSession.id); // Utiliser l'ID généré par le service
+            console.log('Session créée dans Supabase avec ID:', newSession.id);
+          } catch (error) {
+            console.error('Erreur création session:', error);
+          }
+        }
+
         // Vérifier s'il y a une session sauvegardée
         await checkSavedProgress();
       }
@@ -127,57 +162,24 @@ export function TrainingSessionScreenV2(): React.ReactElement {
     if (!user) return;
 
     try {
-      const savedProgress = await AsyncStorage.getItem(`${SESSION_STORAGE_KEY}_${user.id}`);
+      // Utiliser le nouveau service pour récupérer depuis local + cloud
+      const savedProgress = await sessionService.getPausedSession(user.id);
       if (savedProgress) {
-        const parsed = JSON.parse(savedProgress);
+        const isSessionIncomplete = savedProgress.currentQuestionIndex < savedProgress.totalQuestions - 1;
 
-        // Vérifier si c'est une session récente (moins de 24h) ET non terminée
-        const hoursSinceLastSave = (Date.now() - parsed.timestamp) / (1000 * 60 * 60);
-        const isSessionIncomplete = parsed.currentQuestionIndex < (parsed.totalQuestions || questions.length) - 1;
-
-        if (hoursSinceLastSave < 24 && isSessionIncomplete) {
-          Alert.alert(
-            'Session en cours',
-            `Voulez-vous reprendre votre session précédente ? (Question ${parsed.currentQuestionIndex + 1}/${parsed.totalQuestions || questions.length})`,
-            [
-              {
-                text: 'Supprimer',
-                onPress: () => {
-                  Alert.alert(
-                    'Supprimer la session',
-                    'Attention : En supprimant cette session, vous perdrez tous les points et statistiques associés. Êtes-vous sûr ?',
-                    [
-                      { text: 'Annuler', style: 'cancel' },
-                      {
-                        text: 'Supprimer',
-                        style: 'destructive',
-                        onPress: () => clearSavedProgress(),
-                      },
-                    ],
-                  );
-                },
-                style: 'destructive',
-              },
-              {
-                text: 'Nouvelle session',
-                onPress: () => clearSavedProgress(),
-                style: 'cancel',
-              },
-              {
-                text: 'Reprendre',
-                onPress: () => {
-                  setCurrentQuestionIndex(parsed.currentQuestionIndex);
-                  setSessionAnswers(parsed.sessionAnswers || []);
-                  setQuestionsToReview(parsed.questionsToReview || []);
-                  setTotalPoints(parsed.totalPoints || 0);
-                  setStreak(parsed.streak || 0);
-                },
-              },
-            ],
-          );
-        } else {
-          // Session trop ancienne ou terminée, la supprimer
-          clearSavedProgress();
+        if (isSessionIncomplete) {
+          // Préparer les infos pour le modal de reprise
+          const correctAnswers = savedProgress.sessionAnswers?.filter((a: ISessionAnswer) => a.isCorrect).length || 0;
+          setPendingResumeSession({
+            savedProgress,
+            sessionInfo: {
+              currentQuestion: savedProgress.currentQuestionIndex + 1,
+              totalQuestions: savedProgress.totalQuestions,
+              totalPoints: savedProgress.totalPoints || 0,
+              correctAnswers,
+            },
+          });
+          setShowResumeModal(true);
         }
       }
     } catch (err) {
@@ -194,23 +196,22 @@ export function TrainingSessionScreenV2(): React.ReactElement {
     }
 
     try {
-      const progressData = {
+      const progressData: IPausedSession = {
         sessionId,
+        userId: user.id,
+        config: sessionConfig!,
         currentQuestionIndex,
-        sessionAnswers,
-        questionsToReview,
+        totalQuestions: questions.length,
         totalPoints,
         streak,
+        questionsToReview,
+        sessionAnswers,
         timestamp: Date.now(),
-        totalQuestions: questions.length,
-        config: sessionConfig,
-        questions: questions, // Sauvegarder les questions pour pouvoir reprendre
       };
 
-      await AsyncStorage.setItem(
-        `${SESSION_STORAGE_KEY}_${user.id}`,
-        JSON.stringify(progressData),
-      );
+      // Utiliser le nouveau service avec sync cloud
+      await sessionService.savePausedSession(progressData, user.id);
+      console.log('Session mise en pause et synchronisée avec le cloud');
     } catch (err) {
       console.error('Erreur sauvegarde progression:', err);
     }
@@ -220,7 +221,9 @@ export function TrainingSessionScreenV2(): React.ReactElement {
     if (!user) return;
 
     try {
-      await AsyncStorage.removeItem(`${SESSION_STORAGE_KEY}_${user.id}`);
+      // Utiliser le nouveau service pour nettoyer local + cloud
+      await sessionService.clearPausedSession(user.id);
+      console.log('Session en pause supprimée (local + cloud)');
     } catch (err) {
       console.error('Erreur suppression progression:', err);
     }
@@ -305,6 +308,13 @@ export function TrainingSessionScreenV2(): React.ReactElement {
     setSessionAnswers(prev => [...prev, answer]);
     setIsValidated(true);
 
+    // Sauvegarder la réponse dans Supabase si l'utilisateur est connecté
+    if (user && sessionId) {
+      sessionService.saveAnswer(sessionId, answer, user.id).catch(error => {
+        console.error('Erreur sauvegarde réponse:', error);
+      });
+    }
+
     // Calculer les points et jouer les sons
     let pointsEarned = 0;
     if (isCorrect) {
@@ -316,8 +326,8 @@ export function TrainingSessionScreenV2(): React.ReactElement {
 
       // Animation de confettis pour 3+ bonnes réponses consécutives
       if (streak >= 2) {
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
+        _setShowConfetti(true);
+        setTimeout(() => _setShowConfetti(false), 3000);
         // Jouer le son de streak (utilise le feedback haptique pour l'instant)
         soundService.playSimpleStreak();
       }
@@ -408,6 +418,17 @@ export function TrainingSessionScreenV2(): React.ReactElement {
     // Jouer le son de fin de session (utilise le feedback haptique pour l'instant)
     soundService.playSimpleComplete();
 
+    // Terminer la session dans Supabase si l'utilisateur est connecté
+    if (user && sessionId) {
+      try {
+        const finalScore = (sessionAnswers.filter(a => a.isCorrect).length / sessionAnswers.length) * 100;
+        await sessionService.completeSession(sessionId, finalScore, totalPoints, user.id);
+        console.log('Session terminée dans Supabase');
+      } catch (error) {
+        console.error('Erreur finalisation session:', error);
+      }
+    }
+
     // IMPORTANT: Supprimer immédiatement la progression sauvegardée
     await clearSavedProgress();
 
@@ -438,7 +459,48 @@ export function TrainingSessionScreenV2(): React.ReactElement {
 
   const handleQuitFromPause = () => {
     setShowPauseNotification(false);
-    router.back();
+    // Rediriger vers l'écran d'entraînement libre avec refresh
+    router.replace(`/training/free?refresh=${  Date.now()}`);
+  };
+
+  const handleFinishSession = async () => {
+    setShowPauseNotification(false);
+
+    // Calculer les statistiques uniquement sur les questions répondues
+    const answeredQuestions = sessionAnswers.length;
+    if (answeredQuestions === 0) {
+      // Aucune question répondue, juste quitter
+      router.replace(`/training/free?refresh=${  Date.now()}`);
+      return;
+    }
+
+    // Préparer les statistiques finales
+    const finalScore = (sessionAnswers.filter(a => a.isCorrect).length / answeredQuestions) * 100;
+
+    // Terminer la session dans Supabase
+    if (user && sessionId) {
+      try {
+        await sessionService.completeSession(sessionId, finalScore, totalPoints, user.id);
+        console.log('Session terminée avec', answeredQuestions, 'questions répondues');
+      } catch (error) {
+        console.error('Erreur finalisation session:', error);
+      }
+    }
+
+    // Supprimer la session en pause
+    await clearSavedProgress();
+
+    // Rediriger vers l'écran de rapport
+    router.replace({
+      pathname: '/training/report',
+      params: {
+        sessionAnswers: JSON.stringify(sessionAnswers),
+        sessionDuration: ((Date.now() - questionStartTime) / 1000).toString(),
+        questionsToReview: JSON.stringify(questionsToReview),
+        totalPoints: totalPoints.toString(),
+        totalQuestions: answeredQuestions.toString(), // Utiliser le nombre de questions répondues
+      },
+    });
   };
 
 
@@ -559,12 +621,21 @@ export function TrainingSessionScreenV2(): React.ReactElement {
             </View>
           )}
 
-          <TouchableOpacity
-            style={styles.pauseButton}
-            onPress={handlePause}
-          >
-            <Ionicons name="pause" size={24} color={theme.colors.white} />
-          </TouchableOpacity>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity
+              style={styles.helpButton}
+              onPress={() => setShowLegendModal(true)}
+            >
+              <Ionicons name="help-circle-outline" size={24} color={theme.colors.white} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.pauseButton}
+              onPress={handlePause}
+            >
+              <Ionicons name="pause" size={24} color={theme.colors.white} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Indicateurs de performance */}
@@ -821,6 +892,12 @@ export function TrainingSessionScreenV2(): React.ReactElement {
 
       </SafeAreaView>
 
+      {/* Modal de légende/aide */}
+      <TrainingLegendModal
+        visible={showLegendModal}
+        onClose={() => setShowLegendModal(false)}
+      />
+
       {/* Notification de pause élégante */}
       <SessionPauseNotification
         visible={showPauseNotification}
@@ -828,9 +905,65 @@ export function TrainingSessionScreenV2(): React.ReactElement {
         totalQuestions={questions.length}
         points={totalPoints}
         streak={streak}
+        correctAnswers={sessionAnswers.filter(a => a.isCorrect).length}
         onContinue={handleContinueFromPause}
         onQuit={handleQuitFromPause}
+        onFinish={handleFinishSession}
         onClose={handleContinueFromPause}
+      />
+
+      {/* Modal de confirmation de suppression */}
+      <SessionDeleteConfirmation
+        visible={showDeleteConfirmation}
+        sessionInfo={pendingDeleteSession || {
+          currentQuestion: 1,
+          totalQuestions: questions.length,
+          totalPoints: 0,
+          correctAnswers: 0,
+        }}
+        onConfirm={() => {
+          setShowDeleteConfirmation(false);
+          clearSavedProgress();
+        }}
+        onCancel={() => {
+          setShowDeleteConfirmation(false);
+          setPendingDeleteSession(null);
+        }}
+      />
+
+      {/* Modal de reprise de session */}
+      <SessionResumeModal
+        visible={showResumeModal}
+        sessionInfo={pendingResumeSession?.sessionInfo || {
+          currentQuestion: 1,
+          totalQuestions: questions.length,
+          totalPoints: 0,
+          correctAnswers: 0,
+        }}
+        onResume={() => {
+          if (pendingResumeSession?.savedProgress) {
+            setCurrentQuestionIndex(pendingResumeSession.savedProgress.currentQuestionIndex);
+            setSessionAnswers(pendingResumeSession.savedProgress.sessionAnswers || []);
+            setQuestionsToReview(pendingResumeSession.savedProgress.questionsToReview || []);
+            setTotalPoints(pendingResumeSession.savedProgress.totalPoints || 0);
+            setStreak(pendingResumeSession.savedProgress.streak || 0);
+            console.log('Session reprise depuis le cloud/local');
+          }
+          setShowResumeModal(false);
+        }}
+        onNewSession={() => {
+          clearSavedProgress();
+          setShowResumeModal(false);
+        }}
+        onDelete={() => {
+          setShowResumeModal(false);
+          // Montrer le modal de suppression
+          if (pendingResumeSession?.sessionInfo) {
+            setPendingDeleteSession(pendingResumeSession.sessionInfo);
+            setShowDeleteConfirmation(true);
+          }
+        }}
+        onClose={() => setShowResumeModal(false)}
       />
     </GradientBackground>
   );
@@ -912,6 +1045,14 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.sm,
     fontWeight: 'bold',
     color: theme.colors.white,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  helpButton: {
+    padding: theme.spacing.sm,
   },
   pauseButton: {
     padding: theme.spacing.sm,

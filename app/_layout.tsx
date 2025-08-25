@@ -11,11 +11,15 @@ import { AuthProvider, useAuth } from '@/src/store/AuthContext';
 import { ThemeProvider } from '@/src/store/ThemeContext';
 import { ErrorBoundary } from '@/src/components/error/ErrorBoundary';
 import { OfflineNotice } from '@/src/components/network/OfflineNotice';
+import { useSessionSync } from '@/src/hooks/useSessionSync';
 
 function RootLayoutNav(): React.ReactElement {
   const { user, isGuest, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+
+  // Synchronisation automatique des sessions avec Supabase
+  useSessionSync();
 
   // Gérer les deep links pour la confirmation d'email
   useEffect(() => {

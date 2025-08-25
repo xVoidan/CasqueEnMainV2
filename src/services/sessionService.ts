@@ -71,10 +71,12 @@ class SessionService {
           });
 
         if (error) {
-
+          console.error('[SessionService] Erreur création session Supabase:', error);
+          // Ne pas bloquer, continuer en mode local
         }
-      } catch (_error) {
-
+      } catch (error) {
+        console.error('[SessionService] Erreur création session:', error);
+        // Continuer en mode local même si Supabase échoue
       }
     }
 
@@ -91,8 +93,8 @@ class SessionService {
         return JSON.parse(sessionData);
       }
       return null;
-    } catch (_error) {
-
+    } catch (error) {
+      console.error('[SessionService] Erreur récupération session:', error);
       return null;
     }
   }
@@ -131,12 +133,13 @@ class SessionService {
               is_partial: answer.isPartial,
               is_skipped: answer.isSkipped,
             });
-        } catch (_error) {
-
+        } catch (error) {
+          console.error('[SessionService] Erreur sauvegarde réponse Supabase:', error);
+          // Continuer en mode local
         }
       }
-    } catch (_error) {
-
+    } catch (error) {
+      console.error('[SessionService] Erreur sauvegarde réponse:', error);
       throw error;
     }
   }
@@ -183,14 +186,15 @@ class SessionService {
 
           // Mettre à jour les points de l'utilisateur
           await this.updateUserPoints(session.userId, pointsEarned);
-        } catch (_error) {
-
+        } catch (error) {
+          console.error('[SessionService] Erreur completion session Supabase:', error);
+          // Continuer en mode local
         }
       }
 
       return session;
-    } catch (_error) {
-
+    } catch (error) {
+      console.error('[SessionService] Erreur completion session:', error);
       throw error;
     }
   }
@@ -224,12 +228,12 @@ class SessionService {
               completed_at: session.completedAt,
             })
             .eq('id', sessionId);
-        } catch (_error) {
-
+        } catch (error) {
+          console.error('[SessionService] Erreur abandon session Supabase:', error);
         }
       }
-    } catch (_error) {
-
+    } catch (error) {
+      console.error('[SessionService] Erreur abandon session:', error);
     }
   }
 
@@ -244,8 +248,8 @@ class SessionService {
         return history.slice(0, limit);
       }
       return [];
-    } catch (_error) {
-
+    } catch (error) {
+      console.error('[SessionService] Erreur récupération historique:', error);
       return [];
     }
   }
@@ -274,8 +278,8 @@ class SessionService {
       }
 
       return this.calculateStats(data || []);
-    } catch (_error) {
-
+    } catch (error) {
+      console.error('[SessionService] Erreur récupération stats Supabase:', error);
       // Fallback sur les stats locales
       const history = await this.getSessionHistory(100);
       return this.calculateLocalStats(history);
@@ -297,8 +301,8 @@ class SessionService {
       const limitedHistory = history.slice(0, 50);
 
       await AsyncStorage.setItem(SESSION_HISTORY_KEY, JSON.stringify(limitedHistory));
-    } catch (_error) {
-
+    } catch (error) {
+      console.error('[SessionService] Erreur sauvegarde historique:', error);
     }
   }
 
@@ -319,7 +323,7 @@ class SessionService {
       }
 
       const currentPoints = profile?.total_points ?? 0;
-      const newPoints = currentPoints + points;
+      const newPoints = Math.round(currentPoints + points);
 
       // Mettre à jour les points
       const { error: updateError } = await supabase
@@ -330,8 +334,8 @@ class SessionService {
       if (updateError) {
         throw updateError;
       }
-    } catch (_error) {
-
+    } catch (error) {
+      console.error('[SessionService] Erreur mise à jour points:', error);
     }
   }
 
