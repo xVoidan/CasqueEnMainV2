@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Share,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -131,14 +130,14 @@ export function TrainingReportScreen(): React.ReactElement {
 
   const fetchUserPoints = async () => {
     if (!user) return;
-    
+
     try {
       const { data: profile } = await supabase
         .from('profiles')
         .select('total_points')
         .eq('user_id', user.id)
         .single();
-      
+
       if (profile) {
         // Points actuels plus les points gagnés dans cette session
         const newTotalPoints = (profile.total_points || 0) + Math.round(totalPoints || 0);
@@ -352,9 +351,9 @@ export function TrainingReportScreen(): React.ReactElement {
                         <Text style={styles.scoringValue}>{stats.totalQuestions}</Text>
                       </View>
                     </View>
-                    
+
                     <View style={styles.scoringDivider} />
-                    
+
                     <View style={styles.scoringRow}>
                       <View style={styles.scoringLeft}>
                         <View style={styles.scoringIcon}>
@@ -367,7 +366,7 @@ export function TrainingReportScreen(): React.ReactElement {
                         <Text style={styles.scoringResultGreen}>+{(stats.correctAnswers * config.scoring.correct).toFixed(1)}</Text>
                       </View>
                     </View>
-                    
+
                     {stats.incorrectAnswers > 0 && (
                       <View style={styles.scoringRow}>
                         <View style={styles.scoringLeft}>
@@ -382,7 +381,7 @@ export function TrainingReportScreen(): React.ReactElement {
                         </View>
                       </View>
                     )}
-                    
+
                     {stats.skippedAnswers > 0 && (
                       <View style={styles.scoringRow}>
                         <View style={styles.scoringLeft}>
@@ -397,9 +396,9 @@ export function TrainingReportScreen(): React.ReactElement {
                         </View>
                       </View>
                     )}
-                    
+
                     <View style={styles.scoringTotalDivider} />
-                    
+
                     <View style={styles.scoringRow}>
                       <View style={styles.scoringLeft}>
                         <Text style={styles.scoringTotalLabel}>SCORE FINAL</Text>
@@ -448,14 +447,14 @@ export function TrainingReportScreen(): React.ReactElement {
                       <>
                         <View style={styles.progressBarContainer}>
                           <View style={styles.progressBarBackground}>
-                            <View 
+                            <View
                               style={[
-                                styles.progressBarFill, 
-                                { 
+                                styles.progressBarFill,
+                                {
                                   width: `${gradeProgress.progress}%`,
-                                  backgroundColor: gradeProgress.currentGrade.color 
-                                }
-                              ]} 
+                                  backgroundColor: gradeProgress.currentGrade.color,
+                                },
+                              ]}
                             />
                           </View>
                           <Text style={styles.progressPercentage}>{gradeProgress.progress.toFixed(0)}%</Text>

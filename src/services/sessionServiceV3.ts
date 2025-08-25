@@ -142,12 +142,20 @@ class SessionServiceV3 {
    */
   private async saveSessionToSupabase(session: ISession, attemptNumber: number): Promise<void> {
     if (attemptNumber >= MAX_RETRY_ATTEMPTS) {
-      console.error('[SessionServiceV3] Max retry attempts reached for session:', session.id);
+      console.warn('[SessionServiceV3] Max retry attempts reached for session:', session.id);
       this.retryQueue.set(session.id, session);
       return;
     }
 
     try {
+      // Vérifier si nous avons une connexion internet
+      const isOnline = await this.checkNetworkConnection();
+      if (!isOnline) {
+        console.warn('[SessionServiceV3] Pas de connexion réseau, mise en file d\'attente');
+        this.retryQueue.set(session.id, session);
+        return;
+      }
+
       const { error } = await supabase
         .from('sessions')
         .upsert({
@@ -163,19 +171,46 @@ class SessionServiceV3 {
         });
 
       if (error) {
-        console.error(`[SessionServiceV3] Attempt ${attemptNumber + 1} failed:`, error);
-        setTimeout(() => {
-          this.saveSessionToSupabase(session, attemptNumber + 1);
-        }, RETRY_DELAY * Math.pow(2, attemptNumber));
+        // Si c'est une erreur réseau, réessayer
+        if (error.message?.includes('Network request failed') || error.message?.includes('fetch')) {
+          console.warn(`[SessionServiceV3] Erreur réseau, tentative ${attemptNumber + 1}/${MAX_RETRY_ATTEMPTS}`);
+          setTimeout(() => {
+            this.saveSessionToSupabase(session, attemptNumber + 1);
+          }, RETRY_DELAY * Math.pow(2, attemptNumber));
+        } else {
+          // Autre type d'erreur (ex: validation), ne pas réessayer
+          console.error('[SessionServiceV3] Erreur non-réseau:', error);
+        }
       } else {
         console.log('[SessionServiceV3] Session upserted dans Supabase:', session.id);
         this.retryQueue.delete(session.id);
       }
-    } catch (error) {
-      console.error(`[SessionServiceV3] Network error attempt ${attemptNumber + 1}:`, error);
-      setTimeout(() => {
-        this.saveSessionToSupabase(session, attemptNumber + 1);
-      }, RETRY_DELAY * Math.pow(2, attemptNumber));
+    } catch (error: any) {
+      // Erreur réseau capturée
+      if (error?.message?.includes('Network request failed') || error?.message?.includes('fetch')) {
+        console.warn(`[SessionServiceV3] Erreur réseau capturée, tentative ${attemptNumber + 1}/${MAX_RETRY_ATTEMPTS}`);
+        setTimeout(() => {
+          this.saveSessionToSupabase(session, attemptNumber + 1);
+        }, RETRY_DELAY * Math.pow(2, attemptNumber));
+      } else {
+        console.error('[SessionServiceV3] Erreur inattendue:', error);
+      }
+    }
+  }
+
+  /**
+   * Vérifier la connexion réseau
+   */
+  private async checkNetworkConnection(): Promise<boolean> {
+    try {
+      // Essayer de faire un ping simple à Supabase
+      const response = await fetch('https://ucwgtiaebljfbvhokicf.supabase.co/rest/v1/', {
+        method: 'HEAD',
+        mode: 'no-cors',
+      }).catch(() => null);
+      return response !== null;
+    } catch {
+      return false;
     }
   }
 
@@ -236,11 +271,17 @@ class SessionServiceV3 {
     attemptNumber: number,
   ): Promise<void> {
     if (attemptNumber >= MAX_RETRY_ATTEMPTS) {
-      console.error('[SessionServiceV3] Max retry attempts reached for answer');
+      console.warn('[SessionServiceV3] Max retry attempts reached for answer');
       return;
     }
 
     try {
+      // Vérifier la connexion réseau
+      const isOnline = await this.checkNetworkConnection();
+      if (!isOnline) {
+        console.warn('[SessionServiceV3] Pas de connexion pour sauvegarder la réponse');
+        return;
+      }
       // Vérifier d'abord si la session existe dans Supabase
       const { data: sessionExists, error: checkError } = await supabase
         .from('sessions')
@@ -261,8 +302,12 @@ class SessionServiceV3 {
             config: {},
           });
 
-        if (createError && createError.code !== '23505') {
-          console.error('[SessionServiceV3] Erreur création session:', createError);
+        if (createError) {
+          if (createError.message?.includes('Network request failed') || createError.message?.includes('fetch')) {
+            console.warn('[SessionServiceV3] Erreur réseau lors de la création session');
+          } else if (createError.code !== '23505') {
+            console.error('[SessionServiceV3] Erreur création session:', createError);
+          }
           // Si on ne peut pas créer la session, on ne peut pas sauvegarder la réponse
           return;
         }
@@ -317,6 +362,12 @@ class SessionServiceV3 {
     // Sauvegarder dans Supabase
     if (userId) {
       try {
+        // Vérifier la connexion réseau
+        const isOnline = await this.checkNetworkConnection();
+        if (!isOnline) {
+          console.warn('[SessionServiceV3] Pas de connexion pour sauvegarder la session pause dans le cloud');
+          return;
+        }
         const { data: existing } = await supabase
           .from('sessions')
           .select('id')
@@ -341,7 +392,11 @@ class SessionServiceV3 {
             .eq('id', sessionData.sessionId);
 
           if (error) {
-            console.error('[SessionServiceV3] Erreur mise à jour session pause:', error);
+            if (error.message?.includes('Network request failed') || error.message?.includes('fetch')) {
+              console.warn('[SessionServiceV3] Erreur réseau lors de la mise à jour session pause');
+            } else {
+              console.error('[SessionServiceV3] Erreur mise à jour session pause:', error);
+            }
           } else {
             console.log('[SessionServiceV3] Session pause synchronisée avec Supabase');
           }
@@ -370,7 +425,11 @@ class SessionServiceV3 {
             });
 
           if (error) {
-            console.error('[SessionServiceV3] Erreur upsert session pause:', error);
+            if (error.message?.includes('Network request failed') || error.message?.includes('fetch')) {
+              console.warn('[SessionServiceV3] Erreur réseau lors de l\'upsert session pause');
+            } else {
+              console.error('[SessionServiceV3] Erreur upsert session pause:', error);
+            }
           } else {
             console.log('[SessionServiceV3] Session pause upsert réussie');
           }
@@ -393,9 +452,16 @@ class SessionServiceV3 {
     sessionId: string,
     answers: ISessionAnswer[],
   ): Promise<void> {
-    if (answers.length === 0) return;
+    if (!answers || answers.length === 0) return;
 
     try {
+      // Vérifier la connexion réseau
+      const isOnline = await this.checkNetworkConnection();
+      if (!isOnline) {
+        console.warn('[SessionServiceV3] Pas de connexion pour sauvegarder les réponses en batch');
+        return;
+      }
+
       // Filtrer les doublons
       const uniqueAnswers = answers.reduce((acc, answer) => {
         if (!acc.some(a => a.questionId === answer.questionId)) {
@@ -403,6 +469,8 @@ class SessionServiceV3 {
         }
         return acc;
       }, [] as ISessionAnswer[]);
+
+      if (uniqueAnswers.length === 0) return;
 
       const { error } = await supabase
         .from('session_answers')
@@ -418,13 +486,21 @@ class SessionServiceV3 {
           })),
         );
 
-      if (error && error.code !== '23505') {
-        console.error('[SessionServiceV3] Erreur sauvegarde batch réponses:', error);
-      } else if (!error) {
+      if (error) {
+        if (error.message?.includes('Network request failed') || error.message?.includes('fetch')) {
+          console.warn('[SessionServiceV3] Erreur réseau lors de la sauvegarde batch');
+        } else if (error.code !== '23505') {
+          console.error('[SessionServiceV3] Erreur sauvegarde batch réponses:', error);
+        }
+      } else {
         console.log(`[SessionServiceV3] ${uniqueAnswers.length} réponses sauvegardées en batch`);
       }
-    } catch (error) {
-      console.error('[SessionServiceV3] Erreur batch save:', error);
+    } catch (error: any) {
+      if (error?.message?.includes('Network request failed') || error?.message?.includes('fetch')) {
+        console.warn('[SessionServiceV3] Erreur réseau capturée lors du batch save');
+      } else {
+        console.error('[SessionServiceV3] Erreur batch save:', error);
+      }
     }
   }
 

@@ -40,7 +40,10 @@
       "Bash(npx expo:*)",
       "Bash(cat:*)",
       "WebFetch(domain:casque-admin.vercel.app)",
-      "Bash(npm init:*)"
+      "Bash(npm init:*)",
+      "Bash(npx react-native start:*)",
+      "Bash(npm start:*)",
+      "Bash(npm outdated:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

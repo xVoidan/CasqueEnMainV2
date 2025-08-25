@@ -5,9 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Share,
   Image,
-  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -18,14 +16,22 @@ import { GradientBackground } from '../../components/common/GradientBackground';
 import { FadeInView } from '../../components/animations/FadeInView';
 import { CelebrationAnimation } from '../../components/animations/CelebrationAnimation';
 import { CircularProgress } from '../../components/charts/CircularProgress';
-import { BadgeDisplay, calculateBadges } from '../../components/badges/BadgeDisplay';
+import { calculateBadges } from '../../components/badges/BadgeDisplay';
+import { EnhancedBadgeDisplay } from '../../components/badges/EnhancedBadgeDisplay';
+import { ThemePerformanceChart } from '../../components/charts/ThemePerformanceChart';
+import { ProgressComparison } from '../../components/stats/ProgressComparison';
+import { RankingDisplay } from '../../components/ranking/RankingDisplay';
+import { SwipeableSection } from '../../components/navigation/SwipeableSection';
+import { PersonalizedFeedback } from '../../components/feedback/PersonalizedFeedback';
+import { TimeSeriesChart } from '../../components/charts/TimeSeriesChart';
+import { RadarChart } from '../../components/charts/RadarChart';
+import { exportToPDF, shareResults as shareResultsExport } from '../../utils/exportUtils';
 import { theme } from '../../styles/theme';
 import { modalTheme } from '../../styles/modalTheme';
 import { supabase } from '@/src/lib/supabase';
 import { useAuth } from '@/src/store/AuthContext';
-import { getProgressToNext, formatPoints, FIREFIGHTER_GRADES } from '../../utils/grades';
+import { getProgressToNext, formatPoints } from '../../utils/grades';
 
-const { width } = Dimensions.get('window');
 
 interface ISessionAnswer {
   questionId: string;
@@ -75,21 +81,40 @@ export function TrainingReportScreen(): React.ReactElement {
   const { user } = useAuth();
   const params = useLocalSearchParams();
 
-  const sessionAnswers: ISessionAnswer[] = params.sessionAnswers
-    ? JSON.parse(params.sessionAnswers as string)
-    : [];
-  const questions: IQuestion[] = params.questions
-    ? JSON.parse(params.questions as string)
-    : [];
-  const config: ISessionConfig = params.config
-    ? JSON.parse(params.config as string)
-    : { scoring: { correct: 1, incorrect: 0, skipped: 0, partial: 0.5 } };
-  const questionsToReview: string[] = params.questionsToReview
-    ? JSON.parse(params.questionsToReview as string)
-    : [];
-  const totalPoints: number = params.totalPoints
-    ? parseInt(params.totalPoints as string)
-    : 0;
+  console.log('[TrainingReportScreen] Params:', params);
+
+  let sessionAnswers: ISessionAnswer[] = [];
+  let questions: IQuestion[] = [];
+  let config: ISessionConfig = { scoring: { correct: 1, incorrect: 0, skipped: 0, partial: 0.5 } };
+  let questionsToReview: string[] = [];
+  let totalPoints: number = 0;
+
+  try {
+    sessionAnswers = params.sessionAnswers
+      ? JSON.parse(params.sessionAnswers as string)
+      : [];
+    questions = params.questions
+      ? JSON.parse(params.questions as string)
+      : [];
+    config = params.config
+      ? JSON.parse(params.config as string)
+      : { scoring: { correct: 1, incorrect: 0, skipped: 0, partial: 0.5 } };
+    questionsToReview = params.questionsToReview
+      ? JSON.parse(params.questionsToReview as string)
+      : [];
+    totalPoints = params.totalPoints
+      ? parseInt(params.totalPoints as string)
+      : 0;
+  } catch (error) {
+    console.error('[TrainingReportScreen] Erreur parsing params:', error);
+  }
+
+  console.log('[TrainingReportScreen] Data parsed:', {
+    sessionAnswers: sessionAnswers?.length,
+    questions: questions?.length,
+    questionsToReview: questionsToReview?.length,
+    totalPoints,
+  });
 
   const [stats, setStats] = useState<IStats>({
     totalQuestions: 0,
@@ -108,38 +133,262 @@ export function TrainingReportScreen(): React.ReactElement {
   const [badges, setBadges] = useState<any[]>([]);
   const [userTotalPoints, setUserTotalPoints] = useState(0);
   const [gradeProgress, setGradeProgress] = useState<any>(null);
+  const [themePerformance, setThemePerformance] = useState<any[]>([]);
+  const [progressData, setProgressData] = useState({
+    lastSessionScore: 0,
+    averageScore: 0,
+    bestScore: 0,
+    streak: 0,
+  });
+  const [historicalData, setHistoricalData] = useState<{ date: Date; score: number }[]>([]);
+  const [rankingData, setRankingData] = useState<{
+    userRank: number;
+    totalUsers: number;
+    percentile: number;
+    weeklyProgress: number;
+    monthlyProgress: number;
+    topPlayers: { name: string; points: number }[];
+  }>({
+    userRank: 0,
+    totalUsers: 0,
+    percentile: 0,
+    weeklyProgress: 0,
+    monthlyProgress: 0,
+    topPlayers: [],
+  });
 
   useEffect(() => {
+    // Initialiser les stats de manière synchrone
     calculateStats();
-    saveSessionToHistory();
-    fetchUserPoints();
+    calculateThemePerformance();
+
+    // Les opérations async peuvent être lancées après
+    const initializeAsync = async () => {
+      await saveSessionToHistory();
+      await fetchUserPoints();
+      await fetchProgressData();
+      await fetchRankingData();
+    };
+
+    initializeAsync();
   }, []);
 
   useEffect(() => {
-    if (stats.successRate >= 80) {
-      setShowCelebration(true);
-    }
-    const earnedBadges = calculateBadges(stats, []);
-    setBadges(earnedBadges);
+    // Utiliser setTimeout pour éviter les mises à jour pendant le rendu
+    const timer = setTimeout(() => {
+      if (stats.successRate >= 80) {
+        setShowCelebration(true);
+      }
+      const earnedBadges = calculateBadges(stats, []);
+      setBadges(earnedBadges);
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [stats]);
 
   useEffect(() => {
-    if (userTotalPoints > 0) {
-      const progress = getProgressToNext(userTotalPoints);
-      setGradeProgress(progress);
-    }
+    const timer = setTimeout(() => {
+      if (userTotalPoints > 0) {
+        const progress = getProgressToNext(userTotalPoints);
+        setGradeProgress(progress);
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [userTotalPoints]);
+
+  const calculateThemePerformance = () => {
+    if (!questions || questions.length === 0) {
+      setThemePerformance([]);
+      return;
+    }
+
+    const themeStats: { [key: string]: any } = {};
+
+    questions.forEach((question, index) => {
+      const answer = sessionAnswers[index];
+      if (!themeStats[question.theme]) {
+        themeStats[question.theme] = {
+          theme: question.theme,
+          correct: 0,
+          incorrect: 0,
+          total: 0,
+        };
+      }
+
+      themeStats[question.theme].total++;
+      if (answer?.isCorrect) {
+        themeStats[question.theme].correct++;
+      } else {
+        themeStats[question.theme].incorrect++;
+      }
+    });
+
+    const performanceData = Object.values(themeStats).map((stat: any) => ({
+      ...stat,
+      percentage: stat.total > 0 ? (stat.correct / stat.total) * 100 : 0,
+    }));
+
+    setThemePerformance(performanceData);
+  };
+
+  const fetchProgressData = async () => {
+    if (!user) return;
+
+    try {
+      // Récupérer les sessions depuis Supabase pour les 7 derniers jours
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+      const { data: supabaseSessions } = await supabase
+        .from('sessions')
+        .select('score, completed_at')
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .gte('completed_at', sevenDaysAgo)
+        .order('completed_at', { ascending: true });
+
+      let historical: { date: Date; score: number }[] = [];
+      let scores: number[] = [];
+
+      if (supabaseSessions && supabaseSessions.length > 0) {
+        // Utiliser les données Supabase
+        historical = supabaseSessions.map(s => ({
+          date: new Date(s.completed_at),
+          score: s.score || 0,
+        }));
+        scores = supabaseSessions.map(s => s.score || 0);
+      } else {
+        // Fallback sur AsyncStorage si pas de données Supabase
+        const historyKey = `@training_history_${user.id}`;
+        const history = await AsyncStorage.getItem(historyKey);
+
+        if (history) {
+          const sessions = JSON.parse(history);
+          if (Array.isArray(sessions)) {
+            scores = sessions.map((s: any) => s.stats?.totalScore || 0);
+            historical = sessions.slice(0, 7).map((s: any) => ({
+              date: new Date(s.completedAt || Date.now()),
+              score: s.stats?.totalScore || 0,
+            }));
+          }
+        }
+      }
+
+      // Ajouter la session actuelle
+      historical.push({
+        date: new Date(),
+        score: stats.successRate,
+      });
+
+      setHistoricalData(historical);
+
+      // Calculer la streak actuelle
+      let streak = 0;
+      for (const answer of sessionAnswers) {
+        if (answer?.isCorrect) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+
+      setProgressData({
+        lastSessionScore: scores.length > 0 ? scores[scores.length - 1] : 0,
+        averageScore: scores.length > 0 ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length : 0,
+        bestScore: scores.length > 0 ? Math.max(...scores, stats.successRate) : stats.successRate,
+        streak,
+      });
+    } catch (error) {
+      console.error('Erreur récupération progression:', error);
+    }
+  };
+
+  const fetchRankingData = async () => {
+    if (!user) return;
+
+    try {
+      // Récupérer tous les scores des utilisateurs
+      const { data: allProfiles, error } = await supabase
+        .from('profiles')
+        .select('user_id, total_points')
+        .order('total_points', { ascending: false });
+
+      if (error) {
+        console.error('Erreur récupération classement:', error);
+        return;
+      }
+
+      if (allProfiles && allProfiles.length > 0) {
+        const totalUsers = allProfiles.length;
+        const userRank = allProfiles.findIndex(p => p.user_id === user.id) + 1;
+        const percentile = userRank > 0 ? Math.floor((1 - userRank / totalUsers) * 100) : 0;
+
+        // Récupérer le top 3 avec les noms d'utilisateur
+        const top3Ids = allProfiles ? allProfiles.slice(0, 3).map(p => p.user_id) : [];
+
+        let topPlayers: { name: string; points: number }[] = [];
+        if (top3Ids.length > 0) {
+          const { data: top3Profiles } = await supabase
+            .from('profiles')
+            .select('user_id, username, total_points')
+            .in('user_id', top3Ids);
+
+          topPlayers = top3Profiles
+            ? top3Profiles.map(p => ({
+                name: p.username || 'Anonyme',
+                points: p.total_points || 0,
+              })).sort((a, b) => b.points - a.points)
+            : [];
+        }
+
+        // Récupérer l'historique pour calculer la progression
+        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+        const { data: weeklySession } = await supabase
+          .from('sessions')
+          .select('score')
+          .eq('user_id', user.id)
+          .gte('completed_at', oneWeekAgo)
+          .order('completed_at', { ascending: false })
+          .limit(1);
+
+        const { data: monthlySession } = await supabase
+          .from('sessions')
+          .select('score')
+          .eq('user_id', user.id)
+          .gte('completed_at', oneMonthAgo)
+          .order('completed_at', { ascending: false })
+          .limit(1);
+
+        const currentScore = stats.totalScore;
+        const weeklyProgress = weeklySession?.[0] ? currentScore - weeklySession[0].score : 0;
+        const monthlyProgress = monthlySession?.[0] ? currentScore - monthlySession[0].score : 0;
+
+        setRankingData({
+          userRank: userRank || 0,
+          totalUsers,
+          percentile,
+          weeklyProgress,
+          monthlyProgress,
+          topPlayers,
+        });
+      }
+    } catch (error) {
+      console.error('Erreur récupération classement:', error);
+    }
+  };
 
   const fetchUserPoints = async () => {
     if (!user) return;
-    
+
     try {
       const { data: profile } = await supabase
         .from('profiles')
         .select('total_points')
         .eq('user_id', user.id)
         .single();
-      
+
       if (profile) {
         const newTotalPoints = (profile.total_points || 0) + Math.round(totalPoints || 0);
         setUserTotalPoints(newTotalPoints);
@@ -158,7 +407,7 @@ export function TrainingReportScreen(): React.ReactElement {
     const incorrect = sessionAnswers.filter(a => a && !a.isCorrect && !a.isPartial && !a.isSkipped).length;
     const partial = sessionAnswers.filter(a => a && a.isPartial === true).length;
     const skipped = sessionAnswers.filter(a => a && a.isSkipped === true).length;
-    const totalTime = sessionAnswers.reduce((sum, a) => sum + (a?.timeSpent || 0), 0);
+    const totalTime = sessionAnswers.length > 0 ? sessionAnswers.reduce((sum, a) => sum + (a?.timeSpent || 0), 0) : 0;
     const avgTime = sessionAnswers.length > 0 ? totalTime / sessionAnswers.length : 0;
 
     const score =
@@ -225,16 +474,40 @@ export function TrainingReportScreen(): React.ReactElement {
     }
   };
 
-  const shareResults = async () => {
-    try {
-      const message = '🎯 Résultats de ma session d\'entraînement CasqueEnMains:\n\n' +
-        `📊 Score: ${stats.totalScore.toFixed(0)} points\n` +
-        `✅ Réussite: ${stats.successRate.toFixed(0)}%\n` +
-        `📝 Questions: ${stats.correctAnswers}/${stats.totalQuestions} correctes\n` +
-        `⏱️ Temps moyen: ${stats.averageTime.toFixed(0)}s par question\n\n` +
-        '#CasqueEnMains #Pompiers #Formation';
 
-      await Share.share({ message });
+  const handleExportPDF = async () => {
+    try {
+      const sessionData = {
+        score: stats.successRate,
+        correctAnswers: stats.correctAnswers,
+        incorrectAnswers: stats.incorrectAnswers,
+        totalQuestions: stats.totalQuestions,
+        themePerformance: themePerformance,
+        totalTime: stats.totalTime,
+        grade: gradeProgress?.currentGrade.name || 'Aspirant',
+        totalPoints: userTotalPoints,
+        date: new Date(),
+      };
+      await exportToPDF(sessionData);
+    } catch (error) {
+      console.error('Erreur export PDF:', error);
+    }
+  };
+
+  const handleShareResults = async () => {
+    try {
+      const sessionData = {
+        score: stats.successRate,
+        correctAnswers: stats.correctAnswers,
+        incorrectAnswers: stats.incorrectAnswers,
+        totalQuestions: stats.totalQuestions,
+        themePerformance: themePerformance,
+        totalTime: stats.totalTime,
+        grade: gradeProgress?.currentGrade.name || 'Aspirant',
+        totalPoints: userTotalPoints,
+        date: new Date(),
+      };
+      await shareResultsExport(sessionData);
     } catch (error) {
       console.error('Erreur partage:', error);
     }
@@ -306,15 +579,20 @@ export function TrainingReportScreen(): React.ReactElement {
     return images[imageName];
   };
 
-  return (
-    <GradientBackground>
-      <SafeAreaView style={styles.container}>
-        <CelebrationAnimation
-          visible={showCelebration}
-          type="confetti"
-          onComplete={() => setShowCelebration(false)}
-        />
-        
+  try {
+    return (
+      <GradientBackground>
+        <SafeAreaView style={styles.container}>
+        {showCelebration && (
+          <CelebrationAnimation
+            visible={showCelebration}
+            type="confetti"
+            onComplete={() => {
+              setTimeout(() => setShowCelebration(false), 0);
+            }}
+          />
+        )}
+
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -394,7 +672,7 @@ export function TrainingReportScreen(): React.ReactElement {
                     <Text style={styles.detailLabel}>Correctes</Text>
                   </View>
                   <Text style={styles.detailCalc}>
-                    {stats.correctAnswers} × {config.scoring.correct} = 
+                    {stats.correctAnswers} × {config.scoring.correct} =
                   </Text>
                   <Text style={[styles.detailResult, { color: '#10B981' }]}>
                     +{(stats.correctAnswers * config.scoring.correct).toFixed(0)}
@@ -410,7 +688,7 @@ export function TrainingReportScreen(): React.ReactElement {
                       <Text style={styles.detailLabel}>Incorrectes</Text>
                     </View>
                     <Text style={styles.detailCalc}>
-                      {stats.incorrectAnswers} × {config.scoring.incorrect} = 
+                      {stats.incorrectAnswers} × {config.scoring.incorrect} =
                     </Text>
                     <Text style={[styles.detailResult, { color: '#EF4444' }]}>
                       {(stats.incorrectAnswers * config.scoring.incorrect).toFixed(0)}
@@ -427,7 +705,7 @@ export function TrainingReportScreen(): React.ReactElement {
                       <Text style={styles.detailLabel}>Passées</Text>
                     </View>
                     <Text style={styles.detailCalc}>
-                      {stats.skippedAnswers} × {config.scoring.skipped} = 
+                      {stats.skippedAnswers} × {config.scoring.skipped} =
                     </Text>
                     <Text style={[styles.detailResult, { color: '#9CA3AF' }]}>
                       {(stats.skippedAnswers * config.scoring.skipped).toFixed(0)}
@@ -436,7 +714,7 @@ export function TrainingReportScreen(): React.ReactElement {
                 )}
 
                 <View style={styles.detailSeparator} />
-                
+
                 <View style={styles.detailTotal}>
                   <Text style={styles.detailTotalLabel}>SCORE TOTAL</Text>
                   <Text style={styles.detailTotalValue}>{stats.totalScore.toFixed(0)} pts</Text>
@@ -444,6 +722,39 @@ export function TrainingReportScreen(): React.ReactElement {
               </View>
             </View>
           </FadeInView>
+
+          {/* Graphique de performance par thème */}
+          {themePerformance.length > 0 && (
+            <FadeInView duration={600} delay={350}>
+              <ThemePerformanceChart data={themePerformance} />
+            </FadeInView>
+          )}
+
+          {/* Comparaison et progression */}
+          <FadeInView duration={600} delay={400}>
+            <ProgressComparison
+              currentScore={stats.totalScore}
+              lastSessionScore={progressData.lastSessionScore}
+              averageScore={progressData.averageScore}
+              bestScore={progressData.bestScore}
+              streak={progressData.streak}
+              totalTime={stats.totalTime}
+            />
+          </FadeInView>
+
+          {/* Classement */}
+          {rankingData.userRank > 0 && (
+            <FadeInView duration={600} delay={450}>
+              <RankingDisplay
+                userRank={rankingData.userRank}
+                totalUsers={rankingData.totalUsers}
+                percentile={rankingData.percentile}
+                weeklyProgress={rankingData.weeklyProgress}
+                monthlyProgress={rankingData.monthlyProgress}
+                topPlayers={rankingData.topPlayers}
+              />
+            </FadeInView>
+          )}
 
           {/* Progression des grades */}
           {gradeProgress && (
@@ -461,7 +772,7 @@ export function TrainingReportScreen(): React.ReactElement {
 
                   {/* Grade actuel */}
                   <View style={styles.currentGrade}>
-                    <Image 
+                    <Image
                       source={getGradeImage(gradeProgress.currentGrade.imageName)}
                       style={styles.gradeImage}
                       resizeMode="contain"
@@ -477,13 +788,13 @@ export function TrainingReportScreen(): React.ReactElement {
                     <>
                       <View style={styles.progressContainer}>
                         <View style={styles.progressBar}>
-                          <View 
+                          <View
                             style={[
                               styles.progressFill,
-                              { 
+                              {
                                 width: `${gradeProgress.progress}%`,
                                 backgroundColor: gradeProgress.currentGrade.color,
-                              }
+                              },
                             ]}
                           />
                         </View>
@@ -492,7 +803,7 @@ export function TrainingReportScreen(): React.ReactElement {
 
                       {/* Prochain grade */}
                       <View style={styles.nextGrade}>
-                        <Image 
+                        <Image
                           source={getGradeImage(gradeProgress.nextGrade.imageName)}
                           style={styles.nextGradeImage}
                           resizeMode="contain"
@@ -520,12 +831,90 @@ export function TrainingReportScreen(): React.ReactElement {
             </FadeInView>
           )}
 
-          {/* Badges */}
-          {badges.filter(b => b.earned).length > 0 && (
-            <FadeInView duration={600} delay={500}>
-              <BadgeDisplay badges={badges} />
-            </FadeInView>
-          )}
+          {/* Section avec navigation swipeable */}
+          <FadeInView duration={600} delay={500}>
+            <Text style={styles.sectionTitle}>Analyses Détaillées</Text>
+            <SwipeableSection>
+              {/* Feedback personnalisé */}
+              <PersonalizedFeedback
+                data={{
+                  score: stats.successRate,
+                  correctAnswers: stats.correctAnswers,
+                  incorrectAnswers: stats.incorrectAnswers,
+                  streak: progressData.streak,
+                  timePerQuestion: stats.averageTime,
+                  weakThemes: themePerformance.length > 0
+                    ? themePerformance.filter(t => t.percentage < 60).map(t => t.theme)
+                    : [],
+                  strongThemes: themePerformance.length > 0
+                    ? themePerformance.filter(t => t.percentage >= 80).map(t => t.theme)
+                    : [],
+                  improvement: progressData.lastSessionScore > 0
+                    ? stats.totalScore - progressData.lastSessionScore
+                    : 0,
+                }}
+              />
+
+              {/* Graphique temporel */}
+              {historicalData.length > 0 && (
+                <TimeSeriesChart
+                  data={historicalData}
+                  title="Progression sur 7 jours"
+                />
+              )}
+
+              {/* Graphique radar */}
+              {themePerformance.length > 0 && (
+                <RadarChart
+                  data={themePerformance.slice(0, 6).map(t => ({
+                    label: t.theme.length > 10 ? `${t.theme.substring(0, 10)  }...` : t.theme,
+                    value: t.correct,
+                    maxValue: t.total,
+                  }))}
+                  title="Analyse par compétence"
+                />
+              )}
+            </SwipeableSection>
+          </FadeInView>
+
+          {/* Badges améliorés */}
+          <FadeInView duration={600} delay={550}>
+            <EnhancedBadgeDisplay
+              badges={badges.map(b => {
+                // Calculer le vrai progrès basé sur les statistiques
+                let progress = 0;
+                let requirement = '';
+
+                if (!b.earned) {
+                  if (b.id === 'first-perfect') {
+                    progress = stats.successRate;
+                    requirement = `Score de 100% requis (actuel: ${stats.successRate.toFixed(0)}%)`;
+                  } else if (b.id === 'speed-demon') {
+                    progress = stats.averageTime < 5 ? 100 : (5 / stats.averageTime) * 100;
+                    requirement = `Temps moyen < 5s (actuel: ${stats.averageTime.toFixed(1)}s)`;
+                  } else if (b.id === 'streak-master') {
+                    progress = (progressData.streak / 10) * 100;
+                    requirement = `10 bonnes réponses d'affilée (actuel: ${progressData.streak})`;
+                  } else if (b.id === 'quiz-veteran') {
+                    progress = (stats.totalQuestions / 100) * 100;
+                    requirement = `100 questions répondues (actuel: ${stats.totalQuestions})`;
+                  }
+                }
+
+                return {
+                  ...b,
+                  progress: !b.earned ? Math.min(100, Math.max(0, progress)) : undefined,
+                  requirement: !b.earned ? requirement : undefined,
+                };
+              })}
+              newBadges={badges.filter(b => {
+                // Les nouveaux badges sont ceux gagnés dans cette session
+                return b.earned && b.earnedAt &&
+                  new Date(b.earnedAt).getTime() > Date.now() - 60000; // Gagnés dans la dernière minute
+              }).map(b => b.id)}
+              onBadgePress={() => {}}
+            />
+          </FadeInView>
 
           {/* Actions */}
           <FadeInView duration={600} delay={600}>
@@ -559,10 +948,18 @@ export function TrainingReportScreen(): React.ReactElement {
 
                 <TouchableOpacity
                   style={styles.secondaryButton}
-                  onPress={shareResults}
+                  onPress={handleShareResults}
                 >
                   <Ionicons name="share-social" size={18} color={theme.colors.white} />
                   <Text style={styles.secondaryButtonText}>Partager</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.secondaryButton}
+                  onPress={handleExportPDF}
+                >
+                  <Ionicons name="document-text" size={18} color={theme.colors.white} />
+                  <Text style={styles.secondaryButtonText}>PDF</Text>
                 </TouchableOpacity>
               </View>
 
@@ -589,12 +986,14 @@ export function TrainingReportScreen(): React.ReactElement {
           </FadeInView>
 
           {/* Détails des questions */}
-          {showDetails && (
+          {showDetails && questions && questions.length > 0 && sessionAnswers && sessionAnswers.length > 0 && (
             <FadeInView duration={400}>
               <View style={styles.detailsSection}>
                 <Text style={styles.detailsSectionTitle}>Détail des réponses</Text>
                 {questions.map((question, index) => {
                   const answer = sessionAnswers[index];
+                  if (!answer) return null;
+
                   return (
                     <View key={question.id} style={styles.questionItem}>
                       <View style={styles.questionHeader}>
@@ -604,7 +1003,7 @@ export function TrainingReportScreen(): React.ReactElement {
                           color={answer.isCorrect ? '#10B981' : '#EF4444'}
                         />
                         <Text style={styles.questionNumber}>Question {index + 1}</Text>
-                        <Text style={styles.questionTime}>{answer.timeSpent.toFixed(0)}s</Text>
+                        <Text style={styles.questionTime}>{answer.timeSpent ? answer.timeSpent.toFixed(0) : '0'}s</Text>
                       </View>
                       <Text style={styles.questionText} numberOfLines={2}>
                         {question.question}
@@ -618,7 +1017,28 @@ export function TrainingReportScreen(): React.ReactElement {
         </ScrollView>
       </SafeAreaView>
     </GradientBackground>
-  );
+    );
+  } catch (error: any) {
+    console.error('[TrainingReportScreen] Erreur de rendu:', error);
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={{ padding: 20, alignItems: 'center' }}>
+          <Text style={{ color: 'white', fontSize: 16, marginBottom: 10 }}>
+            Une erreur s'est produite lors de l'affichage des résultats
+          </Text>
+          <Text style={{ color: 'white', fontSize: 14, opacity: 0.8 }}>
+            {error?.message || 'Erreur inconnue'}
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.replace('/(tabs)')}
+            style={{ marginTop: 20, padding: 10, backgroundColor: '#3B82F6', borderRadius: 8 }}
+          >
+            <Text style={{ color: 'white' }}>Retour à l'accueil</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
