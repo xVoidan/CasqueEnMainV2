@@ -37,7 +37,7 @@ export function ProgressComparison({
       <View style={styles.grid}>
         {/* Streak */}
         <LinearGradient
-          colors={streak >= 3 ? ['rgba(251, 146, 60, 0.2)', 'rgba(251, 146, 60, 0.05)'] : ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.02)']}
+          colors={streak >= 3 ? ['rgba(251, 146, 60, 0.2)', 'rgba(251, 146, 60, 0.08)'] : ['rgba(255, 255, 255, 0.06)', 'rgba(255, 255, 255, 0.02)']}
           style={styles.card}
         >
           <View style={styles.cardHeader}>
@@ -94,7 +94,10 @@ export function ProgressComparison({
         <View style={styles.timeInfo}>
           <Text style={styles.timeLabel}>Durée totale de la session</Text>
           <Text style={styles.timeValue}>
-            {Math.floor(totalTime / 60)}:{(totalTime % 60).toString().padStart(2, '0')}
+            {Math.floor(totalTime / 60) > 0 
+              ? `${Math.floor(totalTime / 60)} min ${Math.floor(totalTime % 60)} sec`
+              : `${Math.floor(totalTime)} secondes`
+            }
           </Text>
         </View>
       </View>
@@ -124,7 +127,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -133,7 +136,7 @@ const styles = StyleSheet.create({
   },
   cardLabel: {
     fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: '#9CA3AF',
     marginLeft: 6,
     textTransform: 'uppercase',
   },
@@ -149,7 +152,7 @@ const styles = StyleSheet.create({
   },
   cardSubtext: {
     fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.4)',
+    color: '#6B7280',
   },
   newRecordBadge: {
     position: 'absolute',
@@ -172,7 +175,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   timeInfo: {
     marginLeft: 12,
@@ -180,7 +183,7 @@ const styles = StyleSheet.create({
   },
   timeLabel: {
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: '#9CA3AF',
   },
   timeValue: {
     fontSize: 20,

@@ -589,7 +589,7 @@ export default function HomeScreen(): React.ReactElement {
               <View style={styles.progressCard}>
                 <View style={styles.progressHeader}>
                   <Text style={styles.pointsText}>
-                    {(profile?.total_points ?? 0).toLocaleString()} points
+                    {(profile?.total_points ?? 0).toLocaleString()} XP
                   </Text>
                   <Text style={styles.nextGradeText}>
                     Prochain: {nextGrade.name}
@@ -740,7 +740,7 @@ export default function HomeScreen(): React.ReactElement {
                       <Text style={styles.rewardText}>
                         +{dailyChallenge?.reward_points || 50}
                       </Text>
-                      <Text style={styles.rewardLabel}>points</Text>
+                      <Text style={styles.rewardLabel}>XP</Text>
                     </View>
                   )}
                 </View>

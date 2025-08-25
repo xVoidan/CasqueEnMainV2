@@ -40,7 +40,7 @@ export function RankingDisplay({
       <Text style={styles.title}>Classement & Comparaison</Text>
 
       <LinearGradient
-        colors={userRank <= 3 ? ['rgba(255, 215, 0, 0.15)', 'rgba(255, 165, 0, 0.08)'] : ['rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.02)']}
+        colors={userRank <= 3 ? ['rgba(251, 191, 36, 0.15)', 'rgba(217, 119, 6, 0.08)'] : ['rgba(99, 102, 241, 0.08)', 'rgba(79, 70, 229, 0.04)']}
         style={styles.rankCard}
       >
         <View style={styles.rankHeader}>
@@ -152,11 +152,11 @@ const styles = StyleSheet.create({
   },
   rankSubtext: {
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   percentileBar: {
     height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(99, 102, 241, 0.08)',
     borderRadius: 4,
     marginBottom: 8,
     position: 'relative',
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   },
   percentileText: {
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
   },
   progressCards: {
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: 'rgba(255, 255, 255, 0.65)',
     marginLeft: 6,
   },
   progressRow: {
@@ -256,6 +256,6 @@ const styles = StyleSheet.create({
   },
   topPlayerScore: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'rgba(255, 255, 255, 0.7)',
   },
 });

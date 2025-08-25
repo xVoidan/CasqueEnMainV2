@@ -108,7 +108,7 @@ export default function TrainingScreen(): React.ReactElement {
       icon: '⚡',
       color: ['#F59E0B', '#D97706'],
       stats: [
-        { icon: 'trophy-outline', value: '+50 points' },
+        { icon: 'trophy-outline', value: '+50 XP' },
         { icon: 'timer-outline', value: '15 min' },
       ],
       route: '/training/daily-challenge',
@@ -118,7 +118,7 @@ export default function TrainingScreen(): React.ReactElement {
       title: 'Mode Révision',
       description: 'Révisez vos erreurs',
       icon: '📚',
-      color: ['#8B5CF6', '#7C3AED'],
+      color: ['#1E40AF', '#1E3A8A'],
       stats: [
         { icon: 'refresh-outline', value: 'Adaptatif' },
         { icon: 'trending-up-outline', value: 'Progression' },

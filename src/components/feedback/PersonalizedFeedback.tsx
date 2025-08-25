@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'rgba(255, 255, 255, 0.75)',
     marginTop: 4,
   },
   adviceSection: {
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   adviceTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(255, 255, 255, 0.9)',
     marginBottom: 12,
   },
   adviceItem: {
@@ -263,17 +263,17 @@ const styles = StyleSheet.create({
   },
   adviceText: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: 'rgba(255, 255, 255, 0.85)',
     marginLeft: 8,
     flex: 1,
   },
   tipsSection: {
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    backgroundColor: 'rgba(37, 99, 235, 0.1)',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.2)',
+    borderColor: 'rgba(59, 130, 246, 0.3)',
   },
   tipsTitle: {
     fontSize: 14,
@@ -295,16 +295,16 @@ const styles = StyleSheet.create({
   },
   tipText: {
     fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: 'rgba(255, 255, 255, 0.85)',
     flex: 1,
   },
   strengthsSection: {
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    backgroundColor: 'rgba(5, 150, 105, 0.1)',
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.2)',
+    borderColor: 'rgba(16, 185, 129, 0.3)',
   },
   strengthsTitle: {
     fontSize: 14,
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   strengthItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    backgroundColor: 'rgba(5, 150, 105, 0.1)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -331,11 +331,11 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   weaknessSection: {
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    backgroundColor: 'rgba(217, 119, 6, 0.1)',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.2)',
+    borderColor: 'rgba(245, 158, 11, 0.3)',
   },
   weaknessTitle: {
     fontSize: 14,
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
   weaknessItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+    backgroundColor: 'rgba(217, 119, 6, 0.1)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,

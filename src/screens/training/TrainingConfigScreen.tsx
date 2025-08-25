@@ -122,8 +122,8 @@ export function TrainingConfigScreen(): React.ReactElement {
   const [timerDuration, setTimerDuration] = useState<string>('30');
   const [scoring, setScoring] = useState<IScoring>({
     correct: 1,
-    incorrect: isQuickMode ? -0.5 : -0.25,
-    skipped: isQuickMode ? -0.5 : 0,
+    incorrect: -0.5,
+    skipped: 0,
     partial: 0.5,
   });
   const [questionTypeFilter, setQuestionTypeFilter] = useState<QuestionTypeFilter>(isQuickMode ? 'single' : 'all');
@@ -252,7 +252,7 @@ export function TrainingConfigScreen(): React.ReactElement {
       scoring: {
         correct: 1,
         incorrect: -0.5,
-        skipped: -0.5,
+        skipped: 0,
         partial: 0.5,
       },
       questionTypeFilter: 'single' as QuestionTypeFilter, // QCU seulement

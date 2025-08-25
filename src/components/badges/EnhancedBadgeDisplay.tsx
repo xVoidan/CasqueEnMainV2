@@ -237,7 +237,7 @@ export function EnhancedBadgeDisplay({
               <Text style={styles.challengeDesc}>10 bonnes réponses d'affilée</Text>
             </View>
             <View style={styles.challengeReward}>
-              <Text style={styles.challengePoints}>+50 pts</Text>
+              <Text style={styles.challengePoints}>+50 XP</Text>
             </View>
           </View>
 
@@ -250,7 +250,7 @@ export function EnhancedBadgeDisplay({
               <Text style={styles.challengeDesc}>Répondre en moins de 3s</Text>
             </View>
             <View style={styles.challengeReward}>
-              <Text style={styles.challengePoints}>+30 pts</Text>
+              <Text style={styles.challengePoints}>+30 XP</Text>
             </View>
           </View>
         </View>

@@ -92,7 +92,7 @@ export function SessionReportScreen(): React.ReactElement {
   // Calculer les points
   const calculatePoints = (): IPointsBreakdown => {
     const stats = calculateStats();
-    const scoring = config?.scoring || { correct: 1, incorrect: -0.25, skipped: 0, partial: 0.5 };
+    const scoring = config?.scoring || { correct: 10, incorrect: -2, skipped: 0, partial: 5 };
 
     // Points de base
     const basePoints =
@@ -240,11 +240,11 @@ export function SessionReportScreen(): React.ReactElement {
           {/* Points gagnés */}
           <FadeInView duration={800} delay={200}>
             <View style={styles.pointsCard}>
-              <Text style={styles.pointsTitle}>Points gagnés</Text>
+              <Text style={styles.pointsTitle}>XP gagné</Text>
 
               <View style={styles.pointsBreakdown}>
                 <View style={styles.pointsRow}>
-                  <Text style={styles.pointsLabel}>Points de base</Text>
+                  <Text style={styles.pointsLabel}>XP de base</Text>
                   <Text style={styles.pointsValue}>
                     {points.basePoints >= 0 ? '+' : ''}{points.basePoints.toFixed(1)}
                   </Text>

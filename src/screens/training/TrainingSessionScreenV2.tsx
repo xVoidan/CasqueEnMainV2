@@ -495,6 +495,8 @@ export function TrainingSessionScreenV2(): React.ReactElement {
       pathname: '/training/report',
       params: {
         sessionAnswers: JSON.stringify(sessionAnswers),
+        config: JSON.stringify(sessionConfig),  // Ajouter la config
+        questions: JSON.stringify(questions),   // Ajouter les questions
         sessionDuration: ((Date.now() - questionStartTime) / 1000).toString(),
         questionsToReview: JSON.stringify(questionsToReview),
         totalPoints: totalPoints.toString(),
@@ -827,7 +829,7 @@ export function TrainingSessionScreenV2(): React.ReactElement {
                 >
                   <LinearGradient
                 colors={selectedAnswers.length > 0
-                  ? ['#8B5CF6', '#7C3AED']
+                  ? ['#1E40AF', '#1E3A8A']
                   : ['#6B7280', '#4B5563']}
                 style={styles.validateGradient}
               >
@@ -1312,7 +1314,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
-    borderColor: '#8B5CF6',
+    borderColor: '#1E40AF',
   },
   miniMapDotCorrect: {
     backgroundColor: '#10B981',

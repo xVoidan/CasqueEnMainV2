@@ -99,6 +99,7 @@ export function TrainingSessionScreen(): React.ReactElement {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [sessionAnswers, setSessionAnswers] = useState<ISessionAnswer[]>([]);
+  const [currentScore, setCurrentScore] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isValidated, setIsValidated] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number | null>(
@@ -187,6 +188,20 @@ export function TrainingSessionScreen(): React.ReactElement {
     };
 
     setSessionAnswers(prev => [...prev, answer]);
+    
+    // Calculer le score
+    let pointsEarned = 0;
+    if (isCorrect) {
+      pointsEarned = sessionConfig?.scoring?.correct || 1;
+    } else if (isPartial) {
+      pointsEarned = sessionConfig?.scoring?.partial || 0.5;
+    } else if (isTimeout || selectedAnswers.length === 0) {
+      pointsEarned = sessionConfig?.scoring?.skipped || 0;
+    } else {
+      pointsEarned = sessionConfig?.scoring?.incorrect || -0.5;
+    }
+    
+    setCurrentScore(prev => prev + pointsEarned);
     setIsValidated(true);
 
     // Passer à la question suivante après 1.5s
@@ -286,6 +301,22 @@ export function TrainingSessionScreen(): React.ReactElement {
           >
             <Ionicons name="pause" size={24} color={theme.colors.white} />
           </TouchableOpacity>
+        </View>
+
+        {/* Score et barème */}
+        <View style={styles.scoreContainer}>
+          <View style={styles.scoreInfo}>
+            <Text style={styles.scoreLabel}>Score actuel</Text>
+            <Text style={styles.scoreValue}>{currentScore.toFixed(1)}</Text>
+          </View>
+          <View style={styles.scoringRules}>
+            <Text style={styles.scoringRulesTitle}>Barème</Text>
+            <View style={styles.scoringRulesRow}>
+              <Text style={styles.scoringRuleGood}>✓ +{sessionConfig?.scoring?.correct || 1}</Text>
+              <Text style={styles.scoringRuleBad}>✗ {sessionConfig?.scoring?.incorrect || -0.5}</Text>
+              <Text style={styles.scoringRuleSkip}>⌛ {sessionConfig?.scoring?.skipped || 0}</Text>
+            </View>
+          </View>
         </View>
 
         {/* Barre de progression */}
@@ -674,5 +705,56 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: theme.colors.white,
     marginLeft: theme.spacing.xs,
+  },
+  scoreContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  scoreInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  scoreLabel: {
+    fontSize: theme.typography.fontSize.sm,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  scoreValue: {
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: 'bold',
+    color: theme.colors.white,
+  },
+  scoringRules: {
+    alignItems: 'flex-end',
+  },
+  scoringRulesTitle: {
+    fontSize: theme.typography.fontSize.xs,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginBottom: 4,
+  },
+  scoringRulesRow: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+  },
+  scoringRuleGood: {
+    fontSize: theme.typography.fontSize.sm,
+    color: '#10B981',
+    fontWeight: '600',
+  },
+  scoringRuleBad: {
+    fontSize: theme.typography.fontSize.sm,
+    color: '#EF4444',
+    fontWeight: '600',
+  },
+  scoringRuleSkip: {
+    fontSize: theme.typography.fontSize.sm,
+    color: '#F59E0B',
+    fontWeight: '600',
   },
 });

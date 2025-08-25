@@ -374,7 +374,7 @@ export const ProfileScreen: React.FC = React.memo(() => {
                       <View style={styles.pointsContainer}>
                         <Ionicons name="star" size={16} color="#FFD700" />
                         <Text style={styles.pointsText}>
-                          {profile.total_points.toLocaleString()} points
+                          {profile.total_points.toLocaleString()} XP
                         </Text>
                       </View>
                     </View>
@@ -400,7 +400,7 @@ export const ProfileScreen: React.FC = React.memo(() => {
                         </Text>
                       </View>
                       <Text style={styles.pointsToNext}>
-                        {(nextGrade.minPoints - profile.total_points).toLocaleString()} points restants
+                        {(nextGrade.minPoints - profile.total_points).toLocaleString()} XP restants
                       </Text>
                     </View>
                   )}
@@ -458,7 +458,7 @@ export const ProfileScreen: React.FC = React.memo(() => {
               <View style={styles.statsGrid}>
                 <View style={styles.statCard}>
                   <Text style={styles.statValue}>{profile.total_points.toLocaleString()}</Text>
-                  <Text style={styles.statLabel}>Points totaux</Text>
+                  <Text style={styles.statLabel}>XP total</Text>
                 </View>
                 <View style={styles.statCard}>
                   <Text style={styles.statValue}>{profile.sessions_completed}</Text>

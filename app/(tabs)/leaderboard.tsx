@@ -353,7 +353,7 @@ export default function LeaderboardScreen(): React.ReactElement {
                 style={[styles.podiumBar, { height: heights[index] }]}
               >
                 <Text style={styles.podiumName}>{user.username}</Text>
-                <Text style={styles.podiumPoints}>{user.total_points.toLocaleString()} pts</Text>
+                <Text style={styles.podiumPoints}>{user.total_points.toLocaleString()} XP</Text>
               </LinearGradient>
             </View>
           </FadeInView>
@@ -503,7 +503,7 @@ export default function LeaderboardScreen(): React.ReactElement {
                     </View>
                     <Text style={styles.userPoints}>
                       {item.total_points.toLocaleString()}
-                      {activeTab !== 'global' && ' pts'}
+                      {activeTab !== 'global' && ' XP'}
                     </Text>
                   </View>
                 </FadeInView>

@@ -51,7 +51,7 @@ export function PauseModal({
             {/* Icon de pause */}
             <View style={styles.iconContainer}>
               <LinearGradient
-                colors={['#8B5CF6', '#7C3AED']}
+                colors={['#1E40AF', '#1E3A8A']}
                 style={styles.iconGradient}
               >
                 <Ionicons name="pause" size={32} color="#FFFFFF" />
@@ -72,7 +72,7 @@ export function PauseModal({
             {/* Stats */}
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
-                <Ionicons name="book-outline" size={20} color="#8B5CF6" />
+                <Ionicons name="book-outline" size={20} color="#1E40AF" />
                 <Text style={styles.statLabel}>Question</Text>
                 <Text style={styles.statValue}>
                   {currentQuestion}/{totalQuestions}
@@ -112,7 +112,7 @@ export function PauseModal({
                 activeOpacity={0.8}
               >
                 <LinearGradient
-                  colors={['#8B5CF6', '#7C3AED']}
+                  colors={['#1E40AF', '#1E3A8A']}
                   style={styles.buttonGradient}
                 >
                   <Ionicons name="play" size={20} color="#FFFFFF" />

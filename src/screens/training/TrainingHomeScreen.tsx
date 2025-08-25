@@ -8,7 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GradientBackground } from '../../components/common/GradientBackground';
@@ -16,6 +16,7 @@ import { sessionServiceV3 as sessionService } from '@/src/services/sessionServic
 import { FadeInView } from '../../components/animations/FadeInView';
 import { SessionDeleteConfirmation } from '../../components/notifications/SessionDeleteConfirmation';
 import { TrainingLegendModal } from '../../components/training/TrainingLegendModal';
+import { DeletePresetModal } from '../../components/modals/DeletePresetModal';
 import { theme } from '../../styles/theme';
 import { useAuth } from '@/src/store/AuthContext';
 
@@ -38,6 +39,8 @@ export function TrainingHomeScreen(): React.ReactElement {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [pendingDeleteSession, setPendingDeleteSession] = useState<any>(null);
   const [showLegendModal, setShowLegendModal] = useState(false);
+  const [showDeletePresetModal, setShowDeletePresetModal] = useState(false);
+  const [presetToDelete, setPresetToDelete] = useState<SavedPreset | null>(null);
 
   useEffect(() => {
     loadPresets();
@@ -51,6 +54,13 @@ export function TrainingHomeScreen(): React.ReactElement {
       checkPausedSession();
     }
   }, [params.refresh]);
+  
+  // Recharger la session en pause quand l'écran reprend le focus
+  useFocusEffect(
+    React.useCallback(() => {
+      checkPausedSession();
+    }, [user])
+  );
 
   const loadPresets = async () => {
     try {
@@ -133,23 +143,20 @@ export function TrainingHomeScreen(): React.ReactElement {
     });
   };
 
-  const handleDeletePreset = (presetId: string) => {
-    Alert.alert(
-      'Supprimer la configuration',
-      'Êtes-vous sûr de vouloir supprimer cette configuration ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: async () => {
-            const updatedPresets = savedPresets.filter(p => p.id !== presetId);
-            setSavedPresets(updatedPresets);
-            await AsyncStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(updatedPresets));
-          },
-        },
-      ],
-    );
+  const handleDeletePreset = (preset: SavedPreset) => {
+    setPresetToDelete(preset);
+    setShowDeletePresetModal(true);
+  };
+
+  const confirmDeletePreset = async () => {
+    if (!presetToDelete) return;
+    
+    const updatedPresets = savedPresets.filter(p => p.id !== presetToDelete.id);
+    setSavedPresets(updatedPresets);
+    await AsyncStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(updatedPresets));
+    
+    setShowDeletePresetModal(false);
+    setPresetToDelete(null);
   };
 
   return (
@@ -222,22 +229,26 @@ export function TrainingHomeScreen(): React.ReactElement {
                 activeOpacity={0.9}
               >
                 <View style={styles.quickStartGradient}>
-                  <Ionicons name="rocket" size={32} color="#FFFFFF" />
+                  <View style={styles.quickStartIconContainer}>
+                    <Ionicons name="flash" size={28} color="#FFFFFF" />
+                  </View>
                   <View style={styles.quickStartContent}>
-                    <Text style={styles.quickStartTitle}>LANCEMENT RAPIDE</Text>
+                    <Text style={styles.quickStartTitle}>Démarrage Express</Text>
                     <Text style={styles.quickStartDesc}>
-                      Tous les thèmes • QCU uniquement • Sans chronomètre
+                      Lancez-vous immédiatement avec les paramètres optimaux
                     </Text>
                     <View style={styles.quickStartBadges}>
                       <View style={styles.badge}>
+                        <Ionicons name="infinite-outline" size={12} color="#FFFFFF" />
                         <Text style={styles.badgeText}>Illimité</Text>
                       </View>
                       <View style={styles.badge}>
-                        <Text style={styles.badgeText}>+1/-0.5 pts</Text>
+                        <Ionicons name="trending-up-outline" size={12} color="#FFFFFF" />
+                        <Text style={styles.badgeText}>Adaptatif</Text>
                       </View>
                     </View>
                   </View>
-                  <Ionicons name="chevron-forward" size={24} color="#FFFFFF" />
+                  <Ionicons name="arrow-forward-circle" size={24} color="#FFFFFF" style={{opacity: 0.9}} />
                 </View>
               </TouchableOpacity>
 
@@ -248,14 +259,16 @@ export function TrainingHomeScreen(): React.ReactElement {
                 activeOpacity={0.9}
               >
                 <View style={styles.customModeInner}>
-                  <Ionicons name="settings" size={28} color={theme.colors.primary} />
+                  <View style={styles.customModeIconContainer}>
+                    <Ionicons name="options" size={26} color="#3B82F6" />
+                  </View>
                   <View style={styles.customModeContent}>
-                    <Text style={styles.customModeTitle}>MODE PERSONNALISÉ</Text>
+                    <Text style={styles.customModeTitle}>Configuration Avancée</Text>
                     <Text style={styles.customModeDesc}>
-                      Configurez vos thèmes, timer et barème
+                      Personnalisez chaque aspect de votre entraînement
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={24} color={theme.colors.primary} />
+                  <Ionicons name="arrow-forward-circle-outline" size={24} color="#3B82F6" />
                 </View>
               </TouchableOpacity>
 
@@ -266,14 +279,16 @@ export function TrainingHomeScreen(): React.ReactElement {
                 activeOpacity={0.8}
               >
                 <View style={styles.helpCardInner}>
-                  <Ionicons name="help-circle-outline" size={28} color="#3B82F6" />
+                  <View style={styles.helpIconContainer}>
+                    <Ionicons name="information-circle" size={26} color="#F59E0B" />
+                  </View>
                   <View style={styles.helpCardContent}>
-                    <Text style={styles.helpCardTitle}>GUIDE D'UTILISATION</Text>
+                    <Text style={styles.helpCardTitle}>Aide & Conseils</Text>
                     <Text style={styles.helpCardDesc}>
-                      Découvrez les éléments de l'interface
+                      Maîtrisez tous les secrets de l'application
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={24} color="#3B82F6" />
+                  <Ionicons name="arrow-forward-circle-outline" size={24} color="#F59E0B" />
                 </View>
               </TouchableOpacity>
             </View>
@@ -308,7 +323,7 @@ export function TrainingHomeScreen(): React.ReactElement {
                     </View>
                     <TouchableOpacity
                       style={styles.deleteButton}
-                      onPress={() => handleDeletePreset(preset.id)}
+                      onPress={() => handleDeletePreset(preset)}
                     >
                       <Ionicons name="trash-outline" size={20} color="#EF4444" />
                     </TouchableOpacity>
@@ -361,6 +376,18 @@ export function TrainingHomeScreen(): React.ReactElement {
           setPendingDeleteSession(null);
         }}
       />
+
+      {/* Modal de suppression de configuration */}
+      <DeletePresetModal
+        visible={showDeletePresetModal}
+        presetName={presetToDelete?.name || ''}
+        presetIcon={presetToDelete?.icon}
+        onConfirm={confirmDeletePreset}
+        onCancel={() => {
+          setShowDeletePresetModal(false);
+          setPresetToDelete(null);
+        }}
+      />
     </GradientBackground>
   );
 }
@@ -396,106 +423,146 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: theme.typography.fontSize.base,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(255, 255, 255, 0.85)',
     textAlign: 'center',
     marginBottom: theme.spacing.xl,
+    fontWeight: '500',
+    letterSpacing: 0.3,
   },
   quickStartCard: {
     marginBottom: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xxl,
+    overflow: 'hidden',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
   },
   quickStartGradient: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#8B5CF6',
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
-    shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+    backgroundColor: '#10B981',
+    padding: theme.spacing.xl,
+    borderRadius: theme.borderRadius.xxl,
+  },
+  quickStartIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   quickStartContent: {
     flex: 1,
-    marginLeft: theme.spacing.md,
+    marginLeft: theme.spacing.lg,
   },
   quickStartTitle: {
-    fontSize: theme.typography.fontSize.lg,
+    fontSize: theme.typography.fontSize.xl,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    marginBottom: 4,
+    marginBottom: 6,
+    letterSpacing: 0.5,
   },
   quickStartDesc: {
     fontSize: theme.typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: theme.spacing.sm,
+    color: 'rgba(255, 255, 255, 0.95)',
+    marginBottom: theme.spacing.md,
+    lineHeight: 18,
   },
   quickStartBadges: {
     flexDirection: 'row',
-    gap: theme.spacing.sm,
+    gap: theme.spacing.md,
   },
   badge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 4,
-    borderRadius: theme.borderRadius.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: 6,
+    borderRadius: theme.borderRadius.full,
+    gap: 4,
   },
   badgeText: {
     fontSize: theme.typography.fontSize.xs,
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   customModeCard: {
     marginBottom: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xxl,
+    overflow: 'hidden',
   },
   customModeInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
+    backgroundColor: 'rgba(59, 130, 246, 0.08)',
+    padding: theme.spacing.xl,
+    borderRadius: theme.borderRadius.xxl,
     borderWidth: 2,
-    borderColor: `${theme.colors.primary  }40`,
+    borderColor: 'rgba(59, 130, 246, 0.25)',
+  },
+  customModeIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   customModeContent: {
     flex: 1,
-    marginLeft: theme.spacing.md,
+    marginLeft: theme.spacing.lg,
   },
   customModeTitle: {
     fontSize: theme.typography.fontSize.lg,
     fontWeight: 'bold',
     color: theme.colors.white,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   customModeDesc: {
     fontSize: theme.typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: 'rgba(255, 255, 255, 0.75)',
+    lineHeight: 18,
   },
   helpCard: {
     marginBottom: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xxl,
+    overflow: 'hidden',
   },
   helpCardInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    padding: theme.spacing.lg,
-    borderRadius: theme.borderRadius.xl,
+    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+    padding: theme.spacing.xl,
+    borderRadius: theme.borderRadius.xxl,
     borderWidth: 2,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
+    borderColor: 'rgba(245, 158, 11, 0.25)',
+  },
+  helpIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   helpCardContent: {
     flex: 1,
-    marginLeft: theme.spacing.md,
+    marginLeft: theme.spacing.lg,
   },
   helpCardTitle: {
     fontSize: theme.typography.fontSize.lg,
     fontWeight: 'bold',
     color: theme.colors.white,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   helpCardDesc: {
     fontSize: theme.typography.fontSize.sm,
-    color: 'rgba(255, 255, 255, 0.7)',
+    color: 'rgba(255, 255, 255, 0.75)',
+    lineHeight: 18,
   },
   presetsSection: {
     marginTop: theme.spacing.xl,
@@ -516,18 +583,22 @@ const styles = StyleSheet.create({
   presetCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    marginBottom: theme.spacing.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.xl,
+    marginBottom: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   presetIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
   },
   presetEmoji: {
     fontSize: 20,
@@ -567,12 +638,17 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   pausedSessionCard: {
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
+    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+    borderRadius: theme.borderRadius.xxl,
+    padding: theme.spacing.xl,
     marginBottom: theme.spacing.xl,
     borderWidth: 2,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    borderColor: 'rgba(245, 158, 11, 0.25)',
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   pausedSessionHeader: {
     flexDirection: 'row',
@@ -614,6 +690,11 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.md,
     paddingHorizontal: theme.spacing.lg,
     borderRadius: theme.borderRadius.lg,
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
     gap: theme.spacing.sm,
   },
   resumeButtonText: {

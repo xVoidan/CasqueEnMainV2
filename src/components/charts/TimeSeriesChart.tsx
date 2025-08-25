@@ -67,7 +67,7 @@ export function TimeSeriesChart({ data, title = 'Évolution du Score' }: TimeSer
         <Svg width={chartWidth} height={chartHeight}>
           <Defs>
             <SvgLinearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <Stop offset="0%" stopColor="#3B82F6" stopOpacity="0.4" />
+              <Stop offset="0%" stopColor="#1E40AF" stopOpacity="0.3" />
               <Stop offset="100%" stopColor="#3B82F6" stopOpacity="0.05" />
             </SvgLinearGradient>
           </Defs>
@@ -79,7 +79,7 @@ export function TimeSeriesChart({ data, title = 'Évolution du Score' }: TimeSer
 
           <Path
             d={pathData}
-            stroke="#3B82F6"
+            stroke="#1E40AF"
             strokeWidth="3"
             fill="none"
           />
@@ -89,7 +89,7 @@ export function TimeSeriesChart({ data, title = 'Évolution du Score' }: TimeSer
             y1={averageY}
             x2={chartWidth - padding}
             y2={averageY}
-            stroke="rgba(255, 255, 255, 0.3)"
+            stroke="rgba(255, 255, 255, 0.4)"
             strokeWidth="1"
             strokeDasharray="5,5"
           />
@@ -98,10 +98,10 @@ export function TimeSeriesChart({ data, title = 'Évolution du Score' }: TimeSer
             x={chartWidth - padding - 5}
             y={averageY - 5}
             fontSize="10"
-            fill="rgba(255, 255, 255, 0.5)"
+            fill="rgba(255, 255, 255, 0.65)"
             textAnchor="end"
           >
-            Moy: {average.toFixed(0)}%
+            Moy: {Math.round(average)}%
           </SvgText>
 
           {points.map((point, index) => (
@@ -111,7 +111,7 @@ export function TimeSeriesChart({ data, title = 'Évolution du Score' }: TimeSer
               cy={point.y}
               r="4"
               fill="#FFFFFF"
-              stroke="#3B82F6"
+              stroke="#1E40AF"
               strokeWidth="2"
             />
           ))}
@@ -122,10 +122,10 @@ export function TimeSeriesChart({ data, title = 'Évolution du Score' }: TimeSer
               x={point.x}
               y={point.y - 10}
               fontSize="10"
-              fill="rgba(255, 255, 255, 0.7)"
+              fill="rgba(255, 255, 255, 0.85)"
               textAnchor="middle"
             >
-              {point.score}%
+              {Math.round(point.score)}%
             </SvgText>
           ))}
         </Svg>
@@ -138,7 +138,7 @@ export function TimeSeriesChart({ data, title = 'Évolution du Score' }: TimeSer
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendLine]} />
-          <Text style={styles.legendText}>Moyenne: {average.toFixed(0)}%</Text>
+          <Text style={styles.legendText}>Moyenne: {Math.round(average)}%</Text>
         </View>
       </View>
     </View>
@@ -152,28 +152,28 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(255, 255, 255, 0.9)',
     marginBottom: 12,
   },
   chartContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   emptyState: {
     height: 200,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   emptyText: {
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: 'rgba(255, 255, 255, 0.65)',
     fontSize: 14,
   },
   legend: {
@@ -195,11 +195,11 @@ const styles = StyleSheet.create({
   legendLine: {
     width: 20,
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(107, 114, 128, 0.5)',
     marginRight: 6,
   },
   legendText: {
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'rgba(255, 255, 255, 0.7)',
   },
 });
