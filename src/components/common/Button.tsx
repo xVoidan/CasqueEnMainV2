@@ -22,7 +22,7 @@ interface IButtonProps extends TouchableOpacityProps {
   elevation?: boolean;
 }
 
-/* eslint-disable react-native/no-unused-styles */
+
 const styles = StyleSheet.create({
   base: {
     borderRadius: theme.borderRadius.lg,
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.xl,
   },
 });
-/* eslint-enable react-native/no-unused-styles */
+
 
 export function Button({
   title,

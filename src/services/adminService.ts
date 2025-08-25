@@ -1,4 +1,5 @@
 import { supabase } from '@/src/lib/supabase';
+import { IAdmin } from '@/src/types/admin';
 
 /**
  * Service de vérification des droits admin
@@ -29,7 +30,7 @@ export class AdminService {
   /**
    * Récupère la liste des admins (si l'utilisateur est admin)
    */
-  static async getAdminsList(): Promise<any[]> {
+  static async getAdminsList(): Promise<IAdmin[]> {
     try {
       const { data, error } = await supabase
         .from('admins')

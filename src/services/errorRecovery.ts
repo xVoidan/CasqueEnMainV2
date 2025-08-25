@@ -23,14 +23,15 @@ export class ErrorRecoveryService {
    * Handle error with context and recovery options
    */
   static async handleError(
-    error: Error | any,
+    error: Error | unknown,
     context: string,
     userId?: string,
   ): Promise<void> {
     // Log error
+    const err = error as Error & { code?: string };
     const errorContext: IErrorContext = {
-      code: error.code ?? 'UNKNOWN',
-      message: error.message ?? 'Une erreur est survenue',
+      code: err.code ?? 'UNKNOWN',
+      message: err.message ?? 'Une erreur est survenue',
       context,
       timestamp: Date.now(),
       userId,
@@ -137,7 +138,7 @@ export class ErrorRecoveryService {
     const buttons = actions.map((action) => ({
       text: action.label,
       onPress: action.action,
-      style: action.type === 'primary' ? 'default' : 'cancel' as any,
+      style: action.type === 'primary' ? 'default' : ('cancel' as 'default' | 'cancel' | 'destructive'),
     }));
 
     Alert.alert(

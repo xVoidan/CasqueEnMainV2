@@ -9,7 +9,14 @@ interface IMagicLinkResponse {
 
 interface IOTPVerificationResponse {
   success: boolean;
-  session?: any;
+  session?: {
+    access_token: string;
+    refresh_token: string;
+    user: {
+      id: string;
+      email: string;
+    };
+  };
   error?: string;
 }
 

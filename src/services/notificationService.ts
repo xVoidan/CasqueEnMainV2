@@ -33,7 +33,7 @@ class NotificationService {
     }
   }
 
-  private async loadSound(source: any): Promise<Audio.Sound | null> {
+  private async loadSound(source: number): Promise<Audio.Sound | null> {
     try {
       const { sound } = await Audio.Sound.createAsync(source);
       return sound;

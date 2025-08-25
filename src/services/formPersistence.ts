@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface IFormData {
-  [key: string]: any;
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 interface ISavedForm {

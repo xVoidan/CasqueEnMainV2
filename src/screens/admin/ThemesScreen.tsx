@@ -195,7 +195,7 @@ export default function ThemesScreen(): React.ReactElement {
               if (error) throw error;
 
               Alert.alert('Succès', 'Sous-thème supprimé');
-              loadSubThemes(selectedTheme!.id);
+              if (selectedTheme) loadSubThemes(selectedTheme.id);
             } catch (error) {
               Alert.alert('Erreur', 'Impossible de supprimer le sous-thème');
               console.error(error);

@@ -24,6 +24,31 @@ export interface IThemeFilter {
   subThemes: string[];
 }
 
+interface IDBQuestion {
+  id: string;
+  question: string;
+  correct_answer: string;
+  wrong_answer_1: string;
+  wrong_answer_2: string;
+  wrong_answer_3: string;
+  explanation?: string;
+  difficulty?: string;
+  is_multiple?: boolean;
+  sub_themes?: {
+    name: string;
+    themes?: {
+      name: string;
+    };
+  };
+}
+
+interface IDBSubTheme {
+  name: string;
+  themes?: {
+    name: string;
+  };
+}
+
 class QuestionService {
   /**
    * Récupère des questions selon les thèmes sélectionnés
@@ -162,7 +187,7 @@ class QuestionService {
   /**
    * Transforme une question de la BDD vers notre format
    */
-  private transformQuestion(dbQuestion: any, subThemeData?: any): IQuestion {
+  private transformQuestion(dbQuestion: IDBQuestion, subThemeData?: IDBSubTheme): IQuestion {
     // Extraire les informations du thème et sous-thème si disponibles
     const themeName = subThemeData?.themes?.name || dbQuestion.sub_themes?.themes?.name || 'Métier';
     const subThemeName = subThemeData?.name || dbQuestion.sub_themes?.name || 'Général';
