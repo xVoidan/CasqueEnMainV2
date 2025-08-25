@@ -43,7 +43,8 @@
       "Bash(npm init:*)",
       "Bash(npx react-native start:*)",
       "Bash(npm start:*)",
-      "Bash(npm outdated:*)"
+      "Bash(npm outdated:*)",
+      "mcp__supabase__list_extensions"
     ]
   },
   "enableAllProjectMcpServers": true,

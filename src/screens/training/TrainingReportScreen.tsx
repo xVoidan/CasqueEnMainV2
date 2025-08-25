@@ -724,9 +724,9 @@ export function TrainingReportScreen(): React.ReactElement {
           </FadeInView>
 
           {/* Graphique de performance par thème */}
-          {themePerformance.length > 0 && (
+          {themePerformance && themePerformance.length > 0 && (
             <FadeInView duration={600} delay={350}>
-              <ThemePerformanceChart data={themePerformance} />
+              <ThemePerformanceChart data={themePerformance || []} />
             </FadeInView>
           )}
 
@@ -751,7 +751,7 @@ export function TrainingReportScreen(): React.ReactElement {
                 percentile={rankingData.percentile}
                 weeklyProgress={rankingData.weeklyProgress}
                 monthlyProgress={rankingData.monthlyProgress}
-                topPlayers={rankingData.topPlayers}
+                topPlayers={rankingData.topPlayers || []}
               />
             </FadeInView>
           )}
@@ -843,10 +843,10 @@ export function TrainingReportScreen(): React.ReactElement {
                   incorrectAnswers: stats.incorrectAnswers,
                   streak: progressData.streak,
                   timePerQuestion: stats.averageTime,
-                  weakThemes: themePerformance.length > 0
+                  weakThemes: themePerformance && themePerformance.length > 0
                     ? themePerformance.filter(t => t.percentage < 60).map(t => t.theme)
                     : [],
-                  strongThemes: themePerformance.length > 0
+                  strongThemes: themePerformance && themePerformance.length > 0
                     ? themePerformance.filter(t => t.percentage >= 80).map(t => t.theme)
                     : [],
                   improvement: progressData.lastSessionScore > 0
@@ -856,17 +856,17 @@ export function TrainingReportScreen(): React.ReactElement {
               />
 
               {/* Graphique temporel */}
-              {historicalData.length > 0 && (
+              {historicalData && historicalData.length > 0 && (
                 <TimeSeriesChart
-                  data={historicalData}
+                  data={historicalData || []}
                   title="Progression sur 7 jours"
                 />
               )}
 
               {/* Graphique radar */}
-              {themePerformance.length > 0 && (
+              {themePerformance && themePerformance.length > 0 && (
                 <RadarChart
-                  data={themePerformance.slice(0, 6).map(t => ({
+                  data={(themePerformance || []).slice(0, 6).map(t => ({
                     label: t.theme.length > 10 ? `${t.theme.substring(0, 10)  }...` : t.theme,
                     value: t.correct,
                     maxValue: t.total,
@@ -880,7 +880,7 @@ export function TrainingReportScreen(): React.ReactElement {
           {/* Badges améliorés */}
           <FadeInView duration={600} delay={550}>
             <EnhancedBadgeDisplay
-              badges={badges.map(b => {
+              badges={(badges || []).map(b => {
                 // Calculer le vrai progrès basé sur les statistiques
                 let progress = 0;
                 let requirement = '';
@@ -907,7 +907,7 @@ export function TrainingReportScreen(): React.ReactElement {
                   requirement: !b.earned ? requirement : undefined,
                 };
               })}
-              newBadges={badges.filter(b => {
+              newBadges={(badges || []).filter(b => {
                 // Les nouveaux badges sont ceux gagnés dans cette session
                 return b.earned && b.earnedAt &&
                   new Date(b.earnedAt).getTime() > Date.now() - 60000; // Gagnés dans la dernière minute
@@ -990,7 +990,7 @@ export function TrainingReportScreen(): React.ReactElement {
             <FadeInView duration={400}>
               <View style={styles.detailsSection}>
                 <Text style={styles.detailsSectionTitle}>Détail des réponses</Text>
-                {questions.map((question, index) => {
+                {(questions || []).map((question, index) => {
                   const answer = sessionAnswers[index];
                   if (!answer) return null;
 
